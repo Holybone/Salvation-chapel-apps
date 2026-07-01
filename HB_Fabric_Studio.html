@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<meta name="theme-color" content="#1b2a4a">
+<title>HB Fabric Studio</title>
+<style>
+  @font-face{font-family:'HBlack';src:url(data:font/woff2;base64,d09GMgABAAAAAAXYAA8AAAAACvgAAAWFAAEAQgAAAAAAAAAAAAAAAAAAAAAAAAAAGhYbWhwaBmAAdBEICosEiGMBNgIkAzgLHgAEIAWEDgcgDAcbrwjInoPpRvOVK0mK2q9fkfr/3826L4FCE/AgHqpCTfy0VExh18mIGoyJrIj8icPz/F/tvpmhaeOiKOAokCzdQJbjaZhlgazH4wQKLPF+icv3PwAsz/m/n6+LtkhrkAlNfCLv3lX3zwJtwJ3PUUHFbfJNyqw2qQbRl1igwbZD7ip6K0AAeAAAADAIwqeHARD0AqCdebQfuFgA4C/h27YNcwO04liwM5rrF2BB7iunhWC4SAgbBWGXG1C2nFKZ3gHwvIuWARtgJ6waAPLy1aANmFIJqTRy5OBheASSpRqrf/3/BxC6kELmYgtcladhIETjeQoO5XSWppeI4FhSZcpWplWXAcPGipMBvBk1+j3L2wXnHbXLNhutty4klUBQcRqgCJC0BlMAfQA2nWBiWW+HMjRGRzAM+sWHBNctOE5PEiqdjifi8QiD1KvxPebsVWAp3/0SWF7YXiHcGomqdl9sYLyRlbB5gOUzh80H3kOo0UZhJGS3YFlPQvmI8T+I2Nb3SGb7SzsJu14QtlcdyLqBQFUqm88+AFI2SwSU3y4hfLoCHQFsXhfaEFocDVxtl0neVR4PEsTzAFg48ORqkGaX45iDQGu9HxNysO1FiupedGCW/Z7YmvI1aw7IHYiarDzrIwIt2fJ9O+ONdu2i9gFUJdCIROQe4gPDtAcu96tSrTpDHQLA71otbRRmqThJwgtCHG1OZIb5AISY3RNWXQkcrOeunbauenWNINB7DYw3bnV4PB8Ks9QpDVXYVleJrO8x9vtJclQhNfUlVNZXVdPhPQVhQ9Xq3WdhrZE9yidW+R5ieQ8H0QjkuDOYMDDvGd6zM95rww2hSbX1IDBk9v6Az/ODqeL5cfU+RYlbRkK+4VPuh+WhiRXxn0e+I2+Nrq42DUmTNuaGUUGbcmvk7f5zj2uUZUlwfhsxJXpdqSy54OlUGR5UOOUxyrBkztflYpe/qJJ2mqrpNLGEgTsAvxwR6782KZUvEt5edaXEo/ZRv4nb9yrJauifqdzzop5In9aLeFU5xtrbFPW7HVsYMCaQ6D/zkbBGwnhKj/z4l9Kv68Uc8aMuibT5/y7yXQFhEHwRqOL2BUPHS+M5+6a8N766Wjybajx169ATv12ijtCk5JgLlfoNkVJjXMVT8+dehV++w3y8Ni4F9h+vDlIm/d0cz/Z89vbHpaa42qjtGrlca01ri3Ou2qWXIRXt4WJ1cklQA5x/n5iiClLEimDdzkhSn1AeU2z4Fwl+mGaEbQpVMM3ypra4rkxxd4qE099taCP2xboXXpYZ9f2hyt3SpHoXF5bu6eqoXNj/W/NNUBWPecuRgJfq+VZJDl6klzRD6Dmf81W5W3qJsfs55Q6wpUnej+dZPrkA/+3jzF5CKqU8lkdHlbmHtsfwy//ReiQBD8wP+EkC+7dPhC3zbecXnPRdry8vnoP91s+9CqMoUWa8LNuySXLv/MFRrjezLKkDgN/ww1KPew03G4Xxv3FJ/HsA8OD05XX5Bc6Z/w/4DvxXAFzYAuUPU/MVSGUQstHpcQIfA3QF1zQ6f4/DO24/eGUD6OMAIqvAlHtNPpa0h2v6LCC/AxBEKNCMk8AAcFey9DyOWjjUuALA7xzECOV3MUYQQoxrinImSxazqTP5GS7csgLSDBg0ZViXDp1G0Xy08EUzCRHKJACt1IBWuu0AWqYxbfpNM+vVpZWZtIUHb4sBXm82glaQ+0d0IfUTWTbIKDPzDwqa5u0TROjhtQtGM2vWIlN9BdRP6DKqU1O2zYg2Eo5r05of0G9Ux+lmfdrQvBXrMswMHN0CQr5IvzaIv8OY6jmGbZ3IefR55Hn+WDR8Zuz91FfqhROhUi3NtUGDgEYvUpznCtRlx6WynCczqT2DnG+etRg=) format('woff2');font-display:swap;}
+  :root{--bg1:#3a2a5e;--bg2:#1e2c5a;--bg3:#4a2c4e;--glass:rgba(255,255,255,.10);--glass-2:rgba(255,255,255,.16);--glass-line:rgba(255,255,255,.22);
+    --txt:#f4f0fa;--muted:rgba(244,240,250,.62);--accent:#e4c578;--accent-2:#c69a3e;--thread:#e0714a;--ok:#5fce8f;--warn:#ff8a6b;--okmid:#ffd66b;--blur:18px;--r:18px;--shadow:0 8px 32px rgba(0,0,0,.28);}
+  body.solid{--bg1:#241b13;--bg2:#1a130c;--bg3:#2a2018;--glass:rgba(53,42,31,.92);--glass-2:rgba(64,50,36,.95);--glass-line:rgba(198,154,62,.28);--txt:#efe7d8;--muted:#8a7c66;--blur:0px;}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:'Segoe UI',system-ui,sans-serif;color:var(--txt);min-height:100%;overflow-x:hidden;position:relative;background:linear-gradient(150deg,var(--bg1),var(--bg2) 55%,var(--bg3));background-attachment:fixed;}
+  body::before,body::after{content:"";position:fixed;border-radius:50%;filter:blur(60px);opacity:.5;z-index:0;pointer-events:none}
+  body::before{width:380px;height:380px;background:radial-gradient(circle,#e0714a,transparent 70%);top:-80px;right:-60px}
+  body::after{width:420px;height:420px;background:radial-gradient(circle,#5a8de0,transparent 70%);bottom:-120px;left:-80px}
+  body.solid::before,body.solid::after{display:none}
+  .wrap{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:18px 16px 96px}
+  .glass{background:var(--glass);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));border:1px solid var(--glass-line);border-radius:var(--r);box-shadow:var(--shadow)}
+  header.top{display:flex;align-items:center;gap:14px;padding:14px 16px;margin-bottom:16px}
+  .mark{width:52px;height:52px;flex:0 0 52px;border-radius:14px;background:linear-gradient(145deg,var(--accent),var(--thread));display:grid;place-items:center;box-shadow:0 6px 20px rgba(0,0,0,.3)}
+  .mark span{font-family:'HBlack','Times New Roman',serif;font-size:30px;color:#231a09;line-height:1;padding-top:3px}
+  .title h1{font-size:1.3rem;font-weight:700}.title h1 b{font-family:'HBlack',serif;color:var(--accent);font-weight:400;font-size:1.5rem}
+  .title p{font-size:.7rem;color:var(--muted);letter-spacing:.7px;margin-top:2px}
+  .top-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
+  .icon-btn{font-size:.7rem;border:1px solid var(--glass-line);color:var(--txt);background:var(--glass);padding:8px 11px;border-radius:11px;cursor:pointer;backdrop-filter:blur(var(--blur));white-space:nowrap}
+  .icon-btn:hover{background:var(--glass-2)}.icon-btn:disabled{opacity:.35;cursor:default}
+  #installBtn{display:none}
+  h2.sec{font-size:.74rem;text-transform:uppercase;letter-spacing:2px;color:var(--accent);font-weight:600;margin-bottom:12px}
+  h3.sub{font-size:.72rem;text-transform:uppercase;letter-spacing:1.4px;color:var(--accent);font-weight:600;margin:4px 0 10px}
+  section.block{padding:16px;margin-bottom:16px}
+  .hintp{font-size:.74rem;color:var(--muted)}
+  .lib{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .swatch{width:78px;height:78px;border-radius:14px;overflow:hidden;border:2px solid var(--glass-line);position:relative;cursor:grab;flex:0 0 auto;background:repeating-conic-gradient(rgba(255,255,255,.06) 0 25%,transparent 0 50%) 0/18px 18px}
+  .swatch.active{border-color:var(--accent);box-shadow:0 0 0 3px rgba(228,197,120,.3)}
+  .swatch img{width:100%;height:100%;object-fit:cover;pointer-events:none}
+  .swatch .del{position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:11px;line-height:18px;text-align:center;display:none;cursor:pointer}
+  .swatch:hover .del{display:block}
+  .addswatch{width:78px;height:78px;border-radius:14px;border:1.5px dashed var(--glass-line);display:grid;place-items:center;cursor:pointer;color:var(--muted);font-size:1.6rem;flex:0 0 auto}
+  .addswatch:hover{border-color:var(--accent);color:var(--accent)}
+  .btn{font-size:.82rem;font-weight:600;padding:11px 16px;border-radius:12px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:.15s}
+  .btn:active{transform:translateY(1px)}
+  .btn-primary{background:linear-gradient(145deg,var(--accent),var(--accent-2));color:#231a09}.btn-primary:hover{filter:brightness(1.07)}
+  .btn-ghost{background:var(--glass);color:var(--txt);border:1px solid var(--glass-line);backdrop-filter:blur(var(--blur))}.btn-ghost:hover{background:var(--glass-2)}
+  .btnrow{display:flex;gap:10px;flex-wrap:wrap}
+  nav.tabs{display:flex;gap:6px;margin-bottom:16px;padding:6px}
+  nav.tabs button{flex:1;font-size:.76rem;font-weight:600;padding:11px 4px;border:none;border-radius:12px;background:transparent;color:var(--muted);cursor:pointer;transition:.18s}
+  nav.tabs button.active{background:var(--glass-2);color:var(--txt);box-shadow:0 4px 14px rgba(0,0,0,.2)}
+  .panel{display:none;padding:16px}.panel.active{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
+  .toolbar{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+  .composer{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:640px){.composer{grid-template-columns:1fr}}
+  select{width:100%;padding:11px;border-radius:12px;border:1px solid var(--glass-line);background:var(--glass);color:var(--txt);font-size:.84rem;backdrop-filter:blur(var(--blur))}
+  select option{background:#23204a;color:#f4f0fa}
+  .zones{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+  .zone{padding:11px;border-radius:14px;border:1px solid var(--glass-line);background:var(--glass);display:flex;align-items:center;gap:11px;cursor:pointer}
+  .zone.active{border-color:var(--accent);background:var(--glass-2)}.zone.drop-hi{border-color:var(--thread);background:rgba(224,113,74,.18)}
+  .zone .dot{width:38px;height:38px;border-radius:10px;flex:0 0 38px;border:1px solid var(--glass-line);background-size:cover;background-position:center;background-image:repeating-conic-gradient(rgba(255,255,255,.06) 0 25%,transparent 0 50%);background-size:14px}
+  .zone .zl{font-size:.84rem;font-weight:600}.zone .zh{font-size:.68rem;color:var(--muted);margin-top:1px}
+  .zone .clr{margin-left:auto;width:22px;height:22px;border-radius:6px;border:1px solid var(--glass-line)}
+  .figure-wrap{display:flex;flex-direction:column;align-items:center;gap:12px}
+  .figure{width:100%;border-radius:16px;border:1px solid var(--glass-line);overflow:hidden;background:repeating-conic-gradient(rgba(255,255,255,.05) 0 25%,transparent 0 50%) 0/24px 24px;display:grid;place-items:center;min-height:360px}
+  .figure svg{max-height:420px;width:auto;max-width:100%}
+  .figure.sm{min-height:220px}.figure.sm svg{max-height:240px}
+  .previewrow{display:flex;gap:16px;flex-wrap:wrap}
+  .viewseg{margin-bottom:10px}
+  .acctoggles{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .acctoggles .chip{font-size:.74rem;padding:8px 12px;border-radius:999px;border:1px solid var(--glass-line);background:var(--glass);color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:6px}
+  .acctoggles .chip.on{border-color:var(--accent);background:var(--glass-2);color:var(--txt)}
+  .acctoggles .chip .x{font-weight:700;color:var(--accent)}
+  .acctoggles .chip.dis{opacity:.4;cursor:default;text-decoration:line-through}
+  .droprow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:8px 0}
+  .harmony{padding:13px;border-radius:14px;border:1px solid var(--glass-line);background:var(--glass);width:100%}
+  .harmony .bar{height:8px;border-radius:6px;background:rgba(255,255,255,.12);overflow:hidden;margin:8px 0}
+  .harmony .fill{height:100%;border-radius:6px;transition:.4s}
+  .harmony .verdict{font-size:.92rem;font-weight:700;display:flex;align-items:center;gap:8px}
+  .harmony .note{font-size:.76rem;color:var(--muted);line-height:1.5;margin-top:6px}
+  .badge{font-size:.66rem;padding:3px 9px;border-radius:999px;font-weight:600}
+  .badge.good{background:rgba(95,206,143,.18);color:var(--ok)}.badge.ok{background:rgba(255,214,107,.18);color:var(--okmid)}.badge.warn{background:rgba(255,138,107,.2);color:var(--warn)}
+  .assign{margin-top:12px;padding:12px;border-radius:14px}
+  .seg{display:flex;gap:6px;margin-bottom:10px}
+  .seg button{flex:1;font-size:.74rem;padding:8px;border-radius:10px;border:1px solid var(--glass-line);background:var(--glass);color:var(--muted);cursor:pointer}
+  .seg button.active{background:var(--glass-2);color:var(--txt)}
+  .colorgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:7px}
+  .sw{aspect-ratio:1;border-radius:9px;cursor:pointer;border:2px solid transparent}.sw.active{border-color:#fff;transform:scale(1.07)}
+  .minilib{display:flex;gap:8px;flex-wrap:wrap}
+  .minilib .ms{width:46px;height:46px;border-radius:10px;overflow:hidden;border:2px solid var(--glass-line);cursor:pointer}
+  .minilib .ms.active{border-color:var(--accent)}.minilib .ms img{width:100%;height:100%;object-fit:cover}
+  .shapes{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
+  .shape{padding:12px 8px;border-radius:14px;border:1px solid var(--glass-line);background:var(--glass);cursor:pointer;text-align:center}
+  .shape.active{border-color:var(--accent);background:var(--glass-2)}.shape svg{height:64px;margin-bottom:6px}.shape .sn{font-size:.74rem;font-weight:600}
+  .recos{font-size:.78rem;color:var(--muted);line-height:1.6;margin-top:12px;padding:12px;border-radius:12px;border-left:2px solid var(--accent);background:var(--glass)}.recos b{color:var(--accent)}
+  .stage{border-radius:16px;border:1px solid var(--glass-line);min-height:340px;display:grid;place-items:center;overflow:hidden;background:repeating-conic-gradient(rgba(255,255,255,.05) 0 25%,transparent 0 50%) 0/24px 24px;touch-action:none;position:relative}
+  .stage canvas{max-width:100%;border-radius:14px;display:block;cursor:crosshair}
+  .empty{color:var(--muted);font-size:.82rem;text-align:center;padding:30px;line-height:1.6}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
+  .slider{display:flex;flex-direction:column;gap:4px;flex:1;min-width:120px}.slider label{font-size:.68rem;color:var(--muted)}
+  input[type=range]{width:100%;accent-color:var(--accent)}
+  .tip{font-size:.74rem;color:var(--muted);line-height:1.55;margin-top:10px;padding:10px 12px;border-radius:10px;border-left:2px solid var(--accent);background:var(--glass)}
+  footer.foot{text-align:center;margin-top:24px;font-size:.66rem;color:var(--muted);line-height:1.7}footer.foot b{font-family:'HBlack',serif;color:var(--accent);font-size:.9rem}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(80px);padding:12px 20px;border-radius:14px;font-size:.82rem;z-index:60;max-width:88vw;text-align:center;background:var(--glass-2);backdrop-filter:blur(var(--blur));border:1px solid var(--glass-line);box-shadow:var(--shadow);opacity:0;transition:.3s;color:var(--txt)}
+  .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+  .overlay{position:fixed;inset:0;background:rgba(10,8,20,.6);backdrop-filter:blur(6px);z-index:80;display:none;align-items:center;justify-content:center;padding:20px}
+  .overlay.show{display:flex;animation:fade .2s ease}
+  .help-card{max-width:560px;width:100%;max-height:84vh;overflow-y:auto;padding:24px;position:relative}
+  .help-x{position:absolute;top:14px;right:16px;width:30px;height:30px;border-radius:50%;border:1px solid var(--glass-line);background:var(--glass);color:var(--txt);font-size:18px;cursor:pointer}
+  .helpp{font-size:.82rem;color:var(--txt);line-height:1.55;margin:10px 0}.helpp b{color:var(--accent)}
+  .upload-zone{padding:12px;border-radius:14px;border:1px dashed var(--glass-line);background:rgba(95,141,224,.08)}
+  video{display:none}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top glass">
+    <div class="mark"><span>HB</span></div>
+    <div class="title"><h1><b>HB</b> Fabric Studio</h1><p>SEE THE LOOK · CHECK THE COLOURS · BEFORE YOU BUY OR SEW</p></div>
+    <div class="top-actions"><button class="icon-btn" id="helpBtn">? Help</button><button class="icon-btn" id="themeBtn">◐ Glass</button><button class="icon-btn" id="installBtn">Install</button></div>
+  </header>
+
+  <section class="block glass">
+    <h2 class="sec">Your fabrics &amp; garments</h2>
+    <div class="seg" id="capSeg" style="max-width:300px"><button class="active" data-k="fabric">Fabric (pattern)</button><button data-k="garment">Garment (item)</button></div>
+    <div id="fabBlock">
+      <div class="lib" id="lib"><div class="addswatch" id="addSwatch" title="Add fabric">+</div></div>
+      <p class="tip">Snap or upload the fabrics you're considering. Saved on this device. Tap to select · drag onto a garment part or your photo.</p>
+    </div>
+    <div id="garBlock" style="display:none">
+      <div class="lib" id="garlib"><div class="addswatch" id="addGarment" title="Add garment">+</div></div>
+      <p class="tip">Upload a <b>garment item</b> (a dress, agbada, suit…) to drop onto your photo in “On my photo → Drop garment”. Works best with a <b>cut-out PNG</b> (transparent background); a normal photo will drop as a rectangle.</p>
+    </div>
+    <div class="btnrow" style="margin-top:12px"><button class="btn btn-primary" id="snapBtn">📷 Snap</button><button class="btn btn-ghost" id="uploadBtn">⤴ Upload</button></div>
+    <div class="btnrow" id="camRow" style="display:none;margin-top:10px"><button class="btn btn-primary" id="captureBtn">Capture</button><button class="btn btn-ghost" id="cancelCam">Cancel</button></div>
+    <video id="video" playsinline></video>
+    <input type="file" id="fileInput" accept="image/*" hidden>
+  </section>
+
+  <nav class="tabs glass" role="tablist">
+    <button class="active" data-tab="outfit" role="tab">Build a look</button>
+    <button data-tab="photo" role="tab">On my photo</button>
+    <button data-tab="asoebi" role="tab">Aso-Ebi check</button>
+    <button data-tab="profile" role="tab">My shape</button>
+  </nav>
+
+  <section class="panel active glass" id="tab-outfit">
+    <div class="toolbar">
+      <select id="outfitSel" style="flex:1;min-width:180px"></select>
+      <button class="icon-btn" id="undoBtn" title="Undo">↶ Undo</button>
+      <button class="icon-btn" id="redoBtn" title="Redo">↷ Redo</button>
+      <button class="icon-btn" id="resetBtn" title="Reset">⟳ Reset</button>
+    </div>
+    <div class="composer">
+      <div>
+        <div class="zones" id="zones"></div>
+        <div class="acctoggles" id="accBar"></div>
+        <div class="assign glass">
+          <h3 class="sub" id="assignTitle">Assign to zone</h3>
+          <div class="seg" id="srcSeg"><button class="active" data-src="color">Colour</button><button data-src="fabric">Fabric</button></div>
+          <div class="colorgrid" id="zoneColors"></div>
+          <div class="minilib" id="zoneFabrics" style="display:none"></div>
+        </div>
+      </div>
+      <div class="figure-wrap">
+        <div class="seg viewseg" id="viewSeg" style="max-width:220px;align-self:center"><button class="active" data-v="front">Front</button><button data-v="back">Back</button></div>
+        <div class="figure" id="figure"></div>
+        <div class="harmony"><div class="verdict"><span id="hVerdict">Add colours to begin</span> <span class="badge ok" id="hBadge" style="display:none"></span></div>
+          <div class="bar"><div class="fill" id="hFill" style="width:0%;background:var(--ok)"></div></div>
+          <div class="note" id="hNote">Assign a colour or fabric to each zone.</div></div>
+        <div class="btnrow"><button class="btn btn-ghost" id="shareOutfit">⤴ Share</button><button class="btn btn-primary" id="saveOutfit">⤓ Save look</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel glass" id="tab-photo">
+    <h3 class="sub">See a fabric on your own photo</h3>
+    <div class="upload-zone">
+      <p class="hintp" style="margin-bottom:8px">Step 1 — add a photo <b>of you</b> (not a fabric):</p>
+      <div class="btnrow"><button class="btn btn-primary" id="photoUploadBtn">📷 Upload my photo</button><button class="btn btn-ghost" id="removePhoto">🗑 Remove photo</button></div>
+    </div>
+    <p class="hintp" style="margin:12px 0 6px">Step 2 — choose how to apply the fabric:</p>
+    <div class="seg" id="photoModeSeg">
+      <button class="active" data-m="brush">Brush on cloth</button>
+      <button data-m="region">Paint area</button>
+      <button data-m="shape">Drop garment</button>
+    </div>
+    <div id="brushTools">
+      <div class="seg" id="brushSrc"><button class="active" data-b="fabric">Fabric</button><button data-b="color">Colour</button></div>
+      <div class="minilib" id="brushFabrics"></div>
+      <div class="colorgrid" id="brushColors" style="display:none"></div>
+      <div class="controls">
+        <div class="slider"><label>Brush size</label><input type="range" id="brushSize" min="12" max="80" value="34"></div>
+        <div class="slider"><label>Opacity</label><input type="range" id="brushOpacity" min="30" max="100" value="85"></div>
+      </div>
+      <div class="btnrow" style="margin-top:8px"><button class="btn btn-ghost" id="undoBrush">↶ Undo area</button><button class="btn btn-ghost" id="clearBrush">Clear all paint</button></div>
+    </div>
+    <div id="shapeTools" style="display:none">
+      <p class="hintp" style="margin-bottom:8px">Lay a garment over your photo, then drag to position and use the slider to size. Two sources:</p>
+      <div class="seg" id="dropSrcSeg" style="max-width:340px"><button class="active" data-d="shape">Preset shape + fabric</button><button data-d="garment">My uploaded garment</button></div>
+      <div id="dropShapeTools">
+        <div class="droprow"><span class="hintp">Shape:</span><select id="shapeGarment" style="flex:1;min-width:150px"></select></div>
+        <p class="hintp" style="margin:4px 0">Fabric to fill it:</p>
+        <div class="minilib" id="dropFabrics"></div>
+      </div>
+      <div id="dropGarmentTools" style="display:none">
+        <p class="hintp" style="margin:4px 0">Pick one of your uploaded garments:</p>
+        <div class="minilib" id="dropGarments"></div>
+      </div>
+      <div class="controls"><div class="slider"><label>Size</label><input type="range" id="shapeScale" min="40" max="220" value="110"></div></div>
+      <div class="btnrow" style="margin-top:8px"><button class="btn btn-ghost" id="dropPlace">＋ Place</button><button class="btn btn-ghost" id="dropReset">⟳ Reset</button><button class="btn btn-ghost" id="dropRemove">🗑 Remove</button></div>
+    </div>
+    <div class="stage" id="photoStage" style="margin-top:12px"><div class="empty">Upload a photo of yourself, choose a fabric, then brush over the outfit you're wearing — the new material fills that area, keeping the photo's light and folds.</div></div>
+    <div class="seg" id="shareModeSeg" style="margin-top:12px;max-width:320px"><button class="active" data-s="single">Single image</button><button data-s="ba">As is · Could be</button></div>
+    <div class="btnrow" style="margin-top:8px"><button class="btn btn-ghost" id="sharePhoto">⤴ Share</button><button class="btn btn-primary" id="savePhoto">⤓ Save</button></div>
+    <p class="tip">Brush = paint the cloth you're wearing to swap its fabric. Each area you paint stays — paint as many as you like. Paint area = broader strokes. Drop garment = lay a garment shape over the photo (for designers). A styling preview, not a tailored fit.</p>
+  </section>
+
+  <section class="panel glass" id="tab-asoebi">
+    <h3 class="sub">Will my fabric match the event colours?</h3>
+    <p class="hintp" style="margin-bottom:12px">Set the aso-ebi colours the family announced, then test any fabric before you buy.</p>
+    <h3 class="sub">1 · The event's colours</h3>
+    <div class="minilib" id="targetColors" style="margin-bottom:8px"></div>
+    <div class="colorgrid" id="targetPick"></div>
+    <h3 class="sub" style="margin-top:16px">2 · Test your fabric or colour</h3>
+    <div class="seg" id="testSeg"><button class="active" data-t="fabric">My fabric</button><button data-t="color">A colour</button></div>
+    <div class="minilib" id="testFabrics"></div>
+    <div class="colorgrid" id="testColors" style="display:none"></div>
+    <div class="previewrow" style="margin-top:14px;align-items:flex-start">
+      <div style="flex:1.2;min-width:200px">
+        <div class="harmony"><div class="verdict"><span id="aVerdict">Set the colours, then test</span> <span class="badge ok" id="aBadge" style="display:none"></span></div>
+          <div class="bar"><div class="fill" id="aFill" style="width:0%;background:var(--ok)"></div></div>
+          <div class="note" id="aNote">Set the event palette and pick your fabric.</div>
+          <div id="aMatch" style="font-size:.82rem;font-weight:700;color:var(--accent);margin-top:8px"></div></div>
+      </div>
+      <div style="flex:1;min-width:170px"><h3 class="sub" style="text-align:center">On your shape</h3>
+        <div class="figure sm" id="asoPreview"></div></div>
+    </div>
+  </section>
+
+  <section class="panel glass" id="tab-profile">
+    <h3 class="sub">Pick your body shape</h3>
+    <div class="seg" id="genderSeg" style="max-width:240px"><button class="active" data-g="f">Woman</button><button data-g="m">Man</button></div>
+    <p class="hintp" style="margin-bottom:12px">Stays on your device. Suggests flattering styles — you can override. <b>The shape you pick also reshapes the figure in “Build a look” and the previews.</b></p>
+    <div class="previewrow">
+      <div style="flex:1.4;min-width:220px"><div class="shapes" id="shapes"></div>
+        <div class="recos" id="recos">Choose a shape to see suggestions.</div></div>
+      <div style="flex:1;min-width:180px"><h3 class="sub" style="text-align:center">Your current look on this shape</h3>
+        <div class="figure sm" id="shapePreview"></div>
+        <p class="hintp" style="text-align:center;margin-top:6px">Built from your selections in “Build a look”.</p></div>
+    </div>
+  </section>
+
+  <footer class="foot">Works offline · your photos &amp; fabrics stay on this device.<br><b>HB</b> Fabric Studio — a gift from Adeyinka Adenikinju<br>AI Masterclass · Media &amp; Publication Ministry · Salvation Chapel · June 2026</footer>
+</div>
+<div class="overlay" id="helpOverlay"><div class="help-card glass"><button class="help-x" id="helpClose">×</button><div id="helpBody"></div><button class="btn btn-primary" id="helpClose2" style="margin-top:14px;display:none">Got it</button></div></div>
+<div class="toast" id="toast"></div>
+<script>
+const HBFONT='d09GMgABAAAAAAhUABEAAAAADwAAAAf7B9sAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGhYbWhwaBmAAdAgECYVmEQgKjASKAgE2AiQDOAseAAQgBYUMByAMBxu2DCMRwsaBAMXsJPirhDiuh5GWhaulfbqxOqGumLlKSmmHskn7fxBP/5yWD49nvp+kTnvQ5pypVKPVG6n/1aXyy3aeAsQT4AY8RZRziIoYklq29yKh9HUwhXi+ur3d383ESUChJYEnFmLjp5a2udwbCTu5d7328Oj2mStlLuER5pfSwQUv6H8A2IIB+L9j7aJJEm+IVkIySaTu+2f7bIjJEJdGstSP110znURIVGoihIxNcU2dEnbZqLxKJBAArAzDKRAQyMvbAVL04IQ0lataIAYDAG+M6sZqXuJgCcIoiuI5KlJEKUx1Q6iRBjub/B8VAft/ngO7qU7eSTpo+ju1DwIYahoRKSKmRDTFGffe2AhwfsGJoF5D/h4DSDkVgDpJKHnazaGATkajccIINTMoe4s+GgwixIiTqUq9Vjz1D0RVuVT1O/9pn702W2aRuWabFcHkg8urQAmgewLxmL6E5F7I/+ESRFV/EAf0YW8ERAO4l2VSZhxMaQFRWD2J1hAxbR1NKfQQc3H8NeYieJ6uzFhTsuKYW5zfAEYmvbrxWYQc5sumKTfvm0bA6CmYwjg/LoO3kuJNsvP8jUCge8C0zZgmxINsOaU2n4AIjg+MaV5pyziSrEAYMKF1n1chdJmoSKgyLlajs4KGZa3Ij8ewjSHyoKK9HFv6fj/BgTxVAlVYiUB5OG3thAwar6GD4txyWhhiVejL04HWCCS6Bxc6m+TkJN6F9NTHkMlYhSzp5ZIEKxKuFw99mYFc/68aRtGNXM96M/yfHiZ6Bc7qBjABsg2g7gISxMNpEBBQuY9CfA4Dhn1fjkd5bJwdzybp21F0JMvdO3tqkx5SeB4JHBhcGGaOWQeUrzCWBPrIxRwoXOM1XaEQXWT4Z9wD9woiHz2m8HCQKA5+w/Ty1OKIJoOfANw/IpaP6B4VwMrnwq+iRbYnBePAzgvV/MRTnfjjCzS8d0p7rCEgFtKFRjQqJEr5TmN7RM+EwGrwC0ABHwiWjA9PGAm3yznQxBbT/V8CPeSCWuxWDkwM0Ylc6EJMf6j69AGvmV9ackQhVHjzbQWLmEo3rEthzFS+AzkqCkaH7xurX47xs9qLN5ZMAtg0uhAhw0xrgn8BuAV/kCAvbY9dfDoFdGS5TykMQCFEzQpp7fYrfEYQPcXICYW4QH8rMDWWI6kzNGXsBaD60eG0FEZwCoEdB9TzM7oCj0OY/xRlm4Qc0084Pss4TUphG/lIXLXCB0u3NOCE/wyfLhuba/43Ixs2paXpZZ5I156ozfL/dDbZIWaR8PP9nv94k7+7BK9Ib959bO0qN9LotX3h2GUN2s0qq3XqODsiqwq2nAzfq0dN9r3N+Ve0mbNdOla9eJAmS68dXj/0w5+Jor6mUWmHLB5d7myiNVDXGU72XvZ2zasP6Z+1+zo78wm66rkGclCqIzbLFdOe1Jx3NTnwt8Uvwyjc1UcC/fvJl9sXLTI/3z2yriMxI9o+3KPHCtPI5suJU6aEW69oWhPZWOT7VGIDp/1ElBlvlYbbLoKAvaXRcgFCjsNFzgdHxrVMDbsSWGbOFvX2HzOXm+nT4Z59I3t/kSJzWV//PTmB8zqFrXdvzzosWq8XEpagf9w+827rIa+8Jjlr8bTIOtxXiYNUD7qT9Yafo/bVLPVxqDZOWDieH97XeHNEYrcSS9/eEslWWH3Dg3afS45EVhIsYrJ/njw/Z0G/9oQT030Hq1IE+ZQzwwS6DPTPifqauLGscm16wBmQr4oNx6Kf9n02PguvcXb50MSeoYVD9ppcsksrTNiw7spwxz5xou0J1Ghq02CNj317tkmBabz5ykFrsfWVnhR6ucvYrfLjC7N9tzfkeh3fuC3GK8XS0vNe6tjF84fbRPoUpqyD6UmShvSfJB5Tu8M2q1/xuoW+mma3W1WFmfQM2pXMfN/cc6dUljbfpcnTeGTVMqPBY1tALveZobtft6trsr18uoBx1bUe/3x5jX9UtPCom8O31DF2Ggho8xdzZw9I4pKzVm3rccTHJCIuccXaS5HjaskLKhbBvWqQ1se2PNeo0CTefNmgVej0rhg89MSYmAkLr3ZJKdI2hrCGWZajW0uXv/L+4BtBYshA1xjXGTqYbvc+x/lObYv1bSoljfSC3NSRh85725o2WYyj6zbd2EpWJy4F93iqX9XNSdPuHb03dbTukrfd8a4zdffWfQ12es+sDmOPugLhbDfEA2CKFTQI/sNej7FR2A3muodiokAA0W0gYtpcKNUL+iqWiQEAp4b3PEyn/Xn/95hkmzjk34lRSR0B/mLol0b7Z97SfxYfqRC9/j90a2Gaf0hazqPrOAz7zIF1mtEzBjBPAizqGrqnbH5zR1h1FIxyGQ4IAIWAhZdcjL7UWE4xKj1JhAI0CCMBSBvAhRJ0q7ZQCmIyLpRGRk3byKChAtjUMyqMBzaLSK3Sj+6NV69WHRWOnUr2OB7cuHPDaeCCY6tZuUp1XVSOlpqSimjIVIKToVoS1XiaBKu67hitWuDIKco1q8bsOLBeDR4bkRo1PhxsZY/mQhqa0Y1/d5pqKpeCk6s+kdWyJiUhRZY6abMyEMxkZDXdWuX4gNwgNlGs5LGlcAeP6oJXuYAjdKUiU7wkWp2qbcsmDjYnKcmcWI4KKhNAuznuXOYrPgfjI7RqUqUPlPFHB8cvczkKJ+A8usHR7pz5c76SW7sH5ZXRmRIcitXoFzgHuXcaE/inqz4zHgA=';
+const OUTFITS={"yoruba_f":{"label":"Yoruba \u2014 Woman","zones":[{"id":"gele","label":"Gele","hint":"head-tie","path":"M100 34 C74 34 54 48 54 68 C54 86 74 98 100 98 C126 98 146 86 146 68 C146 48 126 34 100 34 Z M100 36 C122 18 152 4 178 14 C162 40 140 56 118 60 Z M100 36 C78 18 48 4 22 14 C38 40 60 56 82 60 Z"},{"id":"buba","label":"Buba","hint":"blouse","path":"M70 102 L46 118 L34 150 L52 162 L66 150 L64 206 L136 206 L134 150 L148 162 L166 150 L154 118 L130 102 C130 94 70 94 70 102 Z"},{"id":"iro","label":"Iro","hint":"wrapper","path":"M62 210 L56 300 L50 352 L150 352 L144 300 L138 210 Z"}]},"yoruba_m":{"label":"Yoruba \u2014 Man (Agbada)","zones":[{"id":"fila","label":"Fila","hint":"cap","path":"M70 30 Q100 14 130 30 Q132 44 100 46 Q68 44 70 30 Z"},{"id":"agbada","label":"Agbada","hint":"flowing gown","path":"M100 50 L62 56 L14 78 L4 120 L30 132 L48 100 L48 250 L152 250 L152 100 L170 132 L196 120 L186 78 L138 56 Z"},{"id":"sokoto","label":"Sokoto","hint":"trousers","path":"M62 254 L58 320 L70 352 L96 352 L100 290 L104 352 L130 352 L142 320 L138 254 Z"}]},"igbo_f":{"label":"Igbo \u2014 Woman","zones":[{"id":"coral","label":"Coral beads","hint":"neck","path":"M100 40 m-30 0 a30 30 0 1 0 60 0 a30 30 0 1 0 -60 0 M76 64 Q100 96 124 64 Q120 84 100 92 Q80 84 76 64 Z"},{"id":"blouse","label":"Blouse","hint":"top","path":"M68 96 L46 112 L36 146 L54 156 L66 146 L64 200 L136 200 L134 146 L146 156 L164 146 L154 112 L132 96 C132 88 68 88 68 96 Z"},{"id":"wrapper","label":"Wrapper","hint":"george","path":"M62 204 L56 300 L50 352 L150 352 L144 300 L138 204 Z"}]},"igbo_m":{"label":"Igbo \u2014 Man (Isiagu)","zones":[{"id":"redcap","label":"Red cap","hint":"okpu agu","path":"M72 34 Q100 20 128 34 L132 46 Q100 54 68 46 Z M118 24 a6 6 0 1 1 .1 0"},{"id":"isiagu","label":"Isiagu","hint":"lion shirt","path":"M66 56 L44 72 L34 108 L52 120 L66 108 L62 220 L138 220 L134 108 L148 120 L166 108 L156 72 L134 56 L116 70 Q100 78 84 70 Z"},{"id":"trouser","label":"Trousers","hint":"bottom","path":"M64 224 L60 300 L72 352 L96 352 L100 286 L104 352 L128 352 L140 300 L136 224 Z"}]},"hausa_f":{"label":"Hausa \u2014 Woman","zones":[{"id":"veil","label":"Veil / scarf","hint":"covering","path":"M100 30 C68 30 48 50 48 78 L44 110 L60 116 L62 96 Q62 70 100 68 Q138 70 138 96 L140 116 L156 110 L152 78 C152 50 132 30 100 30 Z"},{"id":"gown","label":"Gown","hint":"long dress","path":"M60 116 L52 300 L48 352 L152 352 L148 300 L140 116 Z"}]},"hausa_m":{"label":"Hausa \u2014 Man (Babban Riga)","zones":[{"id":"hula","label":"Hula","hint":"cap","path":"M74 32 Q100 20 126 32 Q126 46 100 48 Q74 46 74 32 Z"},{"id":"riga","label":"Babban riga","hint":"flowing robe","path":"M100 52 L60 58 L12 82 L2 126 L30 140 L50 104 L50 252 L150 252 L150 104 L170 140 L198 126 L188 82 L140 58 Z"},{"id":"wando","label":"Wando","hint":"trousers","path":"M64 256 L60 322 L72 352 L96 352 L100 292 L104 352 L128 352 L140 322 L136 256 Z"}]},"delta_m":{"label":"Niger Delta \u2014 Man","zones":[{"id":"hat","label":"Bowler hat","hint":"fedora","path":"M60 36 L140 36 L136 24 Q100 14 64 24 Z M52 38 Q100 30 148 38 L148 44 Q100 52 52 44 Z"},{"id":"shirt","label":"Shirt + coral","hint":"top","path":"M70 56 L52 72 L44 104 L58 114 L70 104 L68 200 L132 200 L130 104 L142 114 L156 104 L148 72 L130 56 Z M100 60 L96 130 Q100 138 104 130 Z"},{"id":"wrapper","label":"Wrapper","hint":"skirt","path":"M60 204 L52 300 L48 352 L152 352 L148 300 L140 204 Z"}]},"delta_f":{"label":"Niger Delta \u2014 Woman","zones":[{"id":"headtie","label":"Head-tie","hint":"crown","path":"M100 38 C72 38 52 54 52 76 C52 94 72 106 100 106 C128 106 148 94 148 76 C148 54 128 38 100 38 Z M100 40 Q140 18 170 30 Q150 56 120 64 Z M100 40 Q60 18 30 30 Q50 56 80 64 Z"},{"id":"blouse","label":"Blouse + coral","hint":"top","path":"M68 110 L48 126 L38 158 L56 168 L68 158 L66 210 L134 210 L132 158 L144 168 L162 158 L152 126 L132 110 Z M100 112 L94 150 Q100 158 106 150 Z"},{"id":"wrapper","label":"Wrapper","hint":"george","path":"M62 214 L56 300 L50 352 L150 352 L144 300 L138 214 Z"}]},"west_f_dress":{"label":"Western \u2014 Woman (Dress)","zones":[{"id":"bodice","label":"Bodice","hint":"top","path":"M100 30 C88 30 80 38 80 50 L58 62 L66 84 L80 76 L80 120 L72 130 L120 130 L128 76 L142 84 L150 62 L120 50 C120 38 112 30 100 30 Z"},{"id":"skirt","label":"Skirt","hint":"bottom","path":"M72 132 L58 300 L52 352 L148 352 L142 300 L128 132 Z"}]},"west_f_suit":{"label":"Western \u2014 Woman (Suit)","zones":[{"id":"blazer","label":"Blazer","hint":"jacket","path":"M72 40 L48 56 L36 96 L52 110 L70 96 L68 210 L94 210 L100 86 L106 210 L132 210 L130 96 L148 110 L164 96 L152 56 L128 40 L114 56 Q100 64 86 56 Z"},{"id":"trousers","label":"Trousers","hint":"bottom","path":"M70 214 L66 300 L78 352 L98 352 L100 290 L102 352 L122 352 L134 300 L130 214 Z"}]},"west_m_suit":{"label":"Western \u2014 Man (Suit)","zones":[{"id":"jacket","label":"Jacket","hint":"blazer","path":"M74 36 L50 52 L38 92 L54 104 L68 92 L64 220 L96 220 L100 86 L104 220 L136 220 L132 92 L146 104 L162 92 L150 52 L126 36 L100 76 Z"},{"id":"shirt","label":"Shirt + tie","hint":"inner","path":"M88 40 L100 50 L112 40 L108 120 L92 120 Z M98 52 L102 52 L104 110 L96 110 Z"},{"id":"trousers","label":"Trousers","hint":"bottom","path":"M66 224 L62 310 L74 352 L98 352 L100 296 L102 352 L126 352 L138 310 L134 224 Z"}]},"west_m_senator":{"label":"Western \u2014 Man (Senator)","zones":[{"id":"top","label":"Senator top","hint":"kaftan","path":"M72 38 L52 54 L42 92 L56 104 L70 92 L66 230 L134 230 L130 92 L144 104 L158 92 L148 54 L128 38 L116 50 Q100 56 84 50 Z M100 42 L98 200 L102 200 Z"},{"id":"trousers","label":"Trousers","hint":"bottom","path":"M66 234 L62 312 L74 352 L98 352 L100 298 L102 352 L126 352 L138 312 L134 234 Z"}]}};
+const GARMENTS={
+  agbada:{label:'Agbada',grp:'ng',path:'M100 18 L70 30 L20 70 L8 140 L34 150 L44 110 L52 250 L148 250 L156 110 L166 150 L192 140 L180 70 L130 30 Z M88 30 L100 70 L112 30 Z'},
+  gown:{label:'Gown',grp:'ng',path:'M100 16 C86 16 76 26 76 40 L54 52 L62 78 L78 68 L74 128 L44 256 L156 256 L126 128 L122 68 L138 78 L146 52 L124 40 C124 26 114 16 100 16 Z'},
+  irobuba:{label:'Iro & Buba',grp:'ng',path:'M62 40 L52 56 L62 80 L74 72 L72 150 L128 150 L126 72 L138 80 L148 56 L138 40 L116 34 C116 24 84 24 84 34 Z M70 158 L130 158 L150 256 L50 256 Z'},
+  senator:{label:'Senator',grp:'ng',path:'M74 26 L52 42 L42 80 L56 92 L70 80 L66 250 L134 250 L130 80 L144 92 L158 80 L148 42 L126 26 L116 38 Q100 44 84 38 Z'},
+  headtie:{label:'Head-tie',grp:'ng',path:'M100 70 C70 70 48 88 48 116 C48 140 70 156 100 156 C130 156 152 140 152 116 C152 88 130 70 100 70 Z M100 72 C120 50 150 30 176 38 C160 64 140 82 120 90 Z M100 72 C80 50 50 30 24 38 C40 64 60 82 80 90 Z'},
+  dress:{label:'Dress',grp:'wn',path:'M100 16 C88 16 80 24 80 36 L58 48 L66 70 L80 62 L80 110 L72 120 L60 256 L140 256 L128 120 L120 110 L120 62 L134 70 L142 48 L120 36 C120 24 112 16 100 16 Z'},
+  shirt:{label:'Shirt',grp:'wn',path:'M78 30 L56 44 L30 70 L44 92 L60 80 L58 250 L142 250 L140 80 L156 92 L170 70 L144 44 L122 30 L112 44 C108 52 92 52 88 44 Z'},
+  suit:{label:'Suit',grp:'wn',path:'M80 28 L54 44 L40 80 L54 96 L66 86 L62 250 L96 250 L96 120 L100 250 L104 120 L104 250 L138 250 L134 86 L146 96 L160 80 L146 44 L120 28 L100 64 Z'},
+  blazer:{label:'Blazer',grp:'wn',path:'M74 30 L50 46 L38 86 L54 100 L70 86 L66 250 L96 250 L100 80 L104 250 L134 250 L130 86 L146 100 L162 86 L150 46 L126 30 L100 70 Z'},
+  trousers:{label:'Trousers',grp:'wn',path:'M64 20 L60 130 L74 268 L98 268 L100 150 L102 268 L126 268 L140 130 L136 20 Z'}
+};
+const OGROUPS=[
+  {t:'Yoruba',items:[['yoruba_f','Woman'],['yoruba_m','Man']]},
+  {t:'Igbo',items:[['igbo_f','Woman'],['igbo_m','Man']]},
+  {t:'Hausa / Fulani',items:[['hausa_f','Woman'],['hausa_m','Man']]},
+  {t:'Niger Delta / Edo',items:[['delta_f','Woman'],['delta_m','Man']]},
+  {t:'Western',items:[['west_f_dress','Woman · Dress'],['west_f_suit','Woman · Suit'],['west_m_suit','Man · Suit'],['west_m_senator','Man · Senator']]}
+];
+
+/* SHAPES */
+const SHAPE_FIGS={
+  f_hourglass:'M40 8 a7 7 0 1 1 -.1 0 M26 24 Q24 38 36 46 Q26 54 30 70 Q40 64 50 70 Q54 54 44 46 Q56 38 54 24 Q47 30 40 30 Q33 30 26 24 Z',
+  f_pear:'M40 8 a7 7 0 1 1 -.1 0 M30 24 Q30 40 38 46 Q24 56 22 76 Q40 70 58 76 Q56 56 42 46 Q50 40 50 24 Q40 30 30 24 Z',
+  f_rectangle:'M40 8 a7 7 0 1 1 -.1 0 M28 24 L52 24 L50 76 L30 76 Z',
+  f_apple:'M40 8 a7 7 0 1 1 -.1 0 M28 26 Q22 48 34 60 Q24 66 28 78 L52 78 Q56 66 46 60 Q58 48 52 26 Q40 34 28 26 Z',
+  f_tall:'M40 6 a6 6 0 1 1 -.1 0 M31 20 Q30 40 36 48 Q30 58 32 82 Q40 78 48 82 Q50 58 44 48 Q50 40 49 20 Q40 26 31 20 Z',
+  m_triangle:'M40 8 a7 7 0 1 1 -.1 0 M22 26 L58 26 L52 76 L28 76 Z',
+  m_oval:'M40 8 a7 7 0 1 1 -.1 0 M30 24 Q22 48 30 62 Q26 70 30 78 L50 78 Q54 70 50 62 Q58 48 50 24 Q40 30 30 24 Z',
+  m_rectangle:'M40 8 a7 7 0 1 1 -.1 0 M28 24 L52 24 L51 76 L29 76 Z',
+  m_athletic:'M40 8 a7 7 0 1 1 -.1 0 M24 26 Q40 30 56 26 L50 50 Q40 54 30 50 Z M30 52 L50 52 L49 78 L31 78 Z',
+  m_tall:'M40 6 a6 6 0 1 1 -.1 0 M30 20 L50 20 L49 84 L31 84 Z'};
+const SHAPES={
+  f:{
+    f_hourglass:{label:'Hourglass',recos:['Fitted gowns','wrap styles','belted iro & buba'],note:'styles that follow your waist'},
+    f_pear:{label:'Pear',recos:['Statement gele/blouse','A-line gowns','flowing agbada'],note:'draw the eye up; softer volume below'},
+    f_rectangle:{label:'Rectangle',recos:['Peplum buba','layered wrappers','waist-defined dresses'],note:'create curves at the waist'},
+    f_apple:{label:'Round',recos:['Empire gowns','structured agbada','V-necklines'],note:'flowing vertical lines that lengthen'},
+    f_tall:{label:'Tall',recos:['Bold wrappers','contrast top & bottom','horizontal detail'],note:'balance height with colour blocking'}},
+  m:{
+    m_triangle:{label:'Triangle',recos:['Agbada','flowing kaftan','structured senator'],note:'broad shoulders — flowing tops balance the frame'},
+    m_oval:{label:'Oval',recos:['Agbada','dark senator','vertical embroidery'],note:'vertical lines and darker tones slim the middle'},
+    m_rectangle:{label:'Rectangle',recos:['Fitted senator','isiagu','tailored suit'],note:'structured cuts add presence'},
+    m_athletic:{label:'Athletic',recos:['Fitted senator','slim suit','isiagu'],note:'most styles suit you — fitted cuts show the frame'},
+    m_tall:{label:'Tall',recos:['Agbada','bold isiagu','layered wrapper'],note:'horizontal detail and bold patterns balance height'}}};
+// shared body silhouettes used by Build-a-look figure + photo, keyed by gender
+const BODIES={
+  f:'M100 22 a15 15 0 1 1 -.1 0 M88 40 Q78 44 74 58 L80 62 Q84 52 86 56 Q84 90 88 140 Q92 200 88 252 L112 252 Q108 200 112 140 Q116 90 114 56 Q116 52 120 62 L126 58 Q122 44 112 40 Z',
+  m:'M100 22 a15 15 0 1 1 -.1 0 M86 40 Q72 46 66 64 L74 70 Q80 56 84 60 L84 252 L116 252 L116 60 Q120 56 126 70 L134 64 Q128 46 114 40 Z'};
+
+const PALETTE=['#b8482e','#7d1f3d','#6b1f2e','#1b2a4a','#1a2440','#2a1f4a','#1f5d7d','#16604a','#3f7d54','#d4a017','#cba23a','#e4c578','#7d2e4d','#5a3d8a','#efe7d8','#d8d2c4'];
+
+/* SHAPE-DRIVEN FIGURE: per-shape proportion shaping applied over the shared renderer.
+   up = upper-garment width scale, lo = lower-garment width scale, sy = overall height scale. */
+const SHAPE_TR={
+  f_hourglass:{up:1.05,lo:1.07,sy:1.00},f_pear:{up:0.93,lo:1.13,sy:1.00},f_rectangle:{up:1.00,lo:1.00,sy:1.00},
+  f_apple:{up:1.09,lo:1.06,sy:0.99},f_tall:{up:0.95,lo:0.95,sy:1.07},
+  m_triangle:{up:1.11,lo:0.93,sy:1.00},m_oval:{up:1.07,lo:1.08,sy:0.99},m_rectangle:{up:1.00,lo:1.00,sy:1.00},
+  m_athletic:{up:1.07,lo:0.95,sy:1.00},m_tall:{up:0.95,lo:0.95,sy:1.07}};
+const LOWER_ZONES=new Set(['iro','sokoto','wrapper','trouser','trousers','wando','skirt']);
+const FULL_ZONES=new Set(['agbada','gown','riga','top']);   // span torso→hem: use the average
+const FRONT_ONLY=new Set(['shirt','coral','acc_tie','acc_bowtie','acc_glasses']); // hidden in back view (front-of-body detail)
+/* ACCESSORIES — optional toggle-on zones, each assignable a colour or fabric, drawn over the outfit */
+const ACCESSORIES={
+  acc_glasses:{label:'Glasses',hint:'eyewear',path:'M86 31 h11 a3 3 0 0 1 3 3 v2 a3 3 0 0 1 -3 3 h-11 a3 3 0 0 1 -3 -3 v-2 a3 3 0 0 1 3 -3 Z M103 31 h11 a3 3 0 0 1 3 3 v2 a3 3 0 0 1 -3 3 h-11 a3 3 0 0 1 -3 -3 v-2 a3 3 0 0 1 3 -3 Z M97 34 h6 v2 h-6 Z'},
+  acc_hat:{label:'Hat',hint:'headwear',path:'M62 23 Q100 11 138 23 Q138 29 100 31 Q62 29 62 23 Z M80 22 Q100 6 120 22 Q110 26 100 25 Q90 26 80 22 Z'},
+  acc_tie:{label:'Tie',hint:'necktie',path:'M95 49 L105 49 L107 55 L100 60 L93 55 Z M97 60 L103 60 L108 150 L100 161 L92 150 Z'},
+  acc_bowtie:{label:'Bow tie',hint:'bow',path:'M99 52 L83 46 L85 59 Z M101 52 L117 46 L115 59 Z M96 49 h8 v7 h-8 Z'}};
+const ACC_ORDER=['acc_glasses','acc_hat','acc_tie','acc_bowtie'];
+const PREVIEW_OUTFIT={
+  f:[{id:'bodice',path:OUTFITS.west_f_dress.zones[0].path},{id:'skirt',path:OUTFITS.west_f_dress.zones[1].path}],
+  m:[{id:'top',path:OUTFITS.west_m_senator.zones[0].path},{id:'trousers',path:OUTFITS.west_m_senator.zones[1].path}]};
+function shapeTR(shape){return SHAPE_TR[shape]||{up:1,lo:1,sy:1};}
+function zoneSX(id,t){return FULL_ZONES.has(id)?(t.up+t.lo)/2:LOWER_ZONES.has(id)?t.lo:t.up;}
+const wrapH=(sx,inner)=>sx===1?inner:`<g transform="translate(100,0) scale(${sx.toFixed(3)},1) translate(-100,0)">${inner}</g>`;
+
+/* Shared figure builder — used by Build-a-look, My-shape preview, and Aso-Ebi preview.
+   zoneEls: [{id, fill}]  ·  view: 'front' | 'back'  ·  back hides FRONT_ONLY zones, mirrors, adds a seam. */
+function figureSVG(gender,shape,defs,zoneEls,view){
+  const t=shapeTR(shape),back=view==='back',gid='cs'+(++_figN);
+  let body='';
+  body+=`<ellipse cx="100" cy="356" rx="60" ry="6" fill="rgba(0,0,0,.18)"/>`;
+  body+=wrapH((t.up+t.lo)/2,`<path d="${BODIES[gender]}" fill="#caa98c" opacity="0.9"/>`);
+  let garments='';
+  zoneEls.forEach(z=>{ if(back&&FRONT_ONLY.has(z.id))return;
+    const sx=zoneSX(z.id,t);
+    garments+=wrapH(sx,`<path d="${z.path}" fill="${z.fill}" stroke="rgba(0,0,0,.3)" stroke-width="1.2"/><path d="${z.path}" fill="url(#${gid})"/>`);});
+  if(back)garments+=`<line x1="100" y1="116" x2="100" y2="338" stroke="rgba(0,0,0,.16)" stroke-width="1.6"/>`;
+  let inner=body+garments;
+  if(back)inner=`<g transform="translate(200,0) scale(-1,1)">${inner}</g>`;
+  if(t.sy!==1)inner=`<g transform="translate(0,356) scale(1,${t.sy}) translate(0,-356)">${inner}</g>`;
+  return `<svg viewBox="0 0 200 366" xmlns="http://www.w3.org/2000/svg"><defs>${defs}
+    <linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.18"/><stop offset="0.45" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="0.75" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.22"/></linearGradient>
+    </defs>${inner}</svg>`;}
+let _figN=0;
+
+</script>
+<script>
+"use strict";
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._);t._=setTimeout(()=>t.classList.remove('show'),2000);};
+
+/* ---------- STORAGE ---------- */
+const DB='hbfabric_v3';
+function load(){try{return JSON.parse(localStorage.getItem(DB))||{}}catch(e){return{}}}
+function persist(){try{localStorage.setItem(DB,JSON.stringify(store))}catch(e){toast('Storage full — remove a fabric')}}
+let store=load();
+store.fabrics=store.fabrics||[];store.shape=store.shape||'f_hourglass';store.gender=store.gender||'f';store.theme=store.theme||'glass';
+store.outfit=store.outfit||'yoruba_f';store.asoTargets=store.asoTargets||[];store.seenHelp=store.seenHelp||false;store.view=store.view||'front';
+store.garments=store.garments||[];store.acc=store.acc||{};
+
+/* ---------- THEME ---------- */
+function applyTheme(){document.body.classList.toggle('solid',store.theme==='solid');
+  $('#themeBtn').textContent=store.theme==='glass'?'◐ Glass':'● Solid';}
+$('#themeBtn').onclick=()=>{store.theme=store.theme==='glass'?'solid':'glass';persist();applyTheme();};
+applyTheme();
+
+/* ---------- HELPERS ---------- */
+function imgFromData(d,cb){if(!d){cb(null);return;}const i=new Image();i.onload=()=>cb(i);i.onerror=()=>cb(null);i.src=d;}
+function fabData(id){return store.fabrics.find(f=>f.id===id)?.data;}
+function hexToHsl(H){let r=0,g=0,b=0;if(H.length==4){r='0x'+H[1]+H[1];g='0x'+H[2]+H[2];b='0x'+H[3]+H[3];}else{r='0x'+H[1]+H[2];g='0x'+H[3]+H[4];b='0x'+H[5]+H[6];}
+  r/=255;g/=255;b/=255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b);let h,s,l=(mx+mn)/2;
+  if(mx==mn){h=s=0;}else{const d=mx-mn;s=l>.5?d/(2-mx-mn):d/(mx+mn);switch(mx){case r:h=(g-b)/d+(g<b?6:0);break;case g:h=(b-r)/d+2;break;default:h=(r-g)/d+4;}h/=6;}
+  return[Math.round(h*360),Math.round(s*100),Math.round(l*100)];}
+function hueDist(a,b){let d=Math.abs(a-b)%360;return d>180?360-d:d;}
+function isMetallic(h){return h[0]>=36&&h[0]<=47&&h[1]>=40&&h[2]>=38&&h[2]<=62;}
+function avgColor(data,cb){imgFromData(data,img=>{const c=document.createElement('canvas');c.width=c.height=12;const x=c.getContext('2d');x.drawImage(img,0,0,12,12);
+  const d=x.getImageData(0,0,12,12).data;let r=0,g=0,b=0,n=0;for(let i=0;i<d.length;i+=4){r+=d[i];g+=d[i+1];b+=d[i+2];n++;}
+  cb('#'+[r,g,b].map(v=>Math.round(v/n).toString(16).padStart(2,'0')).join(''));});}
+
+/* ---------- STATE + UNDO/REDO ---------- */
+const ST={activeFabric:null,activeZone:null,zoneAssign:{},src:'color',
+  photo:null,photoMode:'brush',brushFabric:null,brushColor:'#7d1f3d',brushSize:34,brushOpacity:0.85,brushSrc:'fabric',strokes:[],dragGarment:'agbada',drape:null,shareMode:'single',
+  capKind:'fabric',dropSrc:'shape',dropFabric:null,dropGarmentId:null,activeAcc:null};
+ST.zoneAssign=store.zoneAssign||{};   // outfit + accessory colour/fabric choices survive reload
+let undoStack=[],redoStack=[];
+function snapshot(){return JSON.stringify({zoneAssign:ST.zoneAssign,outfit:store.outfit});}
+function pushUndo(){undoStack.push(snapshot());if(undoStack.length>40)undoStack.shift();redoStack=[];updateUndoBtns();}
+function applySnap(s){const o=JSON.parse(s);ST.zoneAssign=o.zoneAssign;if(o.outfit){store.outfit=o.outfit;$('#outfitSel').value=o.outfit;}}
+function doUndo(){if(!undoStack.length)return;redoStack.push(snapshot());applySnap(undoStack.pop());renderComposer();updateUndoBtns();toast('Undone');}
+function doRedo(){if(!redoStack.length)return;undoStack.push(snapshot());applySnap(redoStack.pop());renderComposer();updateUndoBtns();toast('Redone');}
+function updateUndoBtns(){$('#undoBtn').disabled=!undoStack.length;$('#redoBtn').disabled=!redoStack.length;}
+function resetComposer(){pushUndo();ST.zoneAssign={};renderComposer();toast('Look reset');}
+$('#undoBtn').onclick=doUndo;$('#redoBtn').onclick=doRedo;$('#resetBtn').onclick=resetComposer;
+$$('#viewSeg button').forEach(b=>b.onclick=()=>{$$('#viewSeg button').forEach(x=>x.classList.remove('active'));b.classList.add('active');store.view=b.dataset.v;persist();renderFigure('#figure');});
+
+const PAL=PALETTE;
+
+/* ---------- FABRIC LIBRARY ---------- */
+const fileInput=$('#fileInput'),video=$('#video');let camStream=null,camTarget='fabric';
+function makeSwatch(img){const c=document.createElement('canvas'),sz=220;c.width=c.height=sz;const x=c.getContext('2d'),s=Math.min(img.width,img.height);
+  x.drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,sz,sz);return c;}
+function addFabric(img){const c=makeSwatch(img),data=c.toDataURL('image/jpeg',.82),id='f'+Date.now();
+  store.fabrics.push({id,data});persist();ST.activeFabric=id;ST.brushFabric=ST.brushFabric||id;ST.dropFabric=ST.dropFabric||id;
+  renderLib();renderZoneFabrics();renderBrushFabrics();renderTestFabrics();renderDropFabrics();toast('Fabric saved');}
+function fitImage(img,max){const r=Math.min(1,max/Math.max(img.width,img.height)),w=Math.round(img.width*r),h=Math.round(img.height*r);
+  const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);return c;}
+function addGarment(img){const c=fitImage(img,480),data=c.toDataURL('image/png'),id='g'+Date.now();
+  store.garments.push({id,data});persist();ST.dropGarmentId=id;renderGarments();renderDropGarments();toast('Garment saved');}
+let garImgCache={};function garData(id){return store.garments.find(g=>g.id===id)?.data;}
+function getGarImg(id,cb){if(garImgCache[id])return cb(garImgCache[id]);imgFromData(garData(id),img=>{if(img)garImgCache[id]=img;cb(img);});}
+$('#uploadBtn').onclick=()=>{fileInput.dataset.t=ST.capKind;fileInput.click();};
+$('#addSwatch').onclick=()=>{ST.capKind='fabric';syncCapSeg();fileInput.dataset.t='fabric';fileInput.click();};
+$('#addGarment').onclick=()=>{ST.capKind='garment';syncCapSeg();fileInput.dataset.t='garment';fileInput.click();};
+$('#photoUploadBtn').onclick=()=>{fileInput.dataset.t='photo';fileInput.click();};
+function routeImage(t,img){t==='photo'?loadPhoto(img):t==='garment'?addGarment(img):addFabric(img);}
+fileInput.onchange=e=>{const f=e.target.files[0];if(!f)return;const t=fileInput.dataset.t||'fabric';
+  const r=new FileReader();r.onload=ev=>{const img=new Image();img.onload=()=>routeImage(t,img);img.src=ev.target.result;};
+  r.readAsDataURL(f);e.target.value='';};
+function syncCapSeg(){$$('#capSeg button').forEach(b=>b.classList.toggle('active',b.dataset.k===ST.capKind));
+  $('#fabBlock').style.display=ST.capKind==='fabric'?'block':'none';$('#garBlock').style.display=ST.capKind==='garment'?'block':'none';}
+$$('#capSeg button').forEach(b=>b.onclick=()=>{ST.capKind=b.dataset.k;syncCapSeg();});
+async function openCam(target){camTarget=target;try{camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:target==='photo'?'user':'environment'}});
+  video.srcObject=camStream;await video.play();video.style.cssText='display:block;width:100%;border-radius:14px;margin-top:10px';
+  $('#camRow').style.display='flex';$('#snapBtn').style.display='none';$('#uploadBtn').style.display='none';}catch(e){toast('Camera unavailable — use Upload');}}
+function closeCam(){if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}video.style.display='none';$('#camRow').style.display='none';$('#snapBtn').style.display='';$('#uploadBtn').style.display='';}
+$('#snapBtn').onclick=()=>openCam(ST.capKind);
+$('#cancelCam').onclick=closeCam;
+$('#captureBtn').onclick=()=>{const c=document.createElement('canvas');c.width=video.videoWidth;c.height=video.videoHeight;c.getContext('2d').drawImage(video,0,0);
+  const img=new Image();img.onload=()=>routeImage(camTarget,img);img.src=c.toDataURL();closeCam();};
+function renderLib(){const lib=$('#lib');lib.querySelectorAll('.swatch').forEach(s=>s.remove());const add=$('#addSwatch');
+  store.fabrics.forEach(f=>{const d=document.createElement('div');d.className='swatch'+(f.id===ST.activeFabric?' active':'');d.draggable=true;d.dataset.fab=f.id;
+    d.innerHTML=`<img src="${f.data}" alt="fabric"><span class="del">×</span>`;
+    d.querySelector('img').onclick=()=>{ST.activeFabric=f.id;renderLib();toast('Selected');};
+    d.querySelector('.del').onclick=e=>{e.stopPropagation();store.fabrics=store.fabrics.filter(x=>x.id!==f.id);if(ST.activeFabric===f.id)ST.activeFabric=store.fabrics[0]?.id||null;persist();renderLib();renderZoneFabrics();renderBrushFabrics();renderTestFabrics();renderDropFabrics();};
+    d.addEventListener('dragstart',ev=>ev.dataTransfer.setData('fab',f.id));
+    lib.insertBefore(d,add);});
+  if(!ST.activeFabric&&store.fabrics[0])ST.activeFabric=store.fabrics[0].id;}
+function renderGarments(){const lib=$('#garlib');if(!lib)return;lib.querySelectorAll('.swatch').forEach(s=>s.remove());const add=$('#addGarment');
+  if(ST.dropGarmentId&&!store.garments.some(g=>g.id===ST.dropGarmentId))ST.dropGarmentId=store.garments[0]?.id||null;
+  if(!ST.dropGarmentId&&store.garments[0])ST.dropGarmentId=store.garments[0].id;
+  store.garments.forEach(g=>{const d=document.createElement('div');d.className='swatch'+(g.id===ST.dropGarmentId?' active':'');d.dataset.gar=g.id;
+    d.innerHTML=`<img src="${g.data}" alt="garment"><span class="del">×</span>`;
+    d.querySelector('img').onclick=()=>{ST.dropGarmentId=g.id;renderGarments();renderDropGarments();toast('Garment selected');};
+    d.querySelector('.del').onclick=e=>{e.stopPropagation();store.garments=store.garments.filter(x=>x.id!==g.id);if(ST.dropGarmentId===g.id)ST.dropGarmentId=store.garments[0]?.id||null;persist();renderGarments();renderDropGarments();if(ST.photoMode==='shape')drawPhoto();};
+    lib.insertBefore(d,add);});}
+
+/* ---------- TABS ---------- */
+function switchTab(name){
+  $$('nav.tabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
+  $$('.panel').forEach(p=>p.classList.toggle('active',p.id==='tab-'+name));
+  if(name==='photo')setTimeout(()=>{if(ST.photo)drawPhoto();},30);
+  if(name==='asoebi'){renderTestFabrics();renderTargets();updateAso();}
+  if(name==='profile')renderFigure('#shapePreview');
+}
+$$('nav.tabs button').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
+
+/* ---------- OUTFIT COMPOSER ---------- */
+function buildOutfitSelect(){const sel=$('#outfitSel');sel.innerHTML=OGROUPS.map(g=>
+  `<optgroup label="${g.t}">`+g.items.map(([k,l])=>`<option value="${k}"${k===store.outfit?' selected':''}>${g.t} — ${l}</option>`).join('')+`</optgroup>`).join('');
+  sel.onchange=()=>{pushUndo();store.outfit=sel.value;persist();ST.activeZone=null;ST.zoneAssign={};renderComposer();};}
+function curOutfit(){return OUTFITS[store.outfit];}
+function tieFriendly(){return /^west_/.test(store.outfit);}                       // chest/collar shows on Western looks
+function gateAccessories(){if(!tieFriendly()){store.acc.acc_tie=false;store.acc.acc_bowtie=false;}}
+function accZones(){return ACC_ORDER.filter(k=>store.acc[k]).map(k=>({id:k,label:ACCESSORIES[k].label,hint:ACCESSORIES[k].hint,path:ACCESSORIES[k].path}));}
+function activeZones(){return curOutfit().zones.concat(accZones());}
+function renderAccBar(){const host=$('#accBar');if(!host)return;const tf=tieFriendly();
+  host.innerHTML='<span class="hintp" style="align-self:center;margin-right:2px">Accessories:</span>'+ACC_ORDER.map(k=>{
+      const dis=(k==='acc_tie'||k==='acc_bowtie')&&!tf;
+      return `<div class="chip${store.acc[k]?' on':''}${dis?' dis':''}" data-acc="${k}">${ACCESSORIES[k].label}${store.acc[k]?' <span class="x">✓</span>':''}</div>`;}).join('')
+    +(tf?'':'<span class="hintp" style="align-self:center">tie &amp; bow tie suit Western looks (suit, blazer, dress…)</span>');
+  host.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{if(c.classList.contains('dis')){toast('Tie & bow tie show on Western looks — suit, blazer, senator or dress');return;}
+    const k=c.dataset.acc,on=!store.acc[k];
+    if(on&&k==='acc_tie')store.acc.acc_bowtie=false;if(on&&k==='acc_bowtie')store.acc.acc_tie=false;
+    store.acc[k]=on;if(on)ST.activeZone=k;else if(ST.activeZone===k)ST.activeZone=null;persist();renderComposer();});}
+function renderZones(){const host=$('#zones'),zones=activeZones();
+  host.innerHTML=zones.map(z=>{const a=ST.zoneAssign[z.id];
+    const dot=a?(a.type==='fabric'?`background-image:url(${fabData(a.value)})`:`background:${a.value}`):'';
+    return `<div class="zone${z.id===ST.activeZone?' active':''}" data-z="${z.id}"><div class="dot" style="${dot}"></div>
+      <div><div class="zl">${z.label}</div><div class="zh">${z.hint}</div></div><div class="clr" style="background:${a&&a.type==='color'?a.value:'transparent'}"></div></div>`;}).join('');
+  host.querySelectorAll('.zone').forEach(el=>{
+    el.onclick=()=>{ST.activeZone=el.dataset.z;renderZones();renderZoneColors();renderZoneFabrics();syncTitle();};
+    el.addEventListener('dragover',e=>{e.preventDefault();el.classList.add('drop-hi');});
+    el.addEventListener('dragleave',()=>el.classList.remove('drop-hi'));
+    el.addEventListener('drop',e=>{e.preventDefault();el.classList.remove('drop-hi');const fab=e.dataTransfer.getData('fab');
+      if(fab){pushUndo();ST.zoneAssign[el.dataset.z]={type:'fabric',value:fab};ST.activeZone=el.dataset.z;renderComposer();}});});
+  if(!ST.activeZone||!zones.find(z=>z.id===ST.activeZone))ST.activeZone=zones[0].id;}
+function syncTitle(){const z=activeZones().find(z=>z.id===ST.activeZone);$('#assignTitle').textContent='Assign to: '+(z?z.label:'zone');}
+function renderZoneColors(){$('#zoneColors').innerHTML=PAL.map(c=>{const a=ST.zoneAssign[ST.activeZone];
+  return `<div class="sw${a&&a.type==='color'&&a.value===c?' active':''}" style="background:${c}" data-c="${c}"></div>`;}).join('');
+  $('#zoneColors').querySelectorAll('.sw').forEach(sw=>sw.onclick=()=>{pushUndo();ST.zoneAssign[ST.activeZone]={type:'color',value:sw.dataset.c};renderComposer();});}
+function renderZoneFabrics(){const host=$('#zoneFabrics');
+  if(!store.fabrics.length){host.innerHTML='<p class="hintp">Add fabrics above first.</p>';return;}
+  host.innerHTML=store.fabrics.map(f=>{const a=ST.zoneAssign[ST.activeZone];
+    return `<div class="ms${a&&a.type==='fabric'&&a.value===f.id?' active':''}" data-f="${f.id}"><img src="${f.data}"></div>`;}).join('');
+  host.querySelectorAll('.ms').forEach(m=>m.onclick=()=>{pushUndo();ST.zoneAssign[ST.activeZone]={type:'fabric',value:m.dataset.f};renderComposer();});}
+$('#srcSeg').querySelectorAll('button').forEach(b=>b.onclick=()=>{$('#srcSeg').querySelectorAll('button').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+  ST.src=b.dataset.src;$('#zoneColors').style.display=ST.src==='color'?'grid':'none';$('#zoneFabrics').style.display=ST.src==='fabric'?'flex':'none';});
+
+/* figure: garment on a shape-aware human figure with cloth shading */
+function renderFigure(sel){sel=sel||'#figure';const host=$(sel);if(!host)return;const zones=activeZones();let defs='';
+  const zoneEls=zones.map(z=>{const a=ST.zoneAssign[z.id];let fill=z.id.indexOf('acc_')===0?'#2a2018':'rgba(255,255,255,.10)';
+    if(a){if(a.type==='color')fill=a.value;else{const pid='p_'+sel.replace(/[^a-z0-9]/gi,'')+'_'+z.id;defs+=`<pattern id="${pid}" patternUnits="userSpaceOnUse" width="56" height="56"><image href="${fabData(a.value)}" width="56" height="56"/></pattern>`;fill=`url(#${pid})`;}}
+    return{id:z.id,path:z.path,fill};});
+  host.innerHTML=figureSVG(store.gender,store.shape,defs,zoneEls,store.view||'front');}
+/* one-fill preview (a recognisable clothed figure in a single colour/fabric on the chosen shape) */
+function previewSVG(uid,value){const set=PREVIEW_OUTFIT[store.gender];let defs='',fill;
+  if(value&&value.charAt(0)==='#'){fill=value;}else if(value){const pid='pv_'+uid;defs+=`<pattern id="${pid}" patternUnits="userSpaceOnUse" width="56" height="56"><image href="${fabData(value)}" width="56" height="56"/></pattern>`;fill=`url(#${pid})`;}else fill='rgba(255,255,255,.12)';
+  const zoneEls=set.map(z=>({id:z.id,path:z.path,fill}));
+  return figureSVG(store.gender,store.shape,defs,zoneEls,'front');}
+
+/* harmony */
+function assessHarmony(colors){if(colors.length<2)return null;const hsls=colors.map(hexToHsl),hues=hsls.map(h=>h[0]);let score=100;const notes=[],good=[];
+  const strongIdx=hsls.map((h,i)=>(h[1]>55&&!isMetallic(h))?i:-1).filter(i=>i>=0),strong=strongIdx.length;
+  const neutrals=hsls.filter(h=>h[1]<25||isMetallic(h)).length,hasGold=hsls.some(isMetallic);
+  if(strong>=3){score-=hasGold?24:38;notes.push(hasGold?'Even with gold, three bold colours are a lot — consider softening one to cream.':'Three bold colours are competing. Let one lead, or bring in gold or cream as a bridge.');}
+  let awkward=0;strongIdx.forEach((i,a)=>strongIdx.slice(a+1).forEach(j=>{const d=hueDist(hues[i],hues[j]);if(d>=35&&d<=72)awkward++;}));
+  if(awkward>0&&!hasGold&&neutrals===0){score-=awkward*18;notes.push('Two bold colours sit at an awkward angle — a gold or cream between them settles it.');}
+  if(hasGold&&strong<=2){score+=4;good.push('Gold ties the look together — a classic anchor in Nigerian attire.');}else if(neutrals>=1&&strong<=2)good.push('A calmer tone is anchoring the bolder colours.');
+  const spread=Math.max(...hues.flatMap(h=>hues.map(h2=>hueDist(h,h2))));if(spread<=45)good.push('These share a colour family — smooth and coordinated.');
+  if(strong<=2&&awkward===0)good.push('Balanced — bold where it counts, calm elsewhere.');
+  score=Math.max(0,Math.min(100,score));let v;if(score>=78)v={label:'Works well together',tone:'good'};else if(score>=55)v={label:'Mostly works — minor tension',tone:'ok'};else v={label:'Risk of a colour riot',tone:'warn'};
+  return{score,verdict:v,notes:notes.length?notes:good.slice(0,1)};}
+function updateHarmony(){const zones=activeZones(),assigns=zones.map(z=>ST.zoneAssign[z.id]).filter(Boolean);
+  if(assigns.length<2){$('#hVerdict').textContent='Add colours to begin';$('#hBadge').style.display='none';$('#hFill').style.width='0%';
+    $('#hNote').textContent='Assign a colour or fabric to each zone, and I\'ll tell you if it works or risks a colour riot.';return;}
+  let pending=assigns.length;const cols=[];
+  assigns.forEach((a,i)=>{if(a.type==='color'){cols[i]=a.value;if(--pending===0)finish(cols);}else avgColor(fabData(a.value),c=>{cols[i]=c;if(--pending===0)finish(cols);});});
+  function finish(cols){const r=assessHarmony(cols);if(!r)return;$('#hVerdict').textContent=r.verdict.label;
+    const b=$('#hBadge');b.style.display='inline-block';b.className='badge '+r.verdict.tone;b.textContent=r.score+'/100';
+    const col=r.verdict.tone==='good'?'var(--ok)':r.verdict.tone==='ok'?'var(--okmid)':'var(--warn)';$('#hFill').style.width=r.score+'%';$('#hFill').style.background=col;$('#hNote').textContent=r.notes.join('  ');}}
+function renderComposer(){gateAccessories();renderZones();renderAccBar();renderZoneColors();renderZoneFabrics();renderFigure();updateHarmony();syncTitle();updateUndoBtns();store.zoneAssign=ST.zoneAssign;persist();}
+
+/* ---------- TRY-ON PHOTO (brush + drag + shape mock) ---------- */
+const pStage=$('#photoStage');let photoCv=null,baseImageData=null;let fabImgCache={};
+function getFabImg(id,cb){if(fabImgCache[id])return cb(fabImgCache[id]);imgFromData(fabData(id),img=>{if(img)fabImgCache[id]=img;cb(img);});}
+function loadPhoto(img){ST.photo=img;ST.strokes=[];ST.drape=null;buildPhotoCanvas();toast('Photo loaded');switchTab('photo');}
+function buildPhotoCanvas(){if(!ST.photo)return;const maxW=Math.min(pStage.clientWidth||520,600),ratio=ST.photo.height/ST.photo.width;
+  const newW=maxW,newH=Math.round(maxW*ratio),oldW=ST._cw;
+  if(oldW&&oldW!==newW){const sc=newW/oldW;ST.strokes.forEach(st=>{st.size*=sc;st.pts.forEach(p=>{p.x*=sc;p.y*=sc;});});if(ST.drape){ST.drape.x*=sc;ST.drape.y*=sc;}}
+  ST._cw=newW;
+  pStage.innerHTML='';photoCv=document.createElement('canvas');photoCv.width=newW;photoCv.height=newH;pStage.appendChild(photoCv);
+  const ctx=photoCv.getContext('2d');ctx.drawImage(ST.photo,0,0,photoCv.width,photoCv.height);
+  baseImageData=ctx.getImageData(0,0,photoCv.width,photoCv.height);
+  attachPhotoEvents();drawPhoto();}
+function drawPhoto(){if(!photoCv||!baseImageData)return;const ctx=photoCv.getContext('2d');ctx.putImageData(baseImageData,0,0);
+  // paint each accumulated stroke-group as its own region
+  if(ST.strokes.length){
+    let idx=0;
+    const paintGroup=()=>{
+      if(idx>=ST.strokes.length){if(ST.photoMode==='shape')drawShape();return;}
+      const st=ST.strokes[idx];
+      const mask=document.createElement('canvas');mask.width=photoCv.width;mask.height=photoCv.height;const mx=mask.getContext('2d');
+      mx.lineCap='round';mx.lineJoin='round';mx.strokeStyle='#fff';mx.fillStyle='#fff';mx.lineWidth=st.size;
+      mx.beginPath();st.pts.forEach((p,i)=>{i?mx.lineTo(p.x,p.y):mx.moveTo(p.x,p.y);});mx.stroke();
+      st.pts.forEach(p=>{mx.beginPath();mx.arc(p.x,p.y,st.size/2,0,7);mx.fill();});
+      const lay=document.createElement('canvas');lay.width=photoCv.width;lay.height=photoCv.height;const lx=lay.getContext('2d');
+      const finish=()=>{lx.globalCompositeOperation='destination-in';lx.drawImage(mask,0,0);lx.globalCompositeOperation='source-over';
+        // base fill at user opacity (visible even on dark cloth)
+        ctx.save();ctx.globalAlpha=st.opacity;ctx.drawImage(lay,0,0);ctx.restore();
+        // multiply pass to bring back the photo's folds/shadows
+        ctx.save();ctx.globalAlpha=st.opacity*0.5;ctx.globalCompositeOperation='multiply';ctx.drawImage(lay,0,0);ctx.restore();
+        idx++;paintGroup();};
+      if(st.kind==='fabric'){getFabImg(st.value,img=>{if(img){lx.fillStyle=lx.createPattern(img,'repeat');lx.fillRect(0,0,lay.width,lay.height);}else{lx.fillStyle=ST.brushColor||'#7d1f3d';lx.fillRect(0,0,lay.width,lay.height);}finish();});}
+      else{lx.fillStyle=st.value||'#7d1f3d';lx.fillRect(0,0,lay.width,lay.height);finish();}
+    };
+    paintGroup();
+  } else if(ST.photoMode==='shape'){drawShape();}
+}
+function drawShape(){const ctx=photoCv.getContext('2d');if(ST.photoMode!=='shape'||!ST.drape)return;
+  if(ST.dropSrc==='garment'){
+    const gid=ST.dropGarmentId&&store.garments.some(g=>g.id===ST.dropGarmentId)?ST.dropGarmentId:(store.garments[0]&&store.garments[0].id);
+    if(!gid)return;
+    getGarImg(gid,im=>{if(!im)return;const gw=photoCv.width*0.5*ST.drape.scale,gh=gw*(im.height/im.width);
+      ctx.globalAlpha=0.96;ctx.drawImage(im,ST.drape.x-gw/2,ST.drape.y-gh/2,gw,gh);ctx.globalAlpha=1;});
+    return;}
+  const fabId=[ST.dropFabric,ST.activeFabric,store.fabrics[0]&&store.fabrics[0].id].find(id=>id&&store.fabrics.some(f=>f.id===id));
+  const g=GARMENTS[ST.dragGarment];if(!g)return;
+  const gw=photoCv.width*0.6*ST.drape.scale,gh=gw*(280/200);
+  if(fabId){getFabImg(fabId,fab=>{if(!fab)return;const off=document.createElement('canvas');off.width=200;off.height=280;const o=off.getContext('2d');
+      const p=new Path2D(g.path);o.save();o.clip(p);o.fillStyle=o.createPattern(fab,'repeat');o.fillRect(0,0,200,280);o.restore();
+      ctx.globalAlpha=0.92;ctx.drawImage(off,ST.drape.x-gw/2,ST.drape.y-gh/2,gw,gh);ctx.globalAlpha=1;});}
+  else{ctx.save();ctx.translate(ST.drape.x-gw/2,ST.drape.y-gh/2);ctx.scale(gw/200,gh/280);const p=new Path2D(g.path);
+      ctx.fillStyle='rgba(228,197,120,.18)';ctx.strokeStyle='rgba(228,197,120,.9)';ctx.lineWidth=2;ctx.fill(p);ctx.stroke(p);ctx.restore();}
+}
+function placeDrop(){if(!photoCv)return;const sc=(+($('#shapeScale')&&$('#shapeScale').value)||110)/100;ST.drape={x:photoCv.width/2,y:photoCv.height*0.5,scale:sc};drawPhoto();}
+function renderDropFabrics(){const host=$('#dropFabrics');if(!host)return;
+  if(!store.fabrics.length){ST.dropFabric=null;host.innerHTML='<p class="hintp">Add a fabric above to fill the shape.</p>';return;}
+  if(!ST.dropFabric||!store.fabrics.some(f=>f.id===ST.dropFabric))ST.dropFabric=store.fabrics[0].id;
+  host.innerHTML=store.fabrics.map(f=>`<div class="ms${f.id===ST.dropFabric?' active':''}" data-f="${f.id}"><img src="${f.data}"></div>`).join('');
+  host.querySelectorAll('.ms').forEach(m=>m.onclick=()=>{ST.dropFabric=m.dataset.f;renderDropFabrics();if(ST.photoMode==='shape'&&ST.dropSrc==='shape'){ST.drape?drawPhoto():placeDrop();}});}
+function renderDropGarments(){const host=$('#dropGarments');if(!host)return;
+  if(!store.garments.length){host.innerHTML='<p class="hintp">No garments yet. Add one under “Your fabrics &amp; garments → Garment (item)”.</p>';return;}
+  if(!ST.dropGarmentId||!store.garments.some(g=>g.id===ST.dropGarmentId))ST.dropGarmentId=store.garments[0].id;
+  host.innerHTML=store.garments.map(g=>`<div class="ms${g.id===ST.dropGarmentId?' active':''}" data-g="${g.id}"><img src="${g.data}"></div>`).join('');
+  host.querySelectorAll('.ms').forEach(m=>m.onclick=()=>{ST.dropGarmentId=m.dataset.g;renderDropGarments();if(ST.photoMode==='shape'&&ST.dropSrc==='garment'){ST.drape?drawPhoto():placeDrop();}});}
+function attachPhotoEvents(){let painting=false,curStroke=null,dragShape=false,ox,oy;
+  const pos=e=>{const r=photoCv.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return{x:(t.clientX-r.left)*(photoCv.width/r.width),y:(t.clientY-r.top)*(photoCv.height/r.height)};};
+  const down=e=>{const p=pos(e);e.preventDefault();
+    if(ST.photoMode==='shape'){if(!ST.drape){ST.drape={x:p.x,y:p.y,scale:(+($('#shapeScale')&&$('#shapeScale').value)||110)/100};drawPhoto();}
+      dragShape=true;if(ST.drape){ox=p.x-ST.drape.x;oy=p.y-ST.drape.y;}return;}
+    const kind=ST.brushSrc;
+    if(kind==='fabric'&&!store.fabrics.some(f=>f.id===ST.brushFabric)){toast(store.fabrics.length?'Tap a fabric to brush with':'Add a fabric first, or brush with a colour');return;}
+    painting=true;
+    const sz=ST.brushSize*(ST.photoMode==='region'?2.2:1);
+    curStroke={kind:kind,value:kind==='fabric'?ST.brushFabric:ST.brushColor,size:sz,opacity:ST.brushOpacity,pts:[p]};
+    ST.strokes.push(curStroke); // accumulate — new area keeps previous paint
+    drawPhoto();};
+  const move=e=>{const p=pos(e);if(ST.photoMode==='shape'){if(dragShape&&ST.drape){ST.drape.x=p.x-ox;ST.drape.y=p.y-oy;drawPhoto();e.preventDefault();}return;}
+    if(painting){curStroke.pts.push(p);drawPhoto();e.preventDefault();}};
+  const up=()=>{painting=false;dragShape=false;};
+  photoCv.addEventListener('mousedown',down);photoCv.addEventListener('mousemove',move);window.addEventListener('mouseup',up);
+  photoCv.addEventListener('touchstart',down,{passive:false});photoCv.addEventListener('touchmove',move,{passive:false});photoCv.addEventListener('touchend',up);
+  // drop fabric onto photo
+  photoCv.addEventListener('dragover',e=>e.preventDefault());
+  photoCv.addEventListener('drop',e=>{e.preventDefault();const fab=e.dataTransfer.getData('fab');if(fab){ST.brushFabric=fab;ST.brushSrc='fabric';$$('#brushSrc button').forEach(x=>x.classList.toggle('active',x.dataset.b==='fabric'));$('#brushFabrics').style.display='flex';$('#brushColors').style.display='none';renderBrushFabrics();toast('Now brush over your outfit');}});}
+function renderBrushFabrics(){const host=$('#brushFabrics');if(!host)return;
+  if(!store.fabrics.length){ST.brushFabric=null;host.innerHTML='<p class="hintp">Add a fabric above to brush with it.</p>';return;}
+  if(!ST.brushFabric||!store.fabrics.some(f=>f.id===ST.brushFabric))ST.brushFabric=store.fabrics[0].id;
+  host.innerHTML=store.fabrics.map(f=>`<div class="ms${f.id===ST.brushFabric?' active':''}" data-f="${f.id}"><img src="${f.data}"></div>`).join('');
+  host.querySelectorAll('.ms').forEach(m=>m.onclick=()=>{ST.brushFabric=m.dataset.f;renderBrushFabrics();});}
+function renderBrushColors(){$('#brushColors').innerHTML=PAL.map(c=>`<div class="sw${c===ST.brushColor?' active':''}" style="background:${c}" data-c="${c}"></div>`).join('');
+  $('#brushColors').querySelectorAll('.sw').forEach(sw=>sw.onclick=()=>{ST.brushColor=sw.dataset.c;renderBrushColors();});}
+$$('#photoModeSeg button').forEach(b=>b.onclick=()=>{$$('#photoModeSeg button').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+  ST.photoMode=b.dataset.m;$('#brushTools').style.display=(b.dataset.m==='shape')?'none':'block';$('#shapeTools').style.display=(b.dataset.m==='shape')?'block':'none';
+  if(b.dataset.m==='shape'){renderDropFabrics();renderDropGarments();if(!ST.drape)placeDrop();else drawPhoto();}
+  else{ST.drape=null;drawPhoto();}});
+$$('#dropSrcSeg button').forEach(b=>b.onclick=()=>{$$('#dropSrcSeg button').forEach(x=>x.classList.remove('active'));b.classList.add('active');ST.dropSrc=b.dataset.d;
+  $('#dropShapeTools').style.display=ST.dropSrc==='shape'?'block':'none';$('#dropGarmentTools').style.display=ST.dropSrc==='garment'?'block':'none';
+  if(ST.dropSrc==='garment'&&!store.garments.length)toast('Add a garment under “Your fabrics & garments”');
+  if(ST.photoMode==='shape'){ST.drape?drawPhoto():placeDrop();}});
+$('#dropPlace').onclick=()=>{placeDrop();toast('Placed — drag to position');};
+$('#dropReset').onclick=()=>{placeDrop();toast('Recentred');};
+$('#dropRemove').onclick=()=>{ST.drape=null;drawPhoto();toast('Garment removed — tap the photo to place again');};
+$$('#brushSrc button').forEach(b=>b.onclick=()=>{$$('#brushSrc button').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+  ST.brushSrc=b.dataset.b;$('#brushFabrics').style.display=b.dataset.b==='fabric'?'flex':'none';$('#brushColors').style.display=b.dataset.b==='color'?'grid':'none';});
+$('#brushSize').oninput=e=>ST.brushSize=+e.target.value;
+$('#brushOpacity').oninput=e=>{ST.brushOpacity=+e.target.value/100;if(ST.strokes.length)ST.strokes[ST.strokes.length-1].opacity=ST.brushOpacity;drawPhoto();};
+$('#clearBrush').onclick=()=>{ST.strokes=[];drawPhoto();toast('Cleared');};
+$('#undoBrush').onclick=()=>{ST.strokes.pop();drawPhoto();toast('Last area removed');};
+$('#removePhoto').onclick=()=>{ST.photo=null;ST.strokes=[];ST.drape=null;photoCv=null;baseImageData=null;
+  pStage.innerHTML='<div class="empty">Upload a photo of yourself, choose a fabric, then brush over your outfit.</div>';toast('Photo removed');};
+$('#shapeGarment').onchange=e=>{ST.dragGarment=e.target.value;if(ST.photoMode==='shape'&&ST.dropSrc==='shape'){ST.drape?drawPhoto():placeDrop();}};
+$('#shapeScale').oninput=e=>{if(ST.drape){ST.drape.scale=+e.target.value/100;drawPhoto();}};
+
+/* ---------- ASO-EBI ---------- */
+const AST={testMode:'fabric',testFabric:null,testColor:null};
+function colourDist(c,t){const a=hexToHsl(c),b=hexToHsl(t);if(a[1]<14&&b[1]<14)return Math.abs(a[2]-b[2])*0.8;return hueDist(a[0],b[0])*1.0+Math.abs(a[1]-b[1])*0.5+Math.abs(a[2]-b[2])*0.5;}
+function matchAso(cand){const tg=store.asoTargets;if(!tg.length)return null;let best=Infinity;tg.forEach(t=>{const d=colourDist(cand,t);if(d<best)best=d;});
+  let v;if(best<=22)v={label:'Matches the aso-ebi',tone:'good'};else if(best<=55)v={label:'Close — should pass',tone:'ok'};else v={label:'Does not match — may stand out',tone:'warn'};return{dist:Math.round(best),verdict:v};}
+function renderTargets(){const host=$('#targetColors');host.innerHTML=store.asoTargets.length?store.asoTargets.map(c=>`<div class="ms" style="background:${c};border-color:var(--accent)" data-rm="${c}"></div>`).join(''):'<p class="hintp">No colours set yet.</p>';
+  host.querySelectorAll('[data-rm]').forEach(el=>el.onclick=()=>{store.asoTargets=store.asoTargets.filter(c=>c!==el.dataset.rm);persist();renderTargets();renderTargetPick();updateAso();});}
+function renderTargetPick(){$('#targetPick').innerHTML=PAL.map(c=>`<div class="sw${store.asoTargets.includes(c)?' active':''}" style="background:${c}" data-c="${c}"></div>`).join('');
+  $('#targetPick').querySelectorAll('.sw').forEach(sw=>sw.onclick=()=>{const c=sw.dataset.c;if(store.asoTargets.includes(c))store.asoTargets=store.asoTargets.filter(x=>x!==c);else if(store.asoTargets.length<4)store.asoTargets.push(c);else{toast('Up to 4 colours');return;}persist();renderTargets();renderTargetPick();updateAso();});}
+function renderTestFabrics(){const host=$('#testFabrics');if(!host)return;if(!store.fabrics.length){host.innerHTML='<p class="hintp">Add a fabric, or test a colour instead.</p>';return;}
+  host.innerHTML=store.fabrics.map(f=>`<div class="ms${f.id===AST.testFabric?' active':''}" data-f="${f.id}"><img src="${f.data}"></div>`).join('');
+  host.querySelectorAll('.ms').forEach(m=>m.onclick=()=>{AST.testFabric=m.dataset.f;renderTestFabrics();updateAso();});}
+function renderTestColors(){$('#testColors').innerHTML=PAL.map(c=>`<div class="sw${c===AST.testColor?' active':''}" style="background:${c}" data-c="${c}"></div>`).join('');
+  $('#testColors').querySelectorAll('.sw').forEach(sw=>sw.onclick=()=>{AST.testColor=sw.dataset.c;renderTestColors();updateAso();});}
+$$('#testSeg button').forEach(b=>b.onclick=()=>{$$('#testSeg button').forEach(x=>x.classList.remove('active'));b.classList.add('active');AST.testMode=b.dataset.t;
+  $('#testFabrics').style.display=AST.testMode==='fabric'?'flex':'none';$('#testColors').style.display=AST.testMode==='color'?'grid':'none';updateAso();});
+function updateAso(){const mpct=d=>Math.max(0,Math.min(100,Math.round(100-d)));
+  const set=(label,tone,note,pct,badge,dist,matchTxt,prevVal)=>{$('#aVerdict').textContent=label;const b=$('#aBadge');
+    if(badge){b.style.display='inline-block';b.className='badge '+tone;b.textContent=dist+' off';}else b.style.display='none';
+    const col=tone==='good'?'var(--ok)':tone==='ok'?'var(--okmid)':'var(--warn)';$('#aFill').style.width=pct+'%';$('#aFill').style.background=col;$('#aNote').textContent=note;
+    $('#aMatch').textContent=matchTxt||'';
+    $('#asoPreview').innerHTML=prevVal!==undefined?previewSVG('aso',prevVal):'';};
+  if(!store.asoTargets.length){set('Set the event colours first','ok','Tap colours above to set the official aso-ebi palette.',0,false);return;}
+  const note=r=>r.verdict.tone==='good'?'This sits right within the aso-ebi colours — safe to buy.':r.verdict.tone==='ok'?'Not exact, but close enough to blend with the group. Check in daylight if unsure.':'Noticeably different — it may stand out. Try a shade closer to the palette.';
+  if(AST.testMode==='color'){if(!AST.testColor){set('Pick a colour to test','ok','Choose a colour to compare.',0,false);return;}const r=matchAso(AST.testColor);set(r.verdict.label,r.verdict.tone,note(r),Math.max(8,100-r.dist),true,r.dist,`Match: ${mpct(r.dist)}% — ${r.verdict.label.toLowerCase()}`,AST.testColor);}
+  else{if(!AST.testFabric){set('Pick your fabric to test','ok','Choose a fabric to compare.',0,false);return;}avgColor(fabData(AST.testFabric),c=>{const r=matchAso(c);set(r.verdict.label,r.verdict.tone,note(r),Math.max(8,100-r.dist),true,r.dist,`Match: ${mpct(r.dist)}% — ${r.verdict.label.toLowerCase()}`,AST.testFabric);});}}
+
+/* ---------- PROFILE ---------- */
+function femFig(k){return `<svg viewBox="0 0 80 96"><path d="${SHAPE_FIGS[k]}" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/></svg>`;}
+function renderShapes(){
+  $$('#genderSeg button').forEach(b=>b.classList.toggle('active',b.dataset.g===store.gender));
+  const host=$('#shapes');const set=SHAPES[store.gender];
+  // ensure store.shape belongs to current gender
+  if(!set[store.shape])store.shape=Object.keys(set)[0];
+  host.innerHTML=Object.entries(set).map(([k,v])=>`<div class="shape${store.shape===k?' active':''}" data-s="${k}">${femFig(k)}<div class="sn">${v.label}</div></div>`).join('');
+  host.querySelectorAll('.shape').forEach(s=>s.onclick=()=>{store.shape=s.dataset.s;persist();renderShapes();renderRecos();renderFigure('#figure');renderFigure('#shapePreview');if(ST.photo&&ST.photoMode==='shape')drawPhoto();});renderRecos();renderFigure('#shapePreview');}
+function setGender(g){store.gender=g;const set=SHAPES[g];store.shape=Object.keys(set)[0];persist();renderShapes();renderRecos();renderFigure('#figure');renderFigure('#shapePreview');if(ST.photo)drawPhoto();}
+function renderRecos(){const set=SHAPES[store.gender];if(!store.shape||!set[store.shape]){$('#recos').innerHTML='Choose a shape to see suggestions.';return;}const v=set[store.shape];
+  $('#recos').innerHTML=`For a <b>${v.label.toLowerCase()}</b> shape: try <b>${v.recos.join(', ')}</b>.<br>${v.note}.<br><br>These are suggestions — pick any style you love.`;}
+
+/* ---------- EXPORT / SHARE ---------- */
+function svgToCanvas(svgSel,title,cb){const svg=$(svgSel);if(!svg){toast('Nothing yet');return;}const xml=new XMLSerializer().serializeToString(svg),img=new Image();
+  img.onload=()=>{const c=document.createElement('canvas');c.width=600;c.height=900;const x=c.getContext('2d');x.fillStyle='#f4f0fa';x.fillRect(0,0,600,900);x.drawImage(img,80,20,440,805);
+    x.fillStyle='#2a2018';x.font='600 22px Segoe UI';x.textAlign='center';x.fillText(title,300,860);x.fillStyle='#c69a3e';x.font='600 15px Segoe UI';x.fillText('HB Fabric Studio',300,884);cb(c);};
+  img.onerror=()=>toast('Could not render image');
+  img.src='data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(xml)));}
+function dl(canvas,name){canvas.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1500);});}
+async function shareCanvas(canvas,name,text){canvas.toBlob(async b=>{const file=new File([b],name,{type:'image/png'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],text});}catch(e){}}else{dl(canvas,name);toast('Saved — attach in WhatsApp');}});}
+/* de-dupe guard: a second tap within ~1s can't fire a second share/save (fixes the double-image paste) */
+let _busy=false;function guard(fn){return(...a)=>{if(_busy)return;_busy=true;try{fn(...a);}finally{setTimeout(()=>{_busy=false;},1000);}};}
+/* "As is | Could be" side-by-side built from the clean photo + the painted result */
+function cleanPhotoCanvas(){const c=document.createElement('canvas');c.width=photoCv.width;c.height=photoCv.height;c.getContext('2d').putImageData(baseImageData,0,0);return c;}
+function composeBeforeAfter(cb){const w=photoCv.width,h=photoCv.height,gap=16,lab=60;
+  const c=document.createElement('canvas');c.width=w*2+gap*3;c.height=h+lab+gap;const x=c.getContext('2d');
+  x.fillStyle='#f4f0fa';x.fillRect(0,0,c.width,c.height);
+  x.drawImage(cleanPhotoCanvas(),gap,gap,w,h);x.drawImage(photoCv,gap*2+w,gap,w,h);
+  x.fillStyle='#2a2018';x.font='600 22px Segoe UI';x.textAlign='center';
+  x.fillText('As is',gap+w/2,h+gap+26);x.fillText('Could be',gap*2+w+w/2,h+gap+26);
+  x.fillStyle='#c69a3e';x.font='600 14px Segoe UI';x.fillText('HB Fabric Studio',c.width/2,h+gap+48);cb(c);}
+function photoOut(cb){if(ST.shareMode==='ba')composeBeforeAfter(cb);else cb(photoCv);}
+$$('#shareModeSeg button').forEach(b=>b.onclick=()=>{$$('#shareModeSeg button').forEach(x=>x.classList.remove('active'));b.classList.add('active');ST.shareMode=b.dataset.s;});
+$('#saveOutfit').onclick=guard(()=>svgToCanvas('#figure svg',curOutfit().label,c=>{dl(c,'HB_outfit.png');toast('Saved');}));
+$('#shareOutfit').onclick=guard(()=>svgToCanvas('#figure svg',curOutfit().label,c=>shareCanvas(c,'HB_outfit.png','My outfit — HB Fabric Studio')));
+$('#savePhoto').onclick=guard(()=>{if(!photoCv){toast('Add a photo first');return;}photoOut(c=>{dl(c,'HB_tryon.png');toast('Saved');});});
+$('#sharePhoto').onclick=guard(()=>{if(!photoCv){toast('Add a photo first');return;}photoOut(c=>shareCanvas(c,'HB_tryon.png','Try-on — HB Fabric Studio'));});
+
+/* ---------- HELP GUIDE ---------- */
+const HELP=`<h3 class="sub">How to use HB Fabric Studio</h3>
+<p class="helpp"><b>Your fabrics &amp; garments</b> — Use the toggle to add a <b>Fabric (pattern)</b> or a <b>Garment (item)</b>. Fabrics are swatches you put on parts or your photo. Garments are whole items (a dress, agbada…) you can drop onto your photo — these work best as cut-out PNGs.</p>
+<p class="helpp"><b>Build a look</b> — Pick a style (Yoruba, Igbo, Hausa, Niger Delta, or Western — man or woman). Tap a part (gele, blouse, wrapper…), then give it a colour or fabric. Turn on <b>Accessories</b> (glasses, hat, tie, bow tie) and colour them too. Use <b>Front / Back</b> to see the other side. The colour-check tells you if it works or risks a clash. Undo / Redo / Reset are at the top.</p>
+<p class="helpp"><b>On my photo</b> — Upload a photo of yourself. <b>Brush on cloth</b>: pick a fabric or colour and paint over what you're wearing. <b>Paint area</b>: same, with a wider brush. <b>Drop garment</b>: lay a preset shape (filled with your fabric) <i>or</i> one of your uploaded garments over the photo — drag to position, slide to size, and use Place / Reset / Remove. Share as a single image or an <b>As is · Could be</b> pair.</p>
+<p class="helpp"><b>Aso-Ebi check</b> — Set the event's announced colours, then test any fabric to see the match percentage and how it looks on your shape before you buy.</p>
+<p class="helpp"><b>My shape</b> — Choose man or woman and your body shape. This reshapes the figure in Build a look and the previews, and suggests flattering styles.</p>
+<p class="helpp" style="color:var(--accent)">Everything works offline and stays on your device.</p>`;
+function openHelp(){$('#helpBody').innerHTML=HELP;$('#helpOverlay').classList.add('show');}
+function closeHelp(){$('#helpOverlay').classList.remove('show');if(!store.seenHelp){store.seenHelp=true;persist();}}
+$('#helpBtn').onclick=openHelp;$('#helpClose').onclick=closeHelp;
+$('#helpOverlay').onclick=e=>{if(e.target.id==='helpOverlay')closeHelp();};
+$$('#genderSeg button').forEach(b=>b.onclick=()=>setGender(b.dataset.g));
+
+/* ---------- INIT ---------- */
+renderLib();renderGarments();buildOutfitSelect();renderComposer();
+renderBrushFabrics();renderBrushColors();renderDropFabrics();renderDropGarments();syncCapSeg();
+renderTestFabrics();renderTestColors();renderTargets();renderTargetPick();updateAso();
+renderShapes();updateUndoBtns();
+$$('#viewSeg button').forEach(b=>b.classList.toggle('active',b.dataset.v===(store.view||'front')));
+// populate shape garment dropdown for designer mock
+(function(){const sel=$('#shapeGarment');if(sel)sel.innerHTML=Object.entries(GARMENTS).map(([k,v])=>`<option value="${k}"${k===ST.dragGarment?' selected':''}>${v.label}</option>`).join('');})();
+window.addEventListener('resize',()=>{if(ST.photo)buildPhotoCanvas();});
+if(!store.seenHelp)setTimeout(openHelp,400);
+
+/* PWA */
+let deferred=null;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;$('#installBtn').style.display='inline-block';});
+$('#installBtn').onclick=async()=>{if(deferred){deferred.prompt();await deferred.userChoice;deferred=null;$('#installBtn').style.display='none';}};
+(function(){try{const icon=sz=>{const c=document.createElement('canvas');c.width=c.height=sz;const x=c.getContext('2d');const g=x.createLinearGradient(0,0,sz,sz);g.addColorStop(0,'#e4c578');g.addColorStop(1,'#e0714a');
+  x.fillStyle=g;x.fillRect(0,0,sz,sz);x.fillStyle='#231a09';x.font=`bold ${sz*.5}px Georgia,serif`;x.textAlign='center';x.textBaseline='middle';x.fillText('HB',sz/2,sz*.54);return c.toDataURL();};
+  const man={name:'HB Fabric Studio',short_name:'HB Fabric',display:'standalone',background_color:'#1e2c5a',theme_color:'#1b2a4a',start_url:'.',icons:[{src:icon(192),sizes:'192x192',type:'image/png'},{src:icon(512),sizes:'512x512',type:'image/png'}]};
+  const link=document.createElement('link');link.rel='manifest';link.href=URL.createObjectURL(new Blob([JSON.stringify(man)],{type:'application/json'}));document.head.appendChild(link);
+  if('serviceWorker' in navigator&&location.protocol.startsWith('http')){const sw=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>self.clients.claim());self.addEventListener('fetch',e=>{});`;
+    navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'text/javascript'}))).catch(()=>{});}}catch(e){}})();
+
+</script>
+</body>
+</html>
