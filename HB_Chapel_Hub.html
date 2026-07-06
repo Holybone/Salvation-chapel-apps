@@ -211,6 +211,16 @@ textarea{resize:vertical;min-height:64px}
 .song-row-head{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;font-weight:700;color:var(--navy);margin-bottom:8px}
 .song-row input,.song-row select{margin-bottom:8px;background:#fff}
 .song-row .row3{gap:8px}
+/* registers & check-in pills */
+.pill-grid{display:flex;flex-wrap:wrap;margin:-4px}
+.name-pill{margin:4px;padding:9px 14px;border-radius:var(--r-pill);border:1px solid var(--line);background:var(--cream);font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer}
+.name-pill.on{background:#1C7A4A;border-color:#1C7A4A;color:#fff}
+.name-pill.late{background:var(--warn-bg);border-color:#e3c264;color:#8a6a09}
+.roster-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.roster-row:last-child{border-bottom:none}
+.roster-row .rr-main{flex:1}
+.roster-row .rr-sub{font-size:12px;color:var(--muted)}
+.roster-row.inactive .rr-main{color:var(--muted);text-decoration:line-through}
 noscript .nojs{display:block;background:var(--warn-bg);color:var(--warn);padding:12px;text-align:center;font-size:13px}
 </style>
 </head>
@@ -243,6 +253,8 @@ noscript .nojs{display:block;background:var(--warn-bg);color:var(--warn);padding
     <button class="role-chip" data-role="finance" onclick="setRole('finance')">Finance Sec.</button>
     <button class="role-chip" data-role="pastor" onclick="setRole('pastor')">Pastorate</button>
     <button class="role-chip" data-role="choir" onclick="setRole('choir')">Choir</button>
+    <button class="role-chip" data-role="teacher" onclick="setRole('teacher')">Teacher</button>
+    <button class="role-chip" data-role="timekeeper" onclick="setRole('timekeeper')">Timekeeper</button>
   </div>
   <div class="tiles" id="tiles">
     <button class="tile t1" data-roles="usher" onclick="go('report')">
@@ -257,7 +269,7 @@ noscript .nojs{display:block;background:var(--warn-bg);color:var(--warn);padding
       <div class="tile-ic r2">🗓️</div>
       <div><h3>Duty Roster</h3><p>The pastorate assigns ministers to each part of the Sunday and midweek services.</p></div>
     </button>
-    <button class="tile t1" data-roles="usher finance pastor choir" onclick="go('dashboard')">
+    <button class="tile t1" data-roles="usher finance pastor choir teacher timekeeper" onclick="go('dashboard')">
       <div class="tile-ic r1">📊</div>
       <div><h3>Monthly Dashboard</h3><p>See the month at a glance — attendance trend, total giving by category, and the roster.</p></div>
     </button>
@@ -273,9 +285,17 @@ noscript .nojs{display:block;background:var(--warn-bg);color:var(--warn);padding
       <div class="tile-ic r2">✅</div>
       <div><h3>Requests &amp; Approvals</h3><p>Media, facility and other requests — submitted, then approved or declined.</p></div>
     </button>
-    <button class="tile t1" data-roles="usher finance pastor choir" onclick="go('events')">
+    <button class="tile t1" data-roles="usher finance pastor choir teacher timekeeper" onclick="go('events')">
       <div class="tile-ic r1">📝</div>
       <div><h3>Event Sign-ups</h3><p>Create an event and let people add their names to serve or attend.</p></div>
+    </button>
+    <button class="tile t2" data-roles="teacher pastor" onclick="go('sschool')">
+      <div class="tile-ic r2">🎒</div>
+      <div><h3>Sunday School</h3><p>Teachers mark class registers and leadership sees attendance reports per class and month.</p></div>
+    </button>
+    <button class="tile t3" data-roles="timekeeper pastor" onclick="go('workers')">
+      <div class="tile-ic r3">⏰</div>
+      <div><h3>Workers' Punctuality</h3><p>Check workers in for pre-service prayer, midweek and vigils — with the year's recognition list.</p></div>
     </button>
   </div>
   <div class="home-note"><b>Works offline on this device.</b> Everything you record — attendance, offering counts, rosters, requisitions, choir plans, requests and events — is saved on this phone, with or without internet. To let the whole team share the same records across phones, set up <b>Sync</b> (tap the ⚙ gear at the top).</div>
@@ -315,6 +335,7 @@ noscript .nojs{display:block;background:var(--warn-bg);color:var(--warn);padding
       <div class="field"><label>Sunday school — Adults</label><input type="number" min="0" id="r-ss-ad" placeholder="0"></div>
       <div class="field"><label>Sunday school — Children</label><input type="number" min="0" id="r-ss-ch" placeholder="0"></div>
     </div>
+    <div class="btn-row"><button class="btn btn-ghost btn-block" onclick="fillSSFromRegister()">⤵ Fill from Sunday School register</button></div>
 
     <div class="field"><label>Recorded by</label><input type="text" id="r-by" placeholder="Your name"></div>
     <div class="btn-row">
@@ -468,6 +489,101 @@ noscript .nojs{display:block;background:var(--warn-bg);color:var(--warn);padding
   <div class="saved-list" id="ev-list"></div>
 </section>
 
+<!-- SUNDAY SCHOOL -->
+<section class="screen" id="sschool">
+  <div class="screen-head"><h2>🎒 Sunday School</h2><p>Mark your class register in under two minutes. Names only — no phone numbers or emails are stored (NDPR-friendly).</p></div>
+
+  <div class="card">
+    <h3>Mark attendance</h3>
+    <div class="row2">
+      <div class="field"><label>Class</label><select id="ss-class" onchange="renderSSMark()"></select></div>
+      <div class="field"><label>Date</label><input type="date" id="ss-date"></div>
+    </div>
+    <div class="section-label">Tap each child present</div>
+    <div id="ss-mark"></div>
+    <div class="row2" style="margin-top:12px">
+      <div class="field"><label>Visitors <span class="hint">(count)</span></label><input type="number" min="0" id="ss-visitors" placeholder="0"></div>
+      <div class="field"><label>Teacher (marked by)</label><input id="ss-by" placeholder="Your name"></div>
+    </div>
+    <div class="field"><label>Note <span class="hint">(optional)</span></label><input id="ss-note" placeholder="e.g. rained heavily"></div>
+    <button class="btn btn-primary btn-block" onclick="saveSSAtt()">Save register</button>
+  </div>
+
+  <div class="collapse-head" onclick="toggleC(this)"><span>🏫 Manage classes &amp; students</span><span class="ci">tap to open ▾</span></div>
+  <div class="collapse-body">
+    <div class="card" style="margin-top:6px">
+      <div class="row2">
+        <div class="field"><label>New class name</label><input id="ssc-name" placeholder="e.g. Primary 1"></div>
+        <div class="field"><label>Category</label><select id="ssc-type"><option>Children</option><option>Teens</option><option>Adult</option></select></div>
+      </div>
+      <button class="btn btn-gold btn-block" onclick="addSSClass()">Add class</button>
+      <div id="ssc-list" style="margin-top:14px"></div>
+    </div>
+  </div>
+
+  <div class="collapse-head" onclick="toggleC(this)"><span>📈 Reports</span><span class="ci">tap to open ▾</span></div>
+  <div class="collapse-body">
+    <div class="card" style="margin-top:6px">
+      <div class="field"><label>Month</label><input type="month" id="ss-rep-month" onchange="renderSSReport()"></div>
+      <div id="ss-report"></div>
+    </div>
+  </div>
+
+  <div class="section-label">Saved registers</div>
+  <div class="saved-list" id="ss-list"></div>
+</section>
+
+<!-- WORKERS PUNCTUALITY -->
+<section class="screen" id="workers">
+  <div class="screen-head"><h2>⏰ Workers' Punctuality</h2><p>Check workers in for designated services. Arrivals before the cut-off count as early.</p></div>
+
+  <div class="card">
+    <h3>Check-in</h3>
+    <div class="row2">
+      <div class="field"><label>Service</label><select id="wk-sess"></select></div>
+      <div class="field"><label>Date</label><input type="date" id="wk-date" onchange="renderWkCheckin()"></div>
+    </div>
+    <div class="field"><label>Timekeeper today</label><input id="wk-by" placeholder="Your name (role can rotate)"></div>
+    <div class="section-label">Tap a worker as they arrive</div>
+    <div id="wk-checkin"></div>
+  </div>
+
+  <div class="collapse-head" onclick="toggleC(this)"><span>👥 Workers register</span><span class="ci">tap to open ▾</span></div>
+  <div class="collapse-body">
+    <div class="card" style="margin-top:6px">
+      <div class="row2">
+        <div class="field"><label>Worker name</label><input id="wkr-name" placeholder="Full name"></div>
+        <div class="field"><label>Ministry / dept</label><input id="wkr-min" placeholder="e.g. Ushering"></div>
+      </div>
+      <button class="btn btn-gold btn-block" onclick="addWorker()">Add worker</button>
+      <div id="wkr-list" style="margin-top:14px"></div>
+    </div>
+  </div>
+
+  <div class="collapse-head" onclick="toggleC(this)"><span>🏆 Year report &amp; recognition list</span><span class="ci">tap to open ▾</span></div>
+  <div class="collapse-body">
+    <div class="card" style="margin-top:6px">
+      <div class="field"><label>Year</label><input type="number" id="wk-year" min="2024" max="2100" onchange="renderWkLeague()"></div>
+      <div id="wk-league"></div>
+      <button class="btn btn-ghost btn-block" style="margin-top:12px" onclick="shareRecognition()">Share recognition list</button>
+    </div>
+  </div>
+
+  <div class="collapse-head" onclick="toggleC(this)"><span>⚙ Sessions &amp; target</span><span class="ci">tap to open ▾</span></div>
+  <div class="collapse-body">
+    <div class="card" style="margin-top:6px">
+      <div id="wk-sess-list"></div>
+      <div class="row3" style="margin-top:10px">
+        <div class="field"><label>Session name</label><input id="wks-name" placeholder="e.g. Friday Vigil"></div>
+        <div class="field"><label>Day</label><select id="wks-day"><option value="0">Sunday</option><option value="1">Monday</option><option value="2">Tuesday</option><option value="3">Wednesday</option><option value="4">Thursday</option><option value="5">Friday</option><option value="6">Saturday</option><option value="-1">Announced (not weekly)</option></select></div>
+        <div class="field"><label>Cut-off time</label><input type="time" id="wks-cutoff" value="08:00"></div>
+      </div>
+      <button class="btn btn-gold btn-block" onclick="addWkSession()">Add session</button>
+      <div class="field" style="margin-top:14px"><label>Annual target (%) — workers at or above this make the recognition list</label><input type="number" id="wk-target" min="1" max="100" onchange="saveWkTarget()"></div>
+    </div>
+  </div>
+</section>
+
 <!-- SETTINGS / SYNC -->
 <section class="screen" id="settings">
   <div class="screen-head"><h2>⚙️ Settings &amp; Sync</h2><p>Connect every phone to one shared record. Optional — the app works offline without it.</p></div>
@@ -577,7 +693,7 @@ function saveReport(){
   var rec={id:uid(),updated:Date.now(),deleted:false,date:el('r-date').value,service:el('r-service').value,event:el('r-event').value.trim(),
     counts:counts,total:reportTotal(),ftRe:num(el('r-ft-re').value),ftNew:num(el('r-ft-new').value),
     converts:num(el('r-converts').value),visitors:num(el('r-visitors').value),
-    mwAd:num(el('r-mw-ad').value),mwCh:num(el('r-mw-ch').value),ssAd:num(el('r-ss-ad').value),ssCh:num(el('r-ss-ch').value),
+    mwAd:num(el('r-mw-ad').value),mwCh:num(el('r-mw-ch').value),ssAd:num(el('r-ss-ad').value),ssCh:num(el('r-ss-ch').value),ssSource:(_ssFedDate===el('r-date').value),
     by:el('r-by').value.trim()};
   var all=load('hbhub_reports',[]);all.unshift(rec);save('hbhub_reports',all);maybeAutoSync();
   // reset counts but keep date/service
@@ -596,7 +712,7 @@ function reportText(r){
   L.push('Converts: '+r.converts);
   L.push('Visitors: '+r.visitors);
   L.push('Midweek (Ad/Ch): '+r.mwAd+' / '+r.mwCh);
-  L.push('Sunday school (Ad/Ch): '+r.ssAd+' / '+r.ssCh);
+  L.push('Sunday school (Ad/Ch): '+r.ssAd+' / '+r.ssCh+(r.ssSource?'  (from the Sunday School register)':''));
   if(r.by){L.push('');L.push('Recorded by: '+r.by);}
   return L.join('\n');
 }
@@ -956,6 +1072,255 @@ function shareEvent(id){var e=load('hbhub_events',[]).filter(function(x){return 
 function delEvent(id){if(!confirm('Delete this event?'))return;var a=load('hbhub_events',[]);a.forEach(function(x){if(x.id===id){x.deleted=true;x.updated=Date.now();}});save('hbhub_events',a);renderEventList();maybeAutoSync();toast('Deleted');}
 
 /* ===================================================================
+   SUNDAY SCHOOL — class registers & reports (names only, NDPR-safe)
+=================================================================== */
+function ssClasses(){return load('hbhub_ssclasses',[]).filter(function(x){return !x.deleted;});}
+function addSSClass(){
+  var n=el('ssc-name').value.trim();if(!n){toast('Enter a class name');return;}
+  var a=load('hbhub_ssclasses',[]);a.push({id:uid(),updated:Date.now(),deleted:false,name:n,type:el('ssc-type').value,students:[]});
+  save('hbhub_ssclasses',a);el('ssc-name').value='';maybeAutoSync();renderSSAll();toast('Class added');
+}
+function addSSStudent(cid){
+  var n=prompt('Student name (name only — no phone/email is stored):');if(n===null||!n.trim())return;
+  var a=load('hbhub_ssclasses',[]);a.forEach(function(c){if(c.id===cid){c.students=c.students||[];c.students.push({sid:uid(),name:n.trim(),active:true});c.updated=Date.now();}});
+  save('hbhub_ssclasses',a);maybeAutoSync();renderSSAll();
+}
+function toggleSSStudent(cid,sid){
+  var a=load('hbhub_ssclasses',[]);a.forEach(function(c){if(c.id===cid){(c.students||[]).forEach(function(s){if(s.sid===sid)s.active=!s.active;});c.updated=Date.now();}});
+  save('hbhub_ssclasses',a);maybeAutoSync();renderSSAll();
+}
+function delSSClass(cid){if(!confirm('Remove this class? Past registers are kept.'))return;
+  var a=load('hbhub_ssclasses',[]);a.forEach(function(c){if(c.id===cid){c.deleted=true;c.updated=Date.now();}});
+  save('hbhub_ssclasses',a);maybeAutoSync();renderSSAll();toast('Class removed');
+}
+function renderSSCList(){
+  var box=el('ssc-list');if(!box)return;var cls=ssClasses();
+  if(!cls.length){box.innerHTML='<div class="empty">No classes yet — add your first class above.</div>';return;}
+  box.innerHTML=cls.map(function(c){
+    var kids=(c.students||[]).map(function(s){
+      return '<div class="roster-row'+(s.active?'':' inactive')+'"><span class="rr-main">'+s.name+'</span><button class="mini ghost" onclick="toggleSSStudent(\''+c.id+'\',\''+s.sid+'\')">'+(s.active?'deactivate':'restore')+'</button></div>';
+    }).join('');
+    return '<div class="song-row"><div class="song-row-head"><span>'+c.name+' · '+c.type+' · '+(c.students||[]).filter(function(s){return s.active;}).length+' students</span><span><button class="mini ghost" onclick="addSSStudent(\''+c.id+'\')">＋ student</button> <button class="mini ghost" onclick="delSSClass(\''+c.id+'\')">remove</button></span></div>'+(kids||'<div class="rr-sub">No students yet.</div>')+'</div>';
+  }).join('');
+}
+var ssPresent={};
+function renderSSClassSelect(){
+  var sel=el('ss-class');if(!sel)return;var cls=ssClasses();
+  sel.innerHTML=cls.length?cls.map(function(c){return '<option value="'+c.id+'">'+c.name+' ('+c.type+')</option>';}).join(''):'<option value="">— add a class first —</option>';
+}
+function renderSSMark(){
+  var box=el('ss-mark');if(!box)return;ssPresent={};
+  var c=ssClasses().filter(function(x){return x.id===el('ss-class').value;})[0];
+  if(!c||!(c.students||[]).filter(function(s){return s.active;}).length){box.innerHTML='<div class="empty">No students in this class yet — open “Manage classes” below to add them.</div>';return;}
+  box.innerHTML='<div class="pill-grid">'+c.students.filter(function(s){return s.active;}).map(function(s){
+    return '<button type="button" class="name-pill" id="sp-'+s.sid+'" onclick="toggleSSMark(\''+s.sid+'\')">'+s.name+'</button>';
+  }).join('')+'</div>';
+}
+function toggleSSMark(sid){ssPresent[sid]=!ssPresent[sid];var p=el('sp-'+sid);if(p)p.className='name-pill'+(ssPresent[sid]?' on':'');}
+function saveSSAtt(){
+  if(!el('ss-date').value){toast('Pick a date');return;}
+  var c=ssClasses().filter(function(x){return x.id===el('ss-class').value;})[0];
+  if(!c){toast('Add a class first');return;}
+  var roster=(c.students||[]).filter(function(s){return s.active;});
+  var present=[],absent=[];roster.forEach(function(s){(ssPresent[s.sid]?present:absent).push({sid:s.sid,name:s.name});});
+  if(!present.length&&!num(el('ss-visitors').value)){toast('Tap at least one student present');return;}
+  var rec={id:uid(),updated:Date.now(),deleted:false,date:el('ss-date').value,classId:c.id,className:c.name,type:c.type,
+    present:present,absent:absent,roster:roster.length,visitors:num(el('ss-visitors').value),note:el('ss-note').value.trim(),by:el('ss-by').value.trim()};
+  var a=load('hbhub_ssatt',[]);a.unshift(rec);save('hbhub_ssatt',a);maybeAutoSync();
+  ssPresent={};renderSSMark();el('ss-visitors').value='';el('ss-note').value='';
+  renderSSList();toast('Register saved');
+}
+function ssAttText(r){
+  var L=['*SALVATION CHAPEL — SUNDAY SCHOOL REGISTER*'];
+  L.push('Class: '+r.className+' ('+r.type+')');L.push('Date: '+fmtDate(r.date));L.push('');
+  L.push('Present: '+r.present.length+' of '+r.roster+(r.visitors?('  ·  Visitors: '+r.visitors):''));
+  L.push('');L.push('PRESENT');r.present.forEach(function(s,i){L.push((i+1)+'. '+s.name);});
+  if(r.absent.length){L.push('');L.push('ABSENT');r.absent.forEach(function(s,i){L.push((i+1)+'. '+s.name);});}
+  if(r.note){L.push('');L.push('Note: '+r.note);}
+  if(r.by){L.push('Marked by: '+r.by);}
+  return L.join('\n');
+}
+function ssAttSummary(r){
+  var pct=r.roster?Math.round(r.present.length/r.roster*100):0;
+  return '<div class="sum-card sum-roster"><div class="sum-head"><span>🎒 '+r.className+'</span><span class="sum-date">'+fmtDate(r.date)+'</span></div><div class="sum-grid g3">'+statTile(r.present.length,'Present')+statTile(pct+'%','Attendance')+statTile(r.visitors||0,'Visitors')+'</div></div>';
+}
+function renderSSList(){
+  var all=load('hbhub_ssatt',[]).filter(function(x){return !x.deleted;});var box=el('ss-list');if(!box)return;
+  if(!all.length){box.innerHTML='<div class="empty">No registers yet.</div>';return;}
+  box.innerHTML=all.slice(0,20).map(function(r){
+    return '<div class="saved-item"><div class="si-main"><div class="si-title">'+r.className+' — '+fmtDate(r.date)+'</div><div class="si-sub">'+r.present.length+'/'+r.roster+' present'+(r.visitors?' · '+r.visitors+' visitors':'')+'</div></div><button class="icon-btn" onclick="shareSSAtt(\''+r.id+'\')">📤</button><button class="icon-btn" onclick="delSSAtt(\''+r.id+'\')">🗑</button></div>';
+  }).join('');
+}
+function shareSSAtt(id){var r=load('hbhub_ssatt',[]).filter(function(x){return x.id===id;})[0];if(r)showModal('Sunday School — '+fmtDate(r.date),ssAttSummary(r),ssAttText(r));}
+function delSSAtt(id){if(!confirm('Delete this register?'))return;var a=load('hbhub_ssatt',[]);a.forEach(function(x){if(x.id===id){x.deleted=true;x.updated=Date.now();}});save('hbhub_ssatt',a);maybeAutoSync();renderSSList();toast('Deleted');}
+function renderSSReport(){
+  var ym=el('ss-rep-month').value;var w=el('ss-report');if(!w)return;
+  if(!ym){w.innerHTML='<div class="dash-empty">Pick a month.</div>';return;}
+  var regs=load('hbhub_ssatt',[]).filter(function(x){return !x.deleted&&inMonth(x.date,ym);});
+  if(!regs.length){w.innerHTML='<div class="dash-empty">No registers recorded for this month.</div>';return;}
+  var byClass={};regs.forEach(function(r){(byClass[r.className]=byClass[r.className]||[]).push(r);});
+  var h='';var names=Object.keys(byClass);
+  names.forEach(function(cn){
+    var rs=byClass[cn];var sund=rs.length,sumP=0,sumR=0,vis=0;var stu={};
+    rs.forEach(function(r){sumP+=r.present.length;sumR+=r.roster;vis+=r.visitors||0;r.present.forEach(function(s){stu[s.name]=(stu[s.name]||0)+1;});});
+    var pct=sumR?Math.round(sumP/sumR*100):0;
+    var top=Object.keys(stu).sort(function(a,b){return stu[b]-stu[a];}).slice(0,3).map(function(n){return n+' ('+stu[n]+'/'+sund+')';}).join(', ');
+    h+='<div class="dash-card"><h3>'+cn+'</h3><div class="dash-kpis">'+dkpi(sund,'Sundays')+dkpi(pct+'%','Attendance')+dkpi(vis,'Visitors')+'</div>'+(top?'<p style="font-size:12.5px;color:var(--muted);margin-top:10px">Most consistent: '+top+'</p>':'')+'</div>';
+  });
+  w.innerHTML=h;
+}
+function renderSSAll(){renderSSCList();renderSSClassSelect();renderSSMark();}
+/* feed Sunday School totals into the Spiritual Report (source stated) */
+var _ssFedDate='';
+function fillSSFromRegister(){
+  var d=el('r-date').value;if(!d){toast('Pick the report date first');return;}
+  var regs=load('hbhub_ssatt',[]).filter(function(x){return !x.deleted&&x.date===d;});
+  if(!regs.length){toast('No Sunday School registers for '+fmtDate(d));return;}
+  var ad=0,ch=0;regs.forEach(function(r){var n=r.present.length+(r.visitors||0);if(r.type==='Adult')ad+=n;else ch+=n;});
+  el('r-ss-ad').value=ad;el('r-ss-ch').value=ch;_ssFedDate=d;
+  toast('Filled from Sunday School register');
+}
+
+/* ===================================================================
+   WORKERS' PUNCTUALITY — check-in, league & recognition list
+=================================================================== */
+function wkSessions(){return load('hbhub_wsessions',[]).filter(function(x){return !x.deleted;});}
+function wkCfg(){var a=load('hbhub_wcfg',[]);var c=a.filter(function(x){return x.id==='cfg';})[0];return c||{id:'cfg',target:75};}
+function seedWorkersDefaults(){
+  if(!load('hbhub_wsessions',[]).length){
+    save('hbhub_wsessions',[
+      {id:'s_sun',updated:Date.now(),deleted:false,name:'Sunday Pre-Service Prayer',day:0,cutoff:'08:00'},
+      {id:'s_wed',updated:Date.now(),deleted:false,name:'Wednesday Bible Study',day:3,cutoff:'18:30'},
+      {id:'s_fri',updated:Date.now(),deleted:false,name:'Friday Vigil — Workers Hour',day:-1,cutoff:'23:00'}]);
+  }
+  if(!load('hbhub_wcfg',[]).length){save('hbhub_wcfg',[{id:'cfg',updated:Date.now(),deleted:false,target:75}]);}
+}
+function addWkSession(){
+  var n=el('wks-name').value.trim();if(!n){toast('Enter a session name');return;}
+  var a=load('hbhub_wsessions',[]);a.push({id:uid(),updated:Date.now(),deleted:false,name:n,day:parseInt(el('wks-day').value,10),cutoff:el('wks-cutoff').value||'08:00'});
+  save('hbhub_wsessions',a);el('wks-name').value='';maybeAutoSync();renderWkAll();toast('Session added');
+}
+function delWkSession(id){if(!confirm('Remove this session? Past check-ins are kept.'))return;
+  var a=load('hbhub_wsessions',[]);a.forEach(function(x){if(x.id===id){x.deleted=true;x.updated=Date.now();}});
+  save('hbhub_wsessions',a);maybeAutoSync();renderWkAll();
+}
+function setWkCutoff(id){
+  var s=wkSessions().filter(function(x){return x.id===id;})[0];if(!s)return;
+  var v=prompt('New cut-off time for "'+s.name+'" (24-hr HH:MM):',s.cutoff);if(v===null)return;
+  if(!/^([01]\d|2[0-3]):[0-5]\d$/.test(v.trim())){toast('Use HH:MM, e.g. 06:45');return;}
+  var a=load('hbhub_wsessions',[]);a.forEach(function(x){if(x.id===id){x.cutoff=v.trim();x.updated=Date.now();}});
+  save('hbhub_wsessions',a);maybeAutoSync();renderWkAll();toast('Cut-off updated');
+}
+function saveWkTarget(){
+  var t=num(el('wk-target').value);if(t<1||t>100){toast('Target must be 1–100');return;}
+  var a=load('hbhub_wcfg',[]);var f=false;a.forEach(function(x){if(x.id==='cfg'){x.target=t;x.updated=Date.now();f=true;}});
+  if(!f)a.push({id:'cfg',updated:Date.now(),deleted:false,target:t});
+  save('hbhub_wcfg',a);maybeAutoSync();renderWkLeague();toast('Target saved: '+t+'%');
+}
+var DAYN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+function renderWkSessList(){
+  var box=el('wk-sess-list');if(!box)return;
+  box.innerHTML=wkSessions().map(function(s){
+    return '<div class="roster-row"><span class="rr-main">'+s.name+'<div class="rr-sub">'+(s.day>=0?('Every '+DAYN[s.day]):'Announced dates only')+' · arrive before '+s.cutoff+'</div></span><button class="mini ghost" onclick="setWkCutoff(\''+s.id+'\')">cut-off</button><button class="mini ghost" onclick="delWkSession(\''+s.id+'\')">remove</button></div>';
+  }).join('')||'<div class="empty">No sessions — add one below.</div>';
+}
+function workers(){return load('hbhub_workers',[]).filter(function(x){return !x.deleted;});}
+function addWorker(){
+  var n=el('wkr-name').value.trim();if(!n){toast('Enter the worker\u2019s name');return;}
+  var a=load('hbhub_workers',[]);a.push({id:uid(),updated:Date.now(),deleted:false,name:n,ministry:el('wkr-min').value.trim(),active:true});
+  save('hbhub_workers',a);el('wkr-name').value='';el('wkr-min').value='';maybeAutoSync();renderWkAll();toast('Worker added');
+}
+function toggleWorker(id){var a=load('hbhub_workers',[]);a.forEach(function(x){if(x.id===id){x.active=!x.active;x.updated=Date.now();}});save('hbhub_workers',a);maybeAutoSync();renderWkAll();}
+function renderWorkerList(){
+  var box=el('wkr-list');if(!box)return;var ws=load('hbhub_workers',[]).filter(function(x){return !x.deleted;});
+  if(!ws.length){box.innerHTML='<div class="empty">No workers yet — add the register above.</div>';return;}
+  box.innerHTML=ws.map(function(w){
+    return '<div class="roster-row'+(w.active?'':' inactive')+'"><span class="rr-main">'+w.name+(w.ministry?'<div class="rr-sub">'+w.ministry+'</div>':'')+'</span><button class="mini ghost" onclick="toggleWorker(\''+w.id+'\')">'+(w.active?'deactivate':'restore')+'</button></div>';
+  }).join('');
+}
+function renderWkSessSelect(){
+  var sel=el('wk-sess');if(!sel)return;
+  sel.innerHTML=wkSessions().map(function(s){return '<option value="'+s.id+'">'+s.name+' (before '+s.cutoff+')</option>';}).join('');
+  sel.onchange=renderWkCheckin;
+}
+function wkCheckins(){return load('hbhub_checkins',[]).filter(function(x){return !x.deleted;});}
+function renderWkCheckin(){
+  var box=el('wk-checkin');if(!box)return;
+  var sid=el('wk-sess').value,d=el('wk-date').value;
+  if(!sid||!d){box.innerHTML='<div class="empty">Pick a service and date.</div>';return;}
+  var recs={};wkCheckins().forEach(function(c){if(c.sess===sid&&c.date===d)recs[c.wid]=c;});
+  var ws=workers().filter(function(w){return w.active;});
+  if(!ws.length){box.innerHTML='<div class="empty">Add workers in the register below first.</div>';return;}
+  box.innerHTML='<div class="pill-grid">'+ws.map(function(w){
+    var c=recs[w.id];var cls=c?(c.status==='Early'?' on':' late'):'';
+    var lbl=w.name+(c?(' · '+c.time+(c.status==='Late'?' (late)':'')):'');
+    return '<button type="button" class="name-pill'+cls+'" onclick="tapWorker(\''+w.id+'\')">'+lbl+'</button>';
+  }).join('')+'</div><div class="btn-row" style="margin-top:12px"><button class="btn btn-ghost" onclick="shareWkDay()">Share today\u2019s list</button></div>';
+}
+function tapWorker(wid){
+  var sid=el('wk-sess').value,d=el('wk-date').value;
+  var all=load('hbhub_checkins',[]);var ex=all.filter(function(c){return !c.deleted&&c.sess===sid&&c.date===d&&c.wid===wid;})[0];
+  if(ex){if(confirm('Remove this check-in?')){ex.deleted=true;ex.updated=Date.now();save('hbhub_checkins',all);maybeAutoSync();renderWkCheckin();}return;}
+  var s=wkSessions().filter(function(x){return x.id===sid;})[0];if(!s)return;
+  var now=new Date();var hh=('0'+now.getHours()).slice(-2)+':'+('0'+now.getMinutes()).slice(-2);
+  var status=(hh<=s.cutoff)?'Early':'Late';
+  if(status==='Late'&&confirm('Time is past the '+s.cutoff+' cut-off, so this counts as LATE.\nTap OK to record Late, or Cancel to record Early with a reason (e.g. was on assignment).')===false){
+    var reason=prompt('Reason for marking early:')||'';if(!reason.trim()){toast('No reason — not recorded');return;}
+    status='Early';all.push({id:uid(),updated:Date.now(),deleted:false,date:d,sess:sid,wid:wid,time:hh,status:status,reason:reason.trim(),by:el('wk-by').value.trim()});
+  }else{
+    all.push({id:uid(),updated:Date.now(),deleted:false,date:d,sess:sid,wid:wid,time:hh,status:status,by:el('wk-by').value.trim()});
+  }
+  save('hbhub_checkins',all);maybeAutoSync();renderWkCheckin();
+}
+function shareWkDay(){
+  var sid=el('wk-sess').value,d=el('wk-date').value;
+  var s=wkSessions().filter(function(x){return x.id===sid;})[0];if(!s||!d){toast('Pick a service and date');return;}
+  var wmap={};workers().forEach(function(w){wmap[w.id]=w.name;});
+  var recs=wkCheckins().filter(function(c){return c.sess===sid&&c.date===d;});
+  var early=recs.filter(function(c){return c.status==='Early';}),late=recs.filter(function(c){return c.status==='Late';});
+  var came={};recs.forEach(function(c){came[c.wid]=1;});
+  var absent=workers().filter(function(w){return w.active&&!came[w.id];});
+  var L=['*SALVATION CHAPEL — WORKERS\u2019 ATTENDANCE*'];
+  L.push(s.name);L.push('Date: '+fmtDate(d)+'  ·  Cut-off: '+s.cutoff);
+  var tk=el('wk-by').value.trim();if(tk)L.push('Timekeeper: '+tk);
+  L.push('');L.push('EARLY ('+early.length+')');early.forEach(function(c,i){L.push((i+1)+'. '+(wmap[c.wid]||'?')+' — '+c.time+(c.reason?' ('+c.reason+')':''));});
+  if(late.length){L.push('');L.push('LATE ('+late.length+')');late.forEach(function(c,i){L.push((i+1)+'. '+(wmap[c.wid]||'?')+' — '+c.time);});}
+  if(absent.length){L.push('');L.push('ABSENT ('+absent.length+')');absent.forEach(function(w,i){L.push((i+1)+'. '+w.name);});}
+  var sum='<div class="sum-card sum-offering"><div class="sum-head"><span>⏰ '+s.name+'</span><span class="sum-date">'+fmtDate(d)+'</span></div><div class="sum-grid g3">'+statTile(early.length,'Early')+statTile(late.length,'Late')+statTile(absent.length,'Absent')+'</div></div>';
+  showModal('Workers — '+fmtDate(d),sum,L.join('\n'));
+}
+function wkLeagueData(year){
+  var recs=wkCheckins().filter(function(c){return c.date&&c.date.indexOf(year+'-')===0;});
+  var held={};recs.forEach(function(c){held[c.sess+'|'+c.date]=1;});
+  var heldN=Object.keys(held).length;
+  var per={};recs.forEach(function(c){if(c.status==='Early')per[c.wid]=(per[c.wid]||0)+1;});
+  var rows=workers().map(function(w){var e=per[w.id]||0;return {name:w.name,ministry:w.ministry,early:e,pct:heldN?Math.round(e/heldN*100):0};});
+  rows.sort(function(a,b){return b.pct-a.pct||b.early-a.early;});
+  return {held:heldN,rows:rows,target:wkCfg().target||75};
+}
+function renderWkLeague(){
+  var w=el('wk-league');if(!w)return;var y=num(el('wk-year').value)||new Date().getFullYear();
+  var d=wkLeagueData(y);
+  if(!d.held){w.innerHTML='<div class="dash-empty">No check-ins recorded for '+y+' yet.</div>';return;}
+  var h='<div class="dash-kpis">'+dkpi(d.held,'Sessions held')+dkpi(d.target+'%','Target')+dkpi(d.rows.filter(function(r){return r.pct>=d.target;}).length,'On track')+'</div><div style="margin-top:12px">';
+  d.rows.forEach(function(r){h+=bar(r.name.split(' ')[0],r.pct,100,r.pct>=d.target?'':'nav')+'';});
+  h+='</div>';w.innerHTML=h;
+}
+function shareRecognition(){
+  var y=num(el('wk-year').value)||new Date().getFullYear();
+  var d=wkLeagueData(y);
+  if(!d.held){toast('No check-ins for '+y+' yet');return;}
+  var met=d.rows.filter(function(r){return r.pct>=d.target;});
+  var L=['*SALVATION CHAPEL — STEWARDSHIP RECOGNITION LIST '+y+'*'];
+  L.push('Punctuality target: '+d.target+'% of '+d.held+' designated sessions');L.push('');
+  if(met.length){L.push('WORKERS WHO MET THE TARGET \uD83C\uDFC6');met.forEach(function(r,i){L.push((i+1)+'. '+r.name+(r.ministry?' ('+r.ministry+')':'')+' — '+r.pct+'% ('+r.early+'/'+d.held+')');});}
+  else{L.push('No worker has met the target yet.');}
+  var sum='<div class="sum-card sum-report"><div class="sum-head"><span>🏆 Recognition '+y+'</span><span class="sum-date">Target '+d.target+'%</span></div><div class="sum-grid g3">'+statTile(d.held,'Sessions')+statTile(met.length,'Qualified')+statTile(d.rows.length,'Workers')+'</div></div>';
+  showModal('Stewardship Recognition '+y,sum,L.join('\n'));
+}
+function renderWkAll(){renderWkSessList();renderWorkerList();renderWkSessSelect();renderWkCheckin();renderWkLeague();}
+
+/* ===================================================================
    SYNC — Phase 2 (Google Sheets via Apps Script)
 =================================================================== */
 function syncCfg(){return load('hbhub_sync',{url:'',code:'',auto:true});}
@@ -968,9 +1333,9 @@ function mergeArr(localArr,remoteArr){
   var out=[];for(var k in map)if(map.hasOwnProperty(k))out.push(map[k]);
   out.sort(function(a,b){return (b.updated||0)-(a.updated||0);});return out;
 }
-function localBundle(){return {reports:load('hbhub_reports',[]),offerings:load('hbhub_offerings',[]),rosters:load('hbhub_rosters',[]),reqs:load('hbhub_reqs',[]),setlists:load('hbhub_setlists',[]),requests:load('hbhub_requests',[]),events:load('hbhub_events',[])};}
-function applyBundle(rem){if(!rem)return;save('hbhub_reports',mergeArr(load('hbhub_reports',[]),rem.reports));save('hbhub_offerings',mergeArr(load('hbhub_offerings',[]),rem.offerings));save('hbhub_rosters',mergeArr(load('hbhub_rosters',[]),rem.rosters));save('hbhub_reqs',mergeArr(load('hbhub_reqs',[]),rem.reqs));save('hbhub_setlists',mergeArr(load('hbhub_setlists',[]),rem.setlists));save('hbhub_requests',mergeArr(load('hbhub_requests',[]),rem.requests));save('hbhub_events',mergeArr(load('hbhub_events',[]),rem.events));}
-function refreshAll(){renderReportList();renderOfferingList();renderRosterList();renderDashboard();renderReqList();renderSetlistList();renderRequestList();renderEventList();}
+function localBundle(){return {reports:load('hbhub_reports',[]),offerings:load('hbhub_offerings',[]),rosters:load('hbhub_rosters',[]),reqs:load('hbhub_reqs',[]),setlists:load('hbhub_setlists',[]),requests:load('hbhub_requests',[]),events:load('hbhub_events',[]),ssclasses:load('hbhub_ssclasses',[]),ssatt:load('hbhub_ssatt',[]),workers:load('hbhub_workers',[]),wsessions:load('hbhub_wsessions',[]),wcfg:load('hbhub_wcfg',[]),checkins:load('hbhub_checkins',[])};}
+function applyBundle(rem){if(!rem)return;save('hbhub_reports',mergeArr(load('hbhub_reports',[]),rem.reports));save('hbhub_offerings',mergeArr(load('hbhub_offerings',[]),rem.offerings));save('hbhub_rosters',mergeArr(load('hbhub_rosters',[]),rem.rosters));save('hbhub_reqs',mergeArr(load('hbhub_reqs',[]),rem.reqs));save('hbhub_setlists',mergeArr(load('hbhub_setlists',[]),rem.setlists));save('hbhub_requests',mergeArr(load('hbhub_requests',[]),rem.requests));save('hbhub_events',mergeArr(load('hbhub_events',[]),rem.events));save('hbhub_ssclasses',mergeArr(load('hbhub_ssclasses',[]),rem.ssclasses));save('hbhub_ssatt',mergeArr(load('hbhub_ssatt',[]),rem.ssatt));save('hbhub_workers',mergeArr(load('hbhub_workers',[]),rem.workers));save('hbhub_wsessions',mergeArr(load('hbhub_wsessions',[]),rem.wsessions));save('hbhub_wcfg',mergeArr(load('hbhub_wcfg',[]),rem.wcfg));save('hbhub_checkins',mergeArr(load('hbhub_checkins',[]),rem.checkins));}
+function refreshAll(){renderReportList();renderOfferingList();renderRosterList();renderDashboard();renderReqList();renderSetlistList();renderRequestList();renderEventList();renderSSAll();renderSSList();renderWkAll();}
 var _syncT=null;
 function maybeAutoSync(){var c=syncCfg();if(!syncConfigured()||c.auto===false)return;if(_syncT)clearTimeout(_syncT);_syncT=setTimeout(function(){syncNow(true);},1400);}
 function syncNow(silent){
@@ -1035,6 +1400,13 @@ function initApp(){
   el('rq-date').value=today;el('rqq-date').value=today;el('ch-date').value=today;el('ev-date').value=today;
   if(!songRows.length)addSong();
   renderReqList();renderSetlistList();renderRequestList();renderEventList();
+  // sunday school + workers
+  seedWorkersDefaults();
+  el('ss-date').value=today;el('ss-rep-month').value=today.slice(0,7);
+  renderSSAll();renderSSList();renderSSReport();
+  el('wk-date').value=today;el('wk-year').value=(new Date()).getFullYear();
+  el('wk-target').value=wkCfg().target||75;
+  renderWkAll();
   // church logo
   applyLogo();updateLogoPreview();
   // phase 2: sync settings
