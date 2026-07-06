@@ -187,6 +187,10 @@ textarea{resize:vertical;min-height:64px}
 .bar-fill{height:100%;background:linear-gradient(90deg,#E2AC2C,#C5821A);border-radius:6px 0 0 6px;min-width:2px}
 .bar-fill.nav{background:linear-gradient(90deg,#3A46A0,#1E2761)}
 .bar-val{flex:0 0 auto;font-weight:600;color:var(--navy);font-size:12.5px}
+.wk-bar-row{margin:12px 0}
+.wk-bar-row .wk-bar-name{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:5px;display:flex;justify-content:space-between;gap:8px}
+.wk-bar-row .wk-bar-pct{color:var(--navy);font-family:Georgia,serif;flex:0 0 auto}
+.wk-bar-row .bar-track{width:100%;background:var(--cream);border-radius:6px;height:14px;overflow:hidden;border:1px solid var(--line)}
 .dash-empty{color:var(--muted);font-size:13.5px;padding:18px;text-align:center;background:var(--cream);border:1px dashed var(--line);border-radius:var(--r-sm);margin-top:14px}
 
 /* phase 3: filters, badges, actions, song rows */
@@ -221,6 +225,16 @@ textarea{resize:vertical;min-height:64px}
 .roster-row .rr-main{flex:1}
 .roster-row .rr-sub{font-size:12px;color:var(--muted)}
 .roster-row.inactive .rr-main{color:var(--muted);text-decoration:line-through}
+
+/* bulk import preview */
+.bulk-summary{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.bulk-summary .b-stat{background:var(--cream);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13px;font-weight:600}
+.bulk-summary .b-stat.add{background:#E2F3E8;border-color:#bfe6cd;color:#1C7A4A}
+.bulk-summary .b-stat.skip{background:var(--warn-bg);border-color:#e3c264;color:#8a6a09}
+.bulk-list{max-height:32vh;overflow:auto;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--cream);padding:10px;font-size:13px;line-height:1.55}
+.bulk-list .b-add{color:#1C7A4A}
+.bulk-list .b-skip{color:#8a6a09;text-decoration:line-through}
+.undo-row{margin-top:12px;font-size:13px;color:var(--muted);display:flex;justify-content:space-between;align-items:center;background:var(--cream);border:1px dashed var(--line);border-radius:var(--r-sm);padding:8px 12px}
 noscript .nojs{display:block;background:var(--warn-bg);color:var(--warn);padding:12px;text-align:center;font-size:13px}
 </style>
 </head>
@@ -514,9 +528,13 @@ noscript .nojs{display:block;background:var(--warn-bg);color:var(--warn);padding
     <div class="card" style="margin-top:6px">
       <div class="row2">
         <div class="field"><label>New class name</label><input id="ssc-name" placeholder="e.g. Primary 1"></div>
-        <div class="field"><label>Category</label><select id="ssc-type"><option>Children</option><option>Teens</option><option>Adult</option></select></div>
+        <div class="field"><label>Category <span class="hint">(any label — Children, Teens, Adult, NextGen, Young Couples…)</span></label><input id="ssc-type" placeholder="e.g. NextGen" value="Children"></div>
       </div>
       <button class="btn btn-gold btn-block" onclick="addSSClass()">Add class</button>
+      <div class="btn-row" style="margin-top:8px">
+        <button class="btn btn-ghost" onclick="openBulk('classes')">📥 Bulk add classes</button>
+        <button class="btn btn-ghost" onclick="downloadTemplate('classes')">⬇ Template</button>
+      </div>
       <div id="ssc-list" style="margin-top:14px"></div>
     </div>
   </div>
@@ -556,6 +574,10 @@ noscript .nojs{display:block;background:var(--warn-bg);color:var(--warn);padding
         <div class="field"><label>Ministry / dept</label><input id="wkr-min" placeholder="e.g. Ushering"></div>
       </div>
       <button class="btn btn-gold btn-block" onclick="addWorker()">Add worker</button>
+      <div class="btn-row" style="margin-top:8px">
+        <button class="btn btn-ghost" onclick="openBulk('workers')">📥 Bulk add workers</button>
+        <button class="btn btn-ghost" onclick="downloadTemplate('workers')">⬇ Template</button>
+      </div>
       <div id="wkr-list" style="margin-top:14px"></div>
     </div>
   </div>
@@ -629,6 +651,28 @@ noscript .nojs{display:block;background:var(--warn-bg);color:var(--warn);padding
     </div>
   </div>
 </div>
+<!-- BULK IMPORT MODAL -->
+<div class="modal" id="bulkModal" onclick="if(event.target===this)closeBulk()">
+  <div class="modal-box">
+    <div class="modal-head"><h3 id="bulk-title">Bulk add</h3><button class="icon-btn" onclick="closeBulk()">✕</button></div>
+    <div class="modal-body">
+      <p class="hint" id="bulk-hint" style="margin-bottom:10px;display:block"></p>
+      <div class="btn-row" style="margin-bottom:12px">
+        <button class="btn btn-ghost" onclick="bulkDownloadTemplate()">⬇ Download template (.csv)</button>
+        <button class="btn btn-ghost" onclick="shareTemplateWhatsApp()">📤 Share template on WhatsApp</button>
+        <label class="btn btn-ghost" style="cursor:pointer">📎 Upload CSV<input type="file" id="bulk-file" accept=".csv,text/csv" style="display:none" onchange="bulkFilePicked(event)"></label>
+      </div>
+      <div class="msg-label">Or paste the list here — one per line</div>
+      <textarea id="bulk-text" placeholder="" style="min-height:150px;font-family:ui-monospace,monospace;font-size:13px"></textarea>
+      <div class="btn-row" style="margin-top:12px">
+        <button class="btn btn-gold" onclick="bulkPreview()">Preview</button>
+        <button class="btn btn-ghost" onclick="closeBulk()">Cancel</button>
+      </div>
+      <div id="bulk-preview" style="margin-top:14px"></div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -904,6 +948,7 @@ function applyRole(role){
 =================================================================== */
 function dkpi(v,l){return '<div class="dash-kpi"><div class="k">'+v+'</div><div class="kl">'+l+'</div></div>';}
 function bar(label,val,max,cls,cur){var pct=max>0?Math.round(val/max*100):0;return '<div class="bar-row"><span class="bl">'+label+'</span><span class="bar-track"><span class="bar-fill '+(cls||'')+'" style="width:'+pct+'%"></span></span><span class="bar-val">'+(cur||'')+fmtN(val)+'</span></div>';}
+function wkBar(name,pct,onTrack){return '<div class="wk-bar-row"><div class="wk-bar-name">'+name+' <span class="wk-bar-pct">'+pct+'%</span></div><div class="bar-track"><span class="bar-fill '+(onTrack?'':'nav')+'" style="width:'+pct+'%"></span></div></div>';}
 function inMonth(d,ym){return d&&d.indexOf(ym)===0;}
 function renderDashboard(){
   var ym=el('db-month').value;var w=el('dash-wrap');if(!w)return;
@@ -1072,6 +1117,184 @@ function shareEvent(id){var e=load('hbhub_events',[]).filter(function(x){return 
 function delEvent(id){if(!confirm('Delete this event?'))return;var a=load('hbhub_events',[]);a.forEach(function(x){if(x.id===id){x.deleted=true;x.updated=Date.now();}});save('hbhub_events',a);renderEventList();maybeAutoSync();toast('Deleted');}
 
 /* ===================================================================
+   BULK IMPORT — students, workers, classes (CSV or paste)
+=================================================================== */
+var bulkCtx=null,bulkParsed=null,lastImport=null;
+function openBulk(kind,classId){
+  bulkCtx={kind:kind,classId:classId||''};bulkParsed=null;
+  var titles={students:'Bulk add students',workers:'Bulk add workers',classes:'Bulk add classes'};
+  var hints={
+    students:'One student name per line. Names only — phone numbers and emails are never stored (NDPR).',
+    workers:'One worker per line, as "Name" or "Name, Ministry". Example: <em>Sis. Ada, Ushering</em>',
+    classes:'One class per line, as "Class name" or "Class name, Category". Category can be anything (Children, Teens, Adult, NextGen, Young Couples…).'
+  };
+  el('bulk-title').textContent=titles[kind]+(kind==='students'&&classId?(' — '+(ssClasses().filter(function(x){return x.id===classId;})[0]||{}).name):'');
+  el('bulk-hint').innerHTML=hints[kind];
+  el('bulk-text').value='';el('bulk-file').value='';el('bulk-preview').innerHTML='';
+  el('bulkModal').classList.add('open');
+}
+function closeBulk(){el('bulkModal').classList.remove('open');bulkCtx=null;bulkParsed=null;}
+function parseCSVLine(line){
+  // simple CSV: handles "quoted, values" and plain commas
+  var out=[],cur='',q=false;
+  for(var i=0;i<line.length;i++){var ch=line.charAt(i);
+    if(q){if(ch==='"'){if(line.charAt(i+1)==='"'){cur+='"';i++;}else{q=false;}}else cur+=ch;}
+    else{if(ch===','){out.push(cur);cur='';}else if(ch==='"'&&cur===''){q=true;}else cur+=ch;}
+  }
+  out.push(cur);return out.map(function(s){return s.trim();});
+}
+function bulkFilePicked(ev){
+  var f=ev.target.files&&ev.target.files[0];if(!f)return;
+  var reader=new FileReader();
+  reader.onload=function(){el('bulk-text').value=reader.result;bulkPreview();};
+  reader.onerror=function(){toast('Could not read that file');};
+  reader.readAsText(f);
+}
+function shareTemplateWhatsApp(){
+  if(!bulkCtx){toast('Pick a list type first');return;}
+  var kind=bulkCtx.kind;
+  var friendly={
+    students:{title:'Sunday School Students',ask:'Please help fill in the names of the students in your class'},
+    workers:{title:'Workers Register',ask:'Please help fill in the workers under your ministry'},
+    classes:{title:'Sunday School Classes',ask:'Please help fill in the class names and categories you run'}
+  }[kind];
+  var samples={
+    students:'Name\nBro. Sample One\nSis. Sample Two\nMaster Sample Three',
+    workers:'Name, Ministry\nBro. Sample One, Ushering\nSis. Sample Two, Choir\nBro. Sample Three, Media',
+    classes:'Class Name, Category\nBeginners, Children\nTeens Class, Teens\nNextGen, NextGen\nYoung Couples, Young Couples'
+  }[kind];
+  var format={
+    students:'One name per line. Names only please — no phone numbers or emails (NDPR).',
+    workers:'One worker per line, as: Name, Ministry',
+    classes:'One class per line, as: Class Name, Category'
+  }[kind];
+  var msg='*Salvation Chapel — '+friendly.title+' Template* 📋\n\n'
+    +'Hello 🙏\n\n'
+    +friendly.ask+'.\n\n'
+    +'*Format:* '+format+'\n\n'
+    +'*Example:*\n'
+    +'```\n'+samples+'\n```\n\n'
+    +'Kindly reply to this chat with your list in the same format. It will be uploaded straight into HB Chapel Hub. Thank you! 🙌\n\n'
+    +'_HB Chapel Hub · Salvation Chapel_';
+  var url='https://wa.me/?text='+encodeURIComponent(msg);
+  try{window.open(url,'_blank');}catch(e){toast('Could not open WhatsApp');}
+}
+function downloadTemplate(kind){
+  var content='',name='';
+  if(kind==='students'){content='Name\nBro. Sample One\nSis. Sample Two\nMaster Sample Three\n';name='sunday_school_students_template.csv';}
+  else if(kind==='workers'){content='Name,Ministry\nBro. Sample One,Ushering\nSis. Sample Two,Choir\nBro. Sample Three,Media\n';name='workers_template.csv';}
+  else if(kind==='classes'){content='Class Name,Category\nBeginners,Children\nTeens Class,Teens\nNextGen,NextGen\nYoung Couples,Young Couples\n';name='sunday_school_classes_template.csv';}
+  else{toast('Pick a list type first');return;}
+  try{
+    var blob=new Blob([content],{type:'text/csv;charset=utf-8'});var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();
+    setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},100);
+    toast('Template downloaded');
+  }catch(e){toast('Download not supported — copy the sample from the placeholder instead');}
+}
+function bulkPreview(){
+  if(!bulkCtx){return;}
+  var text=el('bulk-text').value||'';
+  var lines=text.split(/\r?\n/).map(function(l){return l.trim();}).filter(function(l){return l.length>0;});
+  // drop header row if it matches
+  if(lines.length){
+    var first=lines[0].toLowerCase();
+    if(/^name\b/.test(first)||/^class name\b/.test(first))lines=lines.slice(1);
+  }
+  if(!lines.length){el('bulk-preview').innerHTML='<div class="empty">Paste or upload some names first.</div>';return;}
+  var toAdd=[],toSkip=[],seen={};
+  function ci(s){return (s||'').toLowerCase().replace(/\s+/g,' ').trim();}
+  var existing={};
+  if(bulkCtx.kind==='students'){
+    var c=ssClasses().filter(function(x){return x.id===bulkCtx.classId;})[0]||{students:[]};
+    (c.students||[]).forEach(function(s){existing[ci(s.name)]=1;});
+  }else if(bulkCtx.kind==='workers'){workers().forEach(function(w){existing[ci(w.name)]=1;});}
+  else if(bulkCtx.kind==='classes'){ssClasses().forEach(function(x){existing[ci(x.name)]=1;});}
+  lines.forEach(function(line){
+    var parts=parseCSVLine(line);var name=parts[0]||'';var extra=parts[1]||'';
+    if(!name){return;}
+    var key=ci(name);
+    if(existing[key]||seen[key]){toSkip.push({name:name,reason:existing[key]?'already exists':'duplicate in list'});return;}
+    seen[key]=1;
+    if(bulkCtx.kind==='students')toAdd.push({name:name});
+    else if(bulkCtx.kind==='workers')toAdd.push({name:name,ministry:extra});
+    else if(bulkCtx.kind==='classes')toAdd.push({name:name,type:extra||'Children'});
+  });
+  bulkParsed={toAdd:toAdd,toSkip:toSkip};
+  var h='<div class="bulk-summary">'+
+    '<span class="b-stat add">'+toAdd.length+' to add</span>'+
+    (toSkip.length?'<span class="b-stat skip">'+toSkip.length+' skipped</span>':'')+
+    '</div>';
+  if(toAdd.length||toSkip.length){
+    h+='<div class="bulk-list">';
+    toAdd.slice(0,80).forEach(function(x){h+='<div class="b-add">＋ '+x.name+(x.ministry?' <span style="color:var(--muted)">('+x.ministry+')</span>':(x.type?' <span style="color:var(--muted)">('+x.type+')</span>':''))+'</div>';});
+    if(toAdd.length>80)h+='<div style="color:var(--muted);margin-top:4px">…and '+(toAdd.length-80)+' more</div>';
+    toSkip.slice(0,20).forEach(function(x){h+='<div class="b-skip">– '+x.name+' <span style="color:var(--muted);text-decoration:none">('+x.reason+')</span></div>';});
+    if(toSkip.length>20)h+='<div style="color:var(--muted);margin-top:4px">…and '+(toSkip.length-20)+' skipped</div>';
+    h+='</div>';
+    h+='<div class="btn-row" style="margin-top:12px">'+(toAdd.length?'<button class="btn btn-primary" onclick="bulkCommit()">Add '+toAdd.length+' now</button>':'')+'<button class="btn btn-ghost" onclick="closeBulk()">Cancel</button></div>';
+  }else{
+    h+='<div class="empty">Nothing new to add.</div>';
+  }
+  el('bulk-preview').innerHTML=h;
+}
+function bulkCommit(){
+  if(!bulkCtx||!bulkParsed||!bulkParsed.toAdd.length)return;
+  var added=[],kind=bulkCtx.kind;
+  if(kind==='students'){
+    var a=load('hbhub_ssclasses',[]);
+    a.forEach(function(c){if(c.id===bulkCtx.classId){c.students=c.students||[];bulkParsed.toAdd.forEach(function(x){var sid=uid();c.students.push({sid:sid,name:x.name,active:true});added.push({cid:c.id,sid:sid});});c.updated=Date.now();}});
+    save('hbhub_ssclasses',a);
+    lastImport={kind:'students',classId:bulkCtx.classId,items:added};
+  }else if(kind==='workers'){
+    var w=load('hbhub_workers',[]);
+    bulkParsed.toAdd.forEach(function(x){var id=uid();w.push({id:id,updated:Date.now(),deleted:false,name:x.name,ministry:x.ministry||'',active:true});added.push(id);});
+    save('hbhub_workers',w);
+    lastImport={kind:'workers',items:added};
+  }else if(kind==='classes'){
+    var cs=load('hbhub_ssclasses',[]);
+    bulkParsed.toAdd.forEach(function(x){var id=uid();cs.push({id:id,updated:Date.now(),deleted:false,name:x.name,type:x.type,students:[]});added.push(id);});
+    save('hbhub_ssclasses',cs);
+    lastImport={kind:'classes',items:added};
+  }
+  maybeAutoSync();
+  if(kind==='workers')renderWkAll();else renderSSAll();
+  var n=added.length,skipped=bulkParsed.toSkip.length;
+  closeBulk();
+  toast(n+' added'+(skipped?' · '+skipped+' skipped':'')+' — tap 🩹 to undo');
+  showUndoBar(n,skipped);
+}
+function showUndoBar(n,skipped){
+  // add a lightweight undo strip to the page briefly
+  var old=document.getElementById('undoBar');if(old)old.parentNode.removeChild(old);
+  var bar=document.createElement('div');bar.id='undoBar';bar.className='undo-row';
+  bar.style.cssText='position:fixed;bottom:70px;left:50%;transform:translateX(-50%);z-index:180;background:#fff;box-shadow:0 8px 24px rgba(0,0,0,0.15);min-width:280px;max-width:90%';
+  bar.innerHTML='<span>✅ Added '+n+(skipped?' · skipped '+skipped:'')+'</span><button class="mini ghost" onclick="undoImport();this.parentNode.remove()">🩹 Undo</button>';
+  document.body.appendChild(bar);
+  setTimeout(function(){var b=document.getElementById('undoBar');if(b)b.parentNode.removeChild(b);},9000);
+}
+function undoImport(){
+  if(!lastImport){toast('Nothing to undo');return;}
+  var k=lastImport.kind;
+  if(k==='students'){
+    var a=load('hbhub_ssclasses',[]);var kill={};lastImport.items.forEach(function(i){kill[i.sid]=1;});
+    a.forEach(function(c){if(c.id===lastImport.classId){c.students=(c.students||[]).filter(function(s){return !kill[s.sid];});c.updated=Date.now();}});
+    save('hbhub_ssclasses',a);
+  }else if(k==='workers'){
+    var w=load('hbhub_workers',[]);var kill2={};lastImport.items.forEach(function(id){kill2[id]=1;});
+    w.forEach(function(x){if(kill2[x.id]){x.deleted=true;x.updated=Date.now();}});
+    save('hbhub_workers',w);
+  }else if(k==='classes'){
+    var cs=load('hbhub_ssclasses',[]);var kill3={};lastImport.items.forEach(function(id){kill3[id]=1;});
+    cs.forEach(function(x){if(kill3[x.id]){x.deleted=true;x.updated=Date.now();}});
+    save('hbhub_ssclasses',cs);
+  }
+  lastImport=null;maybeAutoSync();
+  if(k==='workers')renderWkAll();else renderSSAll();
+  toast('Import undone');
+}
+
+/* ===================================================================
    SUNDAY SCHOOL — class registers & reports (names only, NDPR-safe)
 =================================================================== */
 function ssClasses(){return load('hbhub_ssclasses',[]).filter(function(x){return !x.deleted;});}
@@ -1100,7 +1323,7 @@ function renderSSCList(){
     var kids=(c.students||[]).map(function(s){
       return '<div class="roster-row'+(s.active?'':' inactive')+'"><span class="rr-main">'+s.name+'</span><button class="mini ghost" onclick="toggleSSStudent(\''+c.id+'\',\''+s.sid+'\')">'+(s.active?'deactivate':'restore')+'</button></div>';
     }).join('');
-    return '<div class="song-row"><div class="song-row-head"><span>'+c.name+' · '+c.type+' · '+(c.students||[]).filter(function(s){return s.active;}).length+' students</span><span><button class="mini ghost" onclick="addSSStudent(\''+c.id+'\')">＋ student</button> <button class="mini ghost" onclick="delSSClass(\''+c.id+'\')">remove</button></span></div>'+(kids||'<div class="rr-sub">No students yet.</div>')+'</div>';
+    return '<div class="song-row"><div class="song-row-head"><span>'+c.name+' · '+c.type+' · '+(c.students||[]).filter(function(s){return s.active;}).length+' students</span><span><button class="mini ghost" onclick="addSSStudent(\''+c.id+'\')">＋ student</button> <button class="mini ghost" onclick="openBulk(\'students\',\''+c.id+'\')">📥 bulk</button> <button class="mini ghost" onclick="delSSClass(\''+c.id+'\')">remove</button></span></div>'+(kids||'<div class="rr-sub">No students yet.</div>')+'</div>';
   }).join('');
 }
 var ssPresent={};
@@ -1176,7 +1399,7 @@ function fillSSFromRegister(){
   var d=el('r-date').value;if(!d){toast('Pick the report date first');return;}
   var regs=load('hbhub_ssatt',[]).filter(function(x){return !x.deleted&&x.date===d;});
   if(!regs.length){toast('No Sunday School registers for '+fmtDate(d));return;}
-  var ad=0,ch=0;regs.forEach(function(r){var n=r.present.length+(r.visitors||0);if(r.type==='Adult')ad+=n;else ch+=n;});
+  var ad=0,ch=0;regs.forEach(function(r){var n=r.present.length+(r.visitors||0);if(/adult/i.test(r.type||''))ad+=n;else ch+=n;});
   el('r-ss-ad').value=ad;el('r-ss-ch').value=ch;_ssFedDate=d;
   toast('Filled from Sunday School register');
 }
@@ -1303,7 +1526,7 @@ function renderWkLeague(){
   var d=wkLeagueData(y);
   if(!d.held){w.innerHTML='<div class="dash-empty">No check-ins recorded for '+y+' yet.</div>';return;}
   var h='<div class="dash-kpis">'+dkpi(d.held,'Sessions held')+dkpi(d.target+'%','Target')+dkpi(d.rows.filter(function(r){return r.pct>=d.target;}).length,'On track')+'</div><div style="margin-top:12px">';
-  d.rows.forEach(function(r){h+=bar(r.name.split(' ')[0],r.pct,100,r.pct>=d.target?'':'nav')+'';});
+  d.rows.forEach(function(r){h+=wkBar(r.name,r.pct,r.pct>=d.target)+'';});
   h+='</div>';w.innerHTML=h;
 }
 function shareRecognition(){
