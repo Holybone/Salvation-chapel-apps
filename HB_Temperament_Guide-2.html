@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HB Temperament Guide</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root{
+  --bg1:#241a3d; --bg2:#171233; --bg3:#2e1a3a;
+  --glass:rgba(255,255,255,.07); --glass-2:rgba(255,255,255,.13); --glass-line:rgba(255,255,255,.16);
+  --txt:#f3f0fa; --muted:rgba(243,240,250,.60);
+  --gold:#D4A017; --gold-2:#f0c75e;
+  --san:#FF8C5A; --san-d:#c9531f;
+  --cho:#EF5350; --cho-d:#a12723;
+  --mel:#3E7BE0; --mel-d:#1f4a9e;
+  --phl:#22B573; --phl-d:#0f7a4c;
+  --r:20px; --blur:20px;
+  --shadow:0 10px 34px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  color:var(--txt); min-height:100%; overflow-x:hidden; position:relative;
+  background:linear-gradient(150deg,var(--bg1),var(--bg2) 55%,var(--bg3));
+  background-attachment:fixed;
+}
+h1,h2,h3,.serif{font-family:Georgia,'Times New Roman',serif;}
+body::before,body::after{content:"";position:fixed;border-radius:50%;filter:blur(70px);opacity:.35;z-index:0;pointer-events:none;transition:background 1.2s ease;}
+body::before{width:420px;height:420px;background:radial-gradient(circle,var(--accent-a,#e0714a),transparent 70%);top:-100px;right:-80px;}
+body::after{width:460px;height:460px;background:radial-gradient(circle,var(--accent-b,#5a8de0),transparent 70%);bottom:-140px;left:-100px;}
+
+@media (prefers-reduced-motion: reduce){ *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;} }
+
+.wrap{position:relative; z-index:1; max-width:720px; margin:0 auto; padding:16px 16px 100px;}
+
+@media (min-width:860px){
+  .wrap{max-width:1120px; padding:28px 32px 110px;}
+  header.top{padding:18px 22px;}
+  .mark{width:54px;height:54px;flex:0 0 54px;}
+  .mark span{font-size:26px;}
+  .title h1{font-size:1.5rem;}
+  .title p{font-size:.78rem;}
+  nav.tabs{padding:8px;}
+  nav.tabs button{font-size:.85rem;padding:13px 16px;}
+  .hero{padding:48px 40px;}
+  .hero h2{font-size:2.5rem;}
+  .hero p{font-size:1.05rem;max-width:640px;}
+  .wheel{width:220px;height:220px;}
+  .card{padding:28px 30px;}
+  .viewtoggle{max-width:480px;}
+  #modePicker, #lensPicker{max-width:420px;}
+  .card > p, .card p:not(.appdesc):not(.blend):not(.appname){max-width:760px;}
+  .bibleblock, .growthbox, .tensionbox, .creditbox, .proxynote{max-width:760px;}
+  .qtext{font-size:1.35rem;}
+  .optbtn{font-size:1rem;padding:19px 22px;}
+  .blendname{font-size:2.4rem;}
+  .blendtag{font-size:.98rem;}
+  #modelCards{display:grid; grid-template-columns:repeat(auto-fit, minmax(300px,1fr)); gap:18px; align-items:start;}
+  .modelcard{margin-bottom:0 !important;}
+  .appslist{display:grid !important; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:12px;}
+  .profilelist{gap:10px;}
+}
+@media (min-width:1300px){
+  .wrap{max-width:1280px;}
+}
+
+header.top{display:flex; align-items:center; gap:12px; padding:12px 14px; margin-bottom:14px;
+  background:var(--glass); backdrop-filter:blur(var(--blur)); border:1px solid var(--glass-line); border-radius:var(--r); box-shadow:var(--shadow);}
+.mark{width:46px;height:46px;flex:0 0 46px;border-radius:13px;background:linear-gradient(145deg,var(--gold),var(--gold-2));display:grid;place-items:center;box-shadow:0 6px 18px rgba(0,0,0,.3);}
+.mark span{font-family:Georgia,serif;font-weight:700;font-size:22px;color:#2a1b06;}
+.title h1{font-size:1.18rem;font-weight:700;line-height:1.15;}
+.title h1 b{color:var(--gold-2);font-weight:400;}
+.title p{font-size:.68rem;color:var(--muted);letter-spacing:.5px;margin-top:2px;}
+
+nav.tabs{display:flex;gap:6px;margin-bottom:16px;padding:6px;background:var(--glass);backdrop-filter:blur(var(--blur));border:1px solid var(--glass-line);border-radius:16px;overflow-x:auto;}
+nav.tabs button{flex:1;white-space:nowrap;font-size:.72rem;font-weight:600;padding:10px 10px;border-radius:12px;border:none;background:transparent;color:var(--muted);cursor:pointer;transition:.15s;}
+nav.tabs button.active{background:var(--glass-2);color:var(--txt);box-shadow:inset 0 0 0 1px var(--glass-line);}
+nav.tabs button:hover{color:var(--txt);}
+
+.view{display:none; animation:fadein .35s ease;}
+.view.active{display:block;}
+@keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+.glass{background:var(--glass);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));border:1px solid var(--glass-line);border-radius:var(--r);box-shadow:var(--shadow);}
+.card{padding:22px 20px;margin-bottom:16px;}
+
+.hero{padding:30px 22px;text-align:center;}
+.hero .eyebrow{font-size:.68rem;letter-spacing:3px;text-transform:uppercase;color:var(--gold-2);font-weight:700;margin-bottom:10px;}
+.hero h2{font-size:1.7rem;line-height:1.25;margin-bottom:10px;}
+.hero p{color:var(--muted);font-size:.92rem;line-height:1.5;max-width:480px;margin:0 auto 22px;}
+
+.wheel{width:180px;height:180px;margin:0 auto 20px;position:relative;}
+.wheel svg{width:100%;height:100%;transform:rotate(-90deg);}
+.wheel .center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;}
+.wheel .center b{font-size:1.4rem;font-family:Georgia,serif;}
+.wheel .center span{font-size:.62rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
+
+.btn{font-size:.85rem;font-weight:700;padding:13px 20px;border-radius:14px;border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:.15s;width:100%;}
+.btn:active{transform:translateY(1px);}
+.btn-primary{background:linear-gradient(145deg,var(--gold),var(--gold-2));color:#2a1b06;box-shadow:0 8px 20px rgba(212,160,23,.25);}
+.btn-primary:hover{filter:brightness(1.06);}
+.btn-ghost{background:var(--glass-2);color:var(--txt);border:1px solid var(--glass-line);}
+.btn-ghost:hover{background:rgba(255,255,255,.18);}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;}
+.btnrow .btn{width:auto;flex:1;min-width:140px;}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media (max-width:520px){.grid2{grid-template-columns:1fr;}}
+
+.modelcard{padding:20px;border-radius:18px;border:1px solid var(--glass-line);background:var(--glass);}
+.modelcard h3{font-size:1.05rem;margin-bottom:6px;}
+.modelcard .badge{display:inline-block;font-size:.62rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 9px;border-radius:20px;margin-bottom:10px;}
+.badge.science{background:rgba(62,123,224,.22);color:#9ec2ff;}
+.badge.tool{background:rgba(212,160,23,.22);color:var(--gold-2);}
+.modelcard p{font-size:.84rem;color:var(--muted);line-height:1.5;}
+.creditbox{margin-top:14px;padding:12px 14px;border-radius:14px;background:rgba(212,160,23,.1);border:1px solid rgba(212,160,23,.3);font-size:.78rem;line-height:1.5;color:#e9dcb8;}
+.creditbox b{color:var(--gold-2);}
+.readingbox{margin-top:12px;}
+.readinglbl{font-size:.62rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);font-weight:700;margin-bottom:6px;}
+.readingbox ul{padding-left:18px;font-size:.78rem;color:var(--muted);line-height:1.6;}
+
+.qhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:.72rem;color:var(--muted);}
+.progressbar{height:8px;border-radius:5px;background:rgba(255,255,255,.1);overflow:hidden;margin-bottom:22px;}
+.progressbar .fill{height:100%;border-radius:5px;transition:width .4s ease, background .4s ease;background:var(--gold);}
+
+.qtext{font-size:1.15rem;line-height:1.4;margin-bottom:22px;font-family:Georgia,serif;}
+.optbtn{display:block;width:100%;text-align:left;padding:16px 18px;margin-bottom:12px;border-radius:16px;border:1.5px solid var(--glass-line);background:var(--glass-2);color:var(--txt);font-size:.92rem;cursor:pointer;transition:.15s;line-height:1.4;}
+.optbtn:hover{border-color:var(--gold-2);background:rgba(255,255,255,.16);}
+.optbtn:active{transform:scale(0.99);}
+
+.resulthead{text-align:center;padding:26px 20px 20px;}
+.blendglass{
+  position:relative; overflow:hidden;
+  background:
+    linear-gradient(0deg, rgba(10,6,24,.42), rgba(10,6,24,.16)),
+    linear-gradient(135deg, var(--c1) 0%, var(--c2) 100%);
+  border:1px solid rgba(255,255,255,.3);
+  backdrop-filter:blur(var(--blur));
+  -webkit-backdrop-filter:blur(var(--blur));
+}
+.blendglass::before{
+  content:""; position:absolute; top:0; left:0; right:0; height:60%;
+  background:linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,0));
+  pointer-events:none;
+}
+.blendglass .wheel .center{background:transparent;}
+.blendname{font-size:1.9rem;font-family:Georgia,serif;font-weight:700;margin:12px 0 4px;}
+.blendtag{color:var(--muted);font-size:.85rem;font-style:italic;}
+.chip{display:inline-block;font-size:.65rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:5px 12px;border-radius:20px;margin:3px;}
+.tensionbox{margin-top:14px;padding:12px 14px;border-radius:14px;background:rgba(252,211,77,.12);border:1px solid rgba(252,211,77,.4);font-size:.8rem;color:#ffe9a8;text-align:left;}
+
+.swrow{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0;}
+.swbox{padding:16px;border-radius:16px;background:var(--glass-2);}
+.swbox .lbl{font-size:.65rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px;}
+.swbox .val{font-size:.95rem;font-weight:600;}
+
+.sectionlbl{font-size:.68rem;text-transform:uppercase;letter-spacing:2px;color:var(--gold-2);font-weight:700;margin:20px 0 10px;}
+.bibleblock{padding:16px;border-radius:16px;background:var(--glass-2);font-size:.86rem;line-height:1.5;color:var(--muted);}
+.bibleblock b{color:var(--txt);}
+.versebox{padding:14px 16px;border-radius:14px;background:rgba(255,255,255,.05);border-left:3px solid var(--gold);font-style:italic;font-size:.85rem;color:var(--muted);margin-top:10px;}
+.versebox .ref{display:block;margin-top:6px;font-style:normal;font-weight:700;color:var(--gold-2);font-size:.7rem;letter-spacing:1px;}
+
+.viewtoggle{display:flex;gap:6px;margin:14px 0;padding:5px;background:rgba(0,0,0,.18);border-radius:14px;}
+.viewtoggle button{flex:1;font-size:.72rem;font-weight:700;padding:9px;border-radius:10px;border:none;background:transparent;color:var(--muted);cursor:pointer;}
+.viewtoggle button.active{background:var(--glass-2);color:var(--txt);}
+
+.pillpicker{display:flex;flex-wrap:wrap;gap:8px;}
+.pillpicker button{font-size:.76rem;font-weight:600;padding:9px 14px;border-radius:20px;border:1.5px solid var(--glass-line);background:var(--glass-2);color:var(--muted);cursor:pointer;transition:.15s;}
+.pillpicker button.active{background:var(--gold);color:#2a1b06;border-color:var(--gold);}
+.pillpicker button:hover{border-color:var(--gold-2);}
+
+.proxynote{padding:14px 16px;margin-bottom:14px;font-size:.8rem;line-height:1.5;color:#e9dcb8;background:rgba(212,160,23,.1);border:1px solid rgba(212,160,23,.3);border-radius:16px;}
+.relchip{display:inline-block;font-size:.6rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:2px 8px;border-radius:10px;background:rgba(212,160,23,.2);color:var(--gold-2);margin-left:4px;vertical-align:middle;}
+
+.appslist{display:flex;flex-direction:column;gap:10px;}
+.appitem{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:var(--glass-2);text-decoration:none;color:var(--txt);border:1px solid transparent;transition:.15s;}
+.appitem:hover{border-color:var(--gold-2);background:rgba(255,255,255,.16);}
+.appicon{font-size:1.4rem;flex:0 0 auto;}
+.appinfo{flex:1;min-width:0;}
+.appname{font-weight:700;font-size:.86rem;}
+.appdesc{font-size:.72rem;color:var(--muted);margin-top:2px;line-height:1.4;}
+.appgo{color:var(--gold-2);font-weight:700;flex:0 0 auto;}
+
+.benefitline{font-size:.82rem !important;color:var(--txt) !important;background:rgba(255,255,255,.06);padding:10px 12px;border-radius:12px;margin-bottom:10px !important;}
+
+.growthbox{padding:16px;border-radius:16px;background:linear-gradient(135deg,rgba(212,160,23,.15),rgba(212,160,23,.05));border:1px solid rgba(212,160,23,.3);font-size:.86rem;line-height:1.5;}
+.growthbox b{color:var(--gold-2);}
+
+.profilelist{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
+.profilerow{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:16px;background:var(--glass-2);cursor:pointer;border:1.5px solid transparent;transition:.15s;}
+.profilerow.selected{border-color:var(--gold-2);}
+.profilerow .dot{width:14px;height:14px;border-radius:50%;flex:0 0 14px;}
+.profilerow .info{flex:1;}
+.profilerow .info .name{font-weight:700;font-size:.9rem;}
+.profilerow .info .blend{font-size:.72rem;color:var(--muted);}
+.profilerow .viewlink{color:var(--gold-2);font-size:.72rem;font-weight:700;cursor:pointer;padding:6px 8px;white-space:nowrap;}
+.profilerow .viewlink:hover{text-decoration:underline;}
+.profilerow .del{color:var(--muted);font-size:1.1rem;cursor:pointer;padding:4px 8px;}
+.profilerow .del:hover{color:#ff8a6b;}
+
+.emptystate{text-align:center;padding:40px 20px;color:var(--muted);}
+.emptystate .ico{font-size:2.2rem;margin-bottom:10px;}
+
+input.nameinput{width:100%;padding:14px 16px;border-radius:14px;border:1.5px solid var(--glass-line);background:rgba(0,0,0,.2);color:var(--txt);font-size:.9rem;margin-bottom:12px;}
+input.nameinput::placeholder{color:var(--muted);}
+
+footer.credit{text-align:center;font-size:.68rem;color:var(--muted);margin-top:26px;padding:0 20px;line-height:1.5;}
+
+.compareresult{padding:18px;border-radius:16px;margin-top:16px;}
+.compareresult.match{background:rgba(34,181,115,.14);border:1px solid rgba(34,181,115,.4);}
+.compareresult.tension{background:rgba(252,211,77,.12);border:1px solid rgba(252,211,77,.4);}
+.compareresult h4{margin-bottom:8px;font-size:1rem;}
+.compareresult p{font-size:.84rem;color:var(--muted);line-height:1.5;margin-bottom:8px;}
+.compareresult ul{padding-left:18px;font-size:.84rem;color:var(--muted);line-height:1.6;}
+
+.disc-map, .bf-map{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
+.disc-map .row, .bf-map .row{display:flex;justify-content:space-between;padding:8px 12px;background:rgba(255,255,255,.05);border-radius:10px;font-size:.8rem;}
+.disc-map .row b{color:var(--gold-2);}
+
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:10px;}
+
+button:focus-visible, .optbtn:focus-visible, .profilerow:focus-visible{outline:2px solid var(--gold-2);outline-offset:2px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="mark"><span>HB</span></div>
+    <div class="title">
+      <h1>HB Temperament <b>Guide</b></h1>
+      <p>Understand yourself. Understand each other.</p>
+    </div>
+  </header>
+
+  <nav class="tabs" id="mainNav">
+    <button data-view="home" class="active">Home</button>
+    <button data-view="learn">Learn</button>
+    <button data-view="quiz">Assess</button>
+    <button data-view="results">My Result</button>
+    <button data-view="compare">History</button>
+  </nav>
+
+  <!-- ===================== HOME ===================== -->
+  <section class="view active" id="view-home">
+    <div class="glass hero">
+      <div class="eyebrow">Understanding Temperaments</div>
+      <h2>Four hearts. One design.<br>Which one is yours?</h2>
+      <p>A short, honest assessment to find your dominant and secondary temperament — grounded in Tim LaHaye's framework, cross-referenced with DISC and the Big Five.</p>
+      <div class="wheel" id="homeWheel"></div>
+      <div class="btnrow" style="justify-content:center">
+        <button class="btn btn-primary" onclick="goView('quiz')">Start the Assessment</button>
+        <button class="btn btn-ghost" onclick="goView('learn')">Learn the Models First</button>
+      </div>
+    </div>
+
+    <div class="glass card">
+      <div class="sectionlbl" style="margin-top:0">Why this matters</div>
+      <p style="font-size:.86rem;color:var(--muted);line-height:1.6;">
+        The temperament itself is never the problem — it's whether the flesh or the Spirit is leading it.
+        Every pairing of two people is a pairing of two designs. Knowing your own, and theirs, is how you stop
+        mistaking "different" for "difficult."
+      </p>
+    </div>
+
+    <div class="glass card" id="homeAppsPromo"></div>
+  </section>
+
+  <!-- ===================== LEARN ===================== -->
+  <section class="view" id="view-learn">
+    <div class="glass card">
+      <div class="sectionlbl" style="margin-top:0">Three Ways to See the Same Person</div>
+      <p style="font-size:.84rem;color:var(--muted);margin-bottom:16px;">Tap a model to read more. None of these replace the others — they're different lenses on the same wiring.</p>
+      <div id="modelCards"></div>
+    </div>
+  </section>
+
+  <!-- ===================== QUIZ ===================== -->
+  <section class="view" id="view-quiz">
+    <div class="glass card">
+      <div id="quizIntro">
+        <div class="sectionlbl" style="margin-top:0">Before You Start</div>
+        <p style="font-size:.86rem;color:var(--muted);line-height:1.6;margin-bottom:16px;">
+          24 quick either/or questions. Pick whichever side sounds more like you on most days — there's no
+          right answer, and no one's watching. Takes about 4 minutes.
+        </p>
+        <div class="sectionlbl" style="margin-top:0">Who Is This For?</div>
+        <div class="viewtoggle" id="modePicker" style="margin-top:0;margin-bottom:14px;">
+          <button class="active" data-mode="self">Myself</button>
+          <button data-mode="other">Someone Else</button>
+        </div>
+        <input class="nameinput" id="quizName" placeholder="Your name (so you can save this result)">
+        <div id="relationshipWrap" style="display:none;margin-bottom:14px;">
+          <div class="sectionlbl" style="margin-top:0;">Your Relationship to Them</div>
+          <div class="pillpicker" id="relationshipOptions"></div>
+        </div>
+        <div class="sectionlbl" style="margin-top:4px;">View Your Result Through</div>
+        <div class="viewtoggle" id="lensPicker" style="margin-top:0;margin-bottom:16px;">
+          <button class="active" data-lens="lahaye">LaHaye</button>
+          <button data-lens="disc">DISC</button>
+          <button data-lens="bigfive">Big Five</button>
+        </div>
+        <button class="btn btn-primary" onclick="startQuiz()">Begin</button>
+      </div>
+      <div id="quizBody" style="display:none;">
+        <div class="qhead">
+          <span id="qCounter">Question 1 of 24</span>
+          <span id="qPercent">4%</span>
+        </div>
+        <div class="progressbar"><div class="fill" id="qFill" style="width:4%"></div></div>
+        <div class="qtext" id="qText"></div>
+        <button class="optbtn" id="optA" onclick="answer('A')"></button>
+        <button class="optbtn" id="optB" onclick="answer('B')"></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== RESULTS ===================== -->
+  <section class="view" id="view-results">
+    <div id="resultsEmpty" class="glass emptystate">
+      <div class="ico">🧭</div>
+      <p>You haven't taken the assessment yet.</p>
+      <div style="height:14px"></div>
+      <button class="btn btn-primary" onclick="goView('quiz')" style="max-width:240px;margin:0 auto;">Take the Assessment</button>
+    </div>
+    <div id="resultsBody" style="display:none;"></div>
+  </section>
+
+  <!-- ===================== COMPARE ===================== -->
+  <section class="view" id="view-compare">
+    <div class="glass card">
+      <div class="sectionlbl" style="margin-top:0">Your History</div>
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">Every assessment you or your household has taken, saved on this device. Tap a name to reopen it, or select two (yours across time, or two different people) to compare.</p>
+      <div class="profilelist" id="profileList"></div>
+      <div id="compareAction" style="display:none;">
+        <button class="btn btn-primary" onclick="runCompare()">Compare Selected (2)</button>
+      </div>
+    </div>
+    <div id="compareOutput"></div>
+  </section>
+
+  <footer class="credit">
+    a gift from Adeyinka Adenikinju — AI Masterclass · Media &amp; Publication Ministry · Salvation Chapel
+  </footer>
+
+</div>
+
+<script>
+// ===================== TEMPERAMENT CORE DATA =====================
+const T = {
+  san: {
+    key:'san', name:'Sanguine', who:'the warm one', color:'#FF8C5A', dark:'#5A2200', lean:'anger',
+    strength:'Joy & Warmth', weakness:'Shallow Follow-Through',
+    desc:'The people-person. Draws energy from others, lights up a room, forgives and forgets fast.',
+    bible:'Peter', bibleRef:'Matthew 14:28–30', bibleNote:'Impulsive, warm, quick to speak and quick to act — walked on water, then sank, then kept following.',
+    growth:'Practice <b>faithfulness</b> — the fruit of the Spirit that outlasts your excitement. Finish the thing after the feeling fades.',
+    discLetter:'I', discName:'Influence',
+    bigfive:'Tends higher in Extraversion and Openness to new experiences; often lower in natural Conscientiousness (structure has to be built, not assumed).',
+    bossTip:'keep updates warm and conversational — give them room to talk before you get to your ask.'
+  },
+  cho: {
+    key:'cho', name:'Choleric', who:'the fiery one', color:'#EF5350', dark:'#4A0000', lean:'anger',
+    strength:'Drive & Decisiveness', weakness:'Pride & Quick Temper',
+    desc:'The natural leader. Sees the goal, moves toward it, and expects everyone else to keep up.',
+    bible:'Paul', bibleRef:'Acts 9:1–22', bibleNote:'Relentless, mission-driven, strong-willed before and after his conversion — the direction changed, the drive did not.',
+    growth:'Practice <b>gentleness</b> — strength under control. Let being right take longer than being kind.',
+    discLetter:'D', discName:'Dominance',
+    bigfive:'Tends higher in Extraversion and Conscientiousness (goal-focus); often lower in Agreeableness (blunt, task over feelings in the moment).',
+    bossTip:'lead with the bottom line first — the decision or ask — then offer detail only if they ask for it.'
+  },
+  mel: {
+    key:'mel', name:'Melancholic', who:'the deep one', color:'#3E7BE0', dark:'#0A1B4D', lean:'fear',
+    strength:'Loyalty & High Standards', weakness:'Withdraws, Hard to Please',
+    desc:'The analyst and artist. Notices what others miss, holds a high bar, feels everything a little deeper.',
+    bible:'Moses', bibleRef:'Exodus 3:11', bibleNote:'Reluctant, self-doubting at the burning bush, meticulous in every Tabernacle detail — depth and hesitation, side by side.',
+    growth:'Practice <b>joy and peace</b> — receiving grace instead of auditing yourself against a standard no one else can see.',
+    discLetter:'C', discName:'Conscientiousness',
+    bigfive:'Tends higher in Conscientiousness and Neuroticism (emotional sensitivity, self-monitoring); often lower in Extraversion.',
+    bossTip:"come prepared with real specifics, and don't rush them into deciding on the spot."
+  },
+  phl: {
+    key:'phl', name:'Phlegmatic', who:'the calm one', color:'#22B573', dark:'#04432E', lean:'fear',
+    strength:'Peace & Steadiness', weakness:'Avoids Conflict, Goes Silent',
+    desc:'The steady one. Rarely rattled, easy to be around, quietly holds a room together without needing credit.',
+    bible:'Abraham', bibleRef:'Genesis 13:8–9', bibleNote:'Peace-seeking enough to let Lot choose the better land first — calm as strength, not passivity.',
+    growth:'Practice <b>diligence and boldness</b> — initiate instead of only enduring. Silence is not always peace.',
+    discLetter:'S', discName:'Steadiness',
+    bigfive:'Tends higher in Agreeableness and emotional stability (low Neuroticism); often lower in Extraversion and assertiveness.',
+    bossTip:'give them time to process, and don\'t mistake their quiet for disinterest — check in gently rather than pushing.'
+  }
+};
+
+const ORDER = ['san','cho','mel','phl'];
+
+// ===================== BLEND DESCRIPTORS (12) =====================
+// desc = quick tagline · benefit = the positive case for this exact pairing · tension = same-lean "double-down" flag
+const BLENDS = {
+  'san-cho':{ label:'San-Chlor', desc:'Outgoing & goal-driven', tension:true,
+    benefit:'Together they make things happen fast — the room lights up and the goal gets chased in the same breath.' },
+  'san-mel':{ label:'San-Mel', desc:'Warm & reflective', tension:false,
+    benefit:'Warmth with real depth — people feel both welcomed and truly understood by you.' },
+  'san-phl':{ label:'San-Phleg', desc:'Easygoing & popular', tension:false,
+    benefit:'Effortlessly likeable — you bring energy without ever feeling like too much.' },
+  'cho-san':{ label:'Chlor-San', desc:'Driven & people-loving', tension:true,
+    benefit:'A leader people actually want to follow — vision paired with genuine warmth.' },
+  'cho-mel':{ label:'Chlor-Mel', desc:'Driven & perfectionistic', tension:false,
+    benefit:'Excellence with a plan — few combinations execute a big goal this thoroughly.' },
+  'cho-phl':{ label:'Chlor-Phleg', desc:'Steady, calm leader', tension:false,
+    benefit:'Command without chaos — you lead firmly while keeping everyone calm.' },
+  'mel-san':{ label:'Mel-San', desc:'Creative & charming', tension:false,
+    benefit:'Depth that doesn\'t isolate — your insight comes with real charm and connection.' },
+  'mel-cho':{ label:'Mel-Chlor', desc:'Brilliant, high standards', tension:false,
+    benefit:'Rare brilliance — the standard-setter who also gets things done.' },
+  'mel-phl':{ label:'Mel-Phleg', desc:'Gentle & detail-loving', tension:true,
+    benefit:'A steady, faithful presence — people trust you with their hardest conversations.' },
+  'phl-san':{ label:'Phleg-San', desc:'Relaxed & humorous', tension:false,
+    benefit:'The easiest person in the room to be around — calm, warm, unhurried.' },
+  'phl-cho':{ label:'Phleg-Chlor', desc:'Quiet, capable leader', tension:false,
+    benefit:'A quiet strength — capable of leading well without needing the spotlight.' },
+  'phl-mel':{ label:'Phleg-Mel', desc:'Peaceful & reliable', tension:true,
+    benefit:'Deeply dependable — patient, thorough, and unshaken.' }
+};
+
+// ===================== MODEL EXPLANATIONS =====================
+const MODELS = [
+  {
+    id:'lahaye', name:"Tim LaHaye's Four Temperaments", badge:'tool', badgeLabel:'Teaching Tool · 1966',
+    body:`The classic four: Sanguine, Choleric, Melancholic, Phlegmatic — adapted by LaHaye for a Christian
+    audience, most famously in <i>Spirit-Controlled Temperament</i>. His core idea: your temperament is
+    God-given wiring, morally neutral. What matters is whether the <b>flesh</b> or the <b>Spirit</b> is
+    expressing it. Everyone has a primary and secondary temperament — a blend, not a pure type.`,
+    credit:`Originated by <b>Dr. Tim LaHaye</b> (1926–2016), pastor and author, in <i>Spirit-Controlled
+    Temperament</i> (1966) and <i>Transformed Temperaments</i> (1971). Adapted from the ancient four-humor
+    theory (Hippocrates/Galen) for a Christian audience.`,
+    reading:[`Spirit-Controlled Temperament — Tim LaHaye (1966)`,`Transformed Temperaments — Tim LaHaye (1971)`,`Why You Act the Way You Do — Tim LaHaye (1984)`]
+  },
+  {
+    id:'disc', name:'DISC', badge:'tool', badgeLabel:'Business Tool · 1928',
+    body:`Dominance, Influence, Steadiness, Conscientiousness — built by workplaces for workplaces, not
+    originally a personality theory at all. It maps roughly onto the four temperaments (Choleric≈D,
+    Sanguine≈I, Phlegmatic≈S, Melancholic≈C), which is why it feels familiar once you know LaHaye's model —
+    but it's measuring behavior in tasks and teams, not your whole inner life.`,
+    credit:`Originated by <b>Dr. William Moulton Marston</b> (1893–1947), psychologist, in <i>Emotions of
+    Normal People</i> (1928). Marston never trademarked or commercialized his own model — every DISC
+    assessment in use today was built by others on his freely-published theory.`,
+    reading:[`Emotions of Normal People — William Moulton Marston (1928)`,`Look for any certified DISC practitioner or provider for a formal assessment — Marston's original framework is public domain; specific modern instruments are separately copyrighted by their publishers.`]
+  },
+  {
+    id:'bigfive', name:'The Big Five (OCEAN)', badge:'science', badgeLabel:'Peer-Reviewed Model',
+    body:`Openness, Conscientiousness, Extraversion, Agreeableness, Neuroticism — the model with the most
+    actual research behind it. It scores you on five <i>continuous scales</i> instead of sorting you into a
+    type at all, which is more accurate and less quotable. Think of LaHaye as the map and the Big Five as
+    the satellite photo — one is easier to teach from, the other is closer to the terrain.`,
+    credit:`Built over seven decades by many researchers — <b>Ernest Tupes &amp; Raymond Christal</b> (1961,
+    US Air Force), <b>Warren Norman</b> (1963), <b>Lewis Goldberg</b> (who coined "the Big Five" and built the
+    free, public-domain IPIP so it would never sit behind a paywall), and <b>Paul Costa &amp; Robert McCrae</b>
+    (NEO-PI-R, 1992).`,
+    reading:[`The International Personality Item Pool (IPIP) — Lewis Goldberg's free, public-domain item bank`,`Revised NEO Personality Inventory (NEO-PI-R) — Costa & McCrae (1992)`,`An Introduction to the Five-Factor Model and Its Applications — McCrae & John (1992)`]
+  }
+];
+
+// ===================== RELATIONSHIP TYPES (for assessing someone else) =====================
+const RELATIONSHIPS = ['Spouse/Partner','Colleague','Boss/Manager','Friend','Family Member','Other'];
+
+// ===================== CHURCH APPS DIRECTORY (confirmed live, from repo handoff doc) =====================
+const HUB_URL = 'https://holybone.github.io/Salvation-chapel-apps/';
+const APP_FILENAME = 'HB_Temperament_Guide.html';
+const APP_URL = HUB_URL + APP_FILENAME;
+
+const APPS = [
+  {file:'HB_Chapel_Hub.html', icon:'⛪', name:'HB Chapel Hub', desc:'Attendance, offerings, roster, requisitions, choir, requests, events — with shared sync.'},
+  {file:'AI_Prompt_Library.html', icon:'✨', name:'AI Prompt Library', desc:'133 ready-to-use AI prompts across ministry, finance, and admin work.'},
+  {file:'HB_Fabric_Studio.html', icon:'🎨', name:'HB Fabric Studio', desc:'Creative fabric-effect tool for flyers and photo art.'},
+  {file:'Cohort_Insights_Dashboard.html', icon:'📊', name:'Cohort Insights Dashboard', desc:'AI Masterclass cohort insights and tracking.'},
+  {file:'Discovering_My_Gifts_App.html', icon:'🎁', name:'Discovering My Gift(s)', desc:'Find your spiritual gifts with the Gift Guide questionnaire.'}
+];
+
+// ===================== QUIZ QUESTIONS =====================
+// 24 questions, 4 head-to-head per temperament pair (6 pairs), forced choice.
+// Each option has a `self` phrasing ("I...") and an `other` phrasing (uses {name} placeholder)
+// so the exact same question bank works for "assess myself" and "assess someone else".
+const QUESTIONS = [
+  // SAN vs CHO
+  {pair:['san','cho'],
+    a:{self:"I'd rather keep the mood light and fun.", other:"{name} would rather keep the mood light and fun."},
+    b:{self:"I'd rather get straight to fixing the problem.", other:"{name} would rather get straight to fixing the problem."}},
+  {pair:['san','cho'],
+    a:{self:"People say I'm the life of the party.", other:"People say {name} is the life of the party."},
+    b:{self:"People say I'm the one who takes charge.", other:"People say {name} is the one who takes charge."}},
+  {pair:['san','cho'],
+    a:{self:"I make friends everywhere I go.", other:"{name} makes friends everywhere they go."},
+    b:{self:"I set a goal and chase it hard.", other:"{name} sets a goal and chases it hard."}},
+  {pair:['san','cho'],
+    a:{self:"I talk things through out loud to think.", other:"{name} talks things through out loud to think."},
+    b:{self:"I decide fast and move on.", other:"{name} decides fast and moves on."}},
+  // SAN vs MEL
+  {pair:['san','mel'],
+    a:{self:"I'd rather laugh about it.", other:"{name} would rather laugh about it."},
+    b:{self:"I'd rather understand why it happened.", other:"{name} would rather understand why it happened."}},
+  {pair:['san','mel'],
+    a:{self:"I forget small mistakes quickly.", other:"{name} forgets small mistakes quickly."},
+    b:{self:"I replay small mistakes in my head.", other:"{name} replays small mistakes in their head."}},
+  {pair:['san','mel'],
+    a:{self:"Spontaneous plans excite me.", other:"Spontaneous plans excite {name}."},
+    b:{self:"I plan carefully before I commit.", other:"{name} plans carefully before committing."}},
+  {pair:['san','mel'],
+    a:{self:"A little mess doesn't bother me.", other:"A little mess doesn't bother {name}."},
+    b:{self:"I like everything in its proper place.", other:"{name} likes everything in its proper place."}},
+  // SAN vs PHL
+  {pair:['san','phl'],
+    a:{self:"I jump in without overthinking.", other:"{name} jumps in without overthinking."},
+    b:{self:"I take my time and stay steady.", other:"{name} takes their time and stays steady."}},
+  {pair:['san','phl'],
+    a:{self:"Silence in a room makes me want to fill it.", other:"Silence in a room makes {name} want to fill it."},
+    b:{self:"Silence doesn't bother me at all.", other:"Silence doesn't bother {name} at all."}},
+  {pair:['san','phl'],
+    a:{self:"I show excitement openly.", other:"{name} shows excitement openly."},
+    b:{self:"I keep my reactions low-key.", other:"{name} keeps their reactions low-key."}},
+  {pair:['san','phl'],
+    a:{self:"I'm usually the one starting the conversation.", other:"{name} is usually the one starting the conversation."},
+    b:{self:"I'm usually the one people come to for calm advice.", other:"{name} is usually the one people come to for calm advice."}},
+  // CHO vs MEL
+  {pair:['cho','mel'],
+    a:{self:"I want it done now, even if imperfect.", other:"{name} wants it done now, even if imperfect."},
+    b:{self:"I want it done right, even if it takes longer.", other:"{name} wants it done right, even if it takes longer."}},
+  {pair:['cho','mel'],
+    a:{self:"I trust my gut and move.", other:"{name} trusts their gut and moves."},
+    b:{self:"I need to analyze it first.", other:"{name} needs to analyze it first."}},
+  {pair:['cho','mel'],
+    a:{self:"Confrontation doesn't scare me.", other:"Confrontation doesn't scare {name}."},
+    b:{self:"I'd rather write it down than say it to your face.", other:"{name} would rather write it down than say it to your face."}},
+  {pair:['cho','mel'],
+    a:{self:"I bounce back from criticism quickly.", other:"{name} bounces back from criticism quickly."},
+    b:{self:"Criticism can stay with me for days.", other:"Criticism can stay with {name} for days."}},
+  // CHO vs PHL
+  {pair:['cho','phl'],
+    a:{self:"I like being in charge of the plan.", other:"{name} likes being in charge of the plan."},
+    b:{self:"I'm happy to let someone else lead.", other:"{name} is happy to let someone else lead."}},
+  {pair:['cho','phl'],
+    a:{self:"I get frustrated when things move too slowly.", other:"{name} gets frustrated when things move too slowly."},
+    b:{self:"I rarely feel rushed or frustrated.", other:"{name} rarely feels rushed or frustrated."}},
+  {pair:['cho','phl'],
+    a:{self:"I'll say it directly, even if it stings.", other:"{name} will say it directly, even if it stings."},
+    b:{self:"I'll wait for the right moment to say it gently.", other:"{name} will wait for the right moment to say it gently."}},
+  {pair:['cho','phl'],
+    a:{self:"I like a challenge that pushes me.", other:"{name} likes a challenge that pushes them."},
+    b:{self:"I like a routine that doesn't change much.", other:"{name} likes a routine that doesn't change much."}},
+  // MEL vs PHL
+  {pair:['mel','phl'],
+    a:{self:"I hold myself to a very high standard.", other:"{name} holds themself to a very high standard."},
+    b:{self:"I don't stress much about getting it perfect.", other:"{name} doesn't stress much about getting it perfect."}},
+  {pair:['mel','phl'],
+    a:{self:"I feel things deeply, even when I'm quiet about it.", other:"{name} feels things deeply, even when they're quiet about it."},
+    b:{self:"Not much rattles me emotionally.", other:"Not much rattles {name} emotionally."}},
+  {pair:['mel','phl'],
+    a:{self:"I like solving complex, detailed problems.", other:"{name} likes solving complex, detailed problems."},
+    b:{self:"I like keeping the peace more than solving puzzles.", other:"{name} likes keeping the peace more than solving puzzles."}},
+  {pair:['mel','phl'],
+    a:{self:"I can be hard on myself when I fall short.", other:"{name} can be hard on themself when they fall short."},
+    b:{self:"I go easy on myself and others, generally.", other:"{name} goes easy on themself and others, generally."}}
+];
+
+
+// ===================== NAV =====================
+function goView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  document.querySelectorAll('#mainNav button').forEach(b=>b.classList.toggle('active', b.dataset.view===name));
+  if(name==='results') renderResults();
+  if(name==='compare') renderProfileList();
+  if(name==='home') renderWheel('homeWheel', null);
+  window.scrollTo({top:0, behavior:'instant'});
+}
+document.getElementById('mainNav').addEventListener('click', (e)=>{
+  const b = e.target.closest('button'); if(!b) return;
+  goView(b.dataset.view);
+});
+
+// ===================== WHEEL VISUAL =====================
+function renderWheel(elId, tally){
+  const el = document.getElementById(elId);
+  const r=78, cx=90, cy=90;
+  const counts = tally || {san:1,cho:1,mel:1,phl:1};
+  const total = ORDER.reduce((s,k)=>s+counts[k],0) || 1;
+  let angleStart = 0;
+  const arcs = ORDER.map(k=>{
+    const frac = counts[k]/total;
+    const angle = frac*360;
+    const path = describeArc(cx,cy,r,angleStart,angleStart+angle, T[k].color);
+    angleStart += angle;
+    return path;
+  }).join('');
+  el.innerHTML = `<svg viewBox="0 0 180 180">${arcs}</svg>
+    <div class="center"><b>${tally? '' : '?'}</b><span>${tally? '' : 'take the quiz'}</span></div>`;
+}
+function polarToCartesian(cx,cy,r,angleDeg){
+  const a = (angleDeg-90)*Math.PI/180;
+  return {x:cx+r*Math.cos(a), y:cy+r*Math.sin(a)};
+}
+function describeArc(cx,cy,r,startAngle,endAngle,color){
+  if(endAngle-startAngle<=0.001) return '';
+  const start = polarToCartesian(cx,cy,r,endAngle);
+  const end = polarToCartesian(cx,cy,r,startAngle);
+  const largeArc = endAngle-startAngle<=180 ? 0 : 1;
+  return `<path d="M ${cx} ${cy} L ${start.x} ${start.y} A ${r} ${r} 0 ${largeArc} 0 ${end.x} ${end.y} Z" fill="${color}" opacity="0.9"/>`;
+}
+
+// ===================== MODEL CARDS (Learn) =====================
+function renderModelCards(){
+  const wrap = document.getElementById('modelCards');
+  wrap.innerHTML = MODELS.map(m=>`
+    <div class="modelcard" style="margin-bottom:12px;">
+      <span class="badge ${m.badge}">${m.badgeLabel}</span>
+      <h3>${m.name}</h3>
+      <p>${m.body}</p>
+      <div class="creditbox">🙏 ${m.credit}</div>
+      <div class="readingbox">
+        <div class="readinglbl">Go Deeper</div>
+        <ul>${m.reading.map(r=>`<li>${r}</li>`).join('')}</ul>
+      </div>
+    </div>
+  `).join('');
+}
+renderModelCards();
+
+// ===================== APPS PROMO (reusable module — copy this block + APPS array into any church app) =====================
+function renderAppsPromo(elId){
+  const el = document.getElementById(elId);
+  if(!el) return;
+  el.innerHTML = `
+    <div class="sectionlbl" style="margin-top:0">More From Salvation Chapel</div>
+    <div class="appslist">
+      ${APPS.map(a=>`
+        <a class="appitem" href="${HUB_URL}${a.file}" target="_blank" rel="noopener">
+          <div class="appicon">${a.icon}</div>
+          <div class="appinfo"><div class="appname">${a.name}</div><div class="appdesc">${a.desc}</div></div>
+          <div class="appgo">→</div>
+        </a>
+      `).join('')}
+    </div>
+    <a href="${HUB_URL}" target="_blank" rel="noopener" class="btn btn-ghost" style="margin-top:12px;text-decoration:none;">🏠 Browse All Church Apps</a>
+  `;
+}
+
+// ===================== SHARE THE APP ITSELF =====================
+function shareApp(){
+  const message = `I just found my temperament on HB Temperament Guide — try it yourself: ${APP_URL}`;
+  if(navigator.share){
+    navigator.share({title:'HB Temperament Guide', text: message}).catch(()=>{});
+  } else {
+    navigator.clipboard.writeText(message).then(()=>{
+      const btn = document.getElementById('shareAppBtn');
+      if(btn){ const old = btn.textContent; btn.textContent = '✓ Link Copied!'; setTimeout(()=>btn.textContent=old, 2000); }
+    });
+  }
+}
+
+// ===================== QUIZ ENGINE =====================
+let qIndex = 0;
+let tally = {};
+let quizName = '';
+let preferredLens = 'lahaye';
+let assessMode = 'self'; // 'self' | 'other'
+let subjectRelationship = '';
+
+document.querySelectorAll('#lensPicker button').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    preferredLens = b.dataset.lens;
+    document.querySelectorAll('#lensPicker button').forEach(x=>x.classList.toggle('active', x===b));
+  });
+});
+
+document.querySelectorAll('#modePicker button').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    assessMode = b.dataset.mode;
+    document.querySelectorAll('#modePicker button').forEach(x=>x.classList.toggle('active', x===b));
+    const nameInput = document.getElementById('quizName');
+    const relWrap = document.getElementById('relationshipWrap');
+    if(assessMode==='other'){
+      nameInput.placeholder = 'Their name';
+      relWrap.style.display = 'block';
+    } else {
+      nameInput.placeholder = 'Your name (so you can save this result)';
+      relWrap.style.display = 'none';
+    }
+  });
+});
+
+function renderRelationshipPicker(){
+  const wrap = document.getElementById('relationshipOptions');
+  wrap.innerHTML = RELATIONSHIPS.map(r=>`<button data-rel="${r}">${r}</button>`).join('');
+  wrap.querySelectorAll('button').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      subjectRelationship = b.dataset.rel;
+      wrap.querySelectorAll('button').forEach(x=>x.classList.toggle('active', x===b));
+    });
+  });
+}
+renderRelationshipPicker();
+
+function startQuiz(){
+  quizName = document.getElementById('quizName').value.trim() || (assessMode==='other' ? 'They' : 'You');
+  if(assessMode==='other' && !subjectRelationship){ subjectRelationship = 'Other'; }
+  qIndex = 0;
+  tally = {san:0,cho:0,mel:0,phl:0};
+  document.getElementById('quizIntro').style.display='none';
+  document.getElementById('quizBody').style.display='block';
+  showQuestion();
+}
+
+function currentLeader(){
+  let best='san', bestv=-1;
+  ORDER.forEach(k=>{ if(tally[k]>bestv){bestv=tally[k]; best=k;} });
+  return bestv>0 ? best : null;
+}
+
+function phraseFor(opt){
+  const mode = assessMode==='other' ? 'other' : 'self';
+  return opt[mode].replaceAll('{name}', quizName);
+}
+
+function showQuestion(){
+  const q = QUESTIONS[qIndex];
+  document.getElementById('qCounter').textContent = `Question ${qIndex+1} of ${QUESTIONS.length}`;
+  document.getElementById('qPercent').textContent = Math.round(((qIndex)/QUESTIONS.length)*100)+'%';
+  const fill = document.getElementById('qFill');
+  fill.style.width = Math.round((qIndex/QUESTIONS.length)*100)+'%';
+  const leader = currentLeader();
+  fill.style.background = leader ? T[leader].color : 'var(--gold)';
+  document.getElementById('qText').textContent = assessMode==='other' ? `Which sounds more like ${quizName}?` : `Which sounds more like you?`;
+  document.getElementById('optA').textContent = phraseFor(q.a);
+  document.getElementById('optB').textContent = phraseFor(q.b);
+}
+
+function answer(choice){
+  const q = QUESTIONS[qIndex];
+  const key = choice==='A' ? q.pair[0] : q.pair[1];
+  tally[key]++;
+  qIndex++;
+  if(qIndex>=QUESTIONS.length){
+    finishQuiz();
+  } else {
+    showQuestion();
+  }
+}
+
+function finishQuiz(){
+  const sorted = [...ORDER].sort((a,b)=>tally[b]-tally[a]);
+  const primary = sorted[0], secondary = sorted[1];
+  let result = {
+    name: quizName,
+    primary, secondary,
+    tally: {...tally},
+    lens: preferredLens,
+    relationship: assessMode==='other' ? subjectRelationship : null,
+    date: new Date().toISOString()
+  };
+  currentLens = preferredLens;
+  const id = saveProfile(result);
+  result = {...result, id};
+  localStorage.setItem('hb_temperament_last', JSON.stringify(result));
+  goView('results');
+}
+
+// ===================== RESULTS RENDERING =====================
+let currentLens = 'lahaye'; // lahaye | disc | bigfive
+let viewingResult = null; // when set (from History), overrides "last result"
+
+function getLastResult(){
+  const raw = localStorage.getItem('hb_temperament_last');
+  return raw ? JSON.parse(raw) : null;
+}
+
+const LENS_LABELS = {lahaye:"Tim LaHaye's Four Temperaments", disc:'DISC', bigfive:'The Big Five (OCEAN)'};
+
+function renderResults(){
+  const result = viewingResult || getLastResult();
+  viewingResult = null; // consume one-time override
+  const empty = document.getElementById('resultsEmpty');
+  const body = document.getElementById('resultsBody');
+  if(!result){ empty.style.display='block'; body.style.display='none'; return; }
+  empty.style.display='none'; body.style.display='block';
+
+  if(result.lens) currentLens = result.lens;
+
+  const p = T[result.primary], s = T[result.secondary];
+  const blendKey = result.primary+'-'+result.secondary;
+  const blend = BLENDS[blendKey];
+  const sameLean = p.lean === s.lean;
+  const dateStr = result.date ? formatDate(result.date) : '';
+  const isProxy = !!result.relationship;
+
+  body.innerHTML = `
+    ${isProxy ? `<div class="glass proxynote">👀 This is <b>your read on ${result.name}</b> (${result.relationship}) — not their own self-assessment. Treat it as a starting point for empathy and a better conversation, not a verdict on who they are.</div>` : ''}
+
+    <div class="glass resulthead blendglass" id="shareCard" style="--c1:${p.color}; --c2:${s.color};">
+      <div style="font-size:.68rem;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.85);font-weight:700;">${result.name}'s Temperament${isProxy? ' · '+result.relationship : ''}${dateStr? ' · '+dateStr : ''}</div>
+      <div class="wheel" id="resultWheel"></div>
+      <div class="blendname" style="color:#fff;">${p.name} <span style="color:rgba(255,255,255,.7);font-weight:400;">+</span> ${s.name}</div>
+      <div class="blendtag" style="color:rgba(255,255,255,.85);">${blend ? blend.desc : ''}</div>
+      <div style="margin-top:10px;">
+        <span class="chip" style="background:rgba(255,255,255,.22);color:#fff;">Dominant · ${p.name}</span>
+        <span class="chip" style="background:rgba(255,255,255,.22);color:#fff;">Secondary · ${s.name}</span>
+      </div>
+    </div>
+
+    <div class="glass card">
+      <div class="sectionlbl" style="margin-top:0">Gifts of This Blend</div>
+      <div class="growthbox" style="background:linear-gradient(135deg, ${p.color}22, ${s.color}22);border-color:${p.color}55;">${blend ? blend.benefit : ''}</div>
+      ${sameLean ? `<div class="tensionbox">⚠ <b>Worth noticing:</b> your dominant and secondary both lean ${p.lean === 'anger' ? 'toward quick reaction' : 'toward worry and withdrawal'} (${p.lean}-prone), so there's no natural internal counterweight here. That's exactly where deliberately handing things to the Holy Spirit matters most — and it's often this same intensity, surrendered, that makes this blend unusually effective.</div>` : `<div class="tensionbox" style="background:rgba(34,181,115,.12);border-color:rgba(34,181,115,.4);color:#a8f0cf;">✓ Your dominant and secondary naturally moderate each other — one leans toward anger, the other toward fear, so you have some built-in balance already.</div>`}
+    </div>
+
+    <div class="glass card">
+      <div class="sectionlbl" style="margin-top:0">Viewing Through</div>
+      <div style="font-size:.9rem;font-weight:700;margin-bottom:12px;" id="lensHeading">${LENS_LABELS[currentLens]}</div>
+      <div class="viewtoggle">
+        <button class="lensbtn ${currentLens==='lahaye'?'active':''}" data-lens="lahaye">LaHaye</button>
+        <button class="lensbtn ${currentLens==='disc'?'active':''}" data-lens="disc">DISC</button>
+        <button class="lensbtn ${currentLens==='bigfive'?'active':''}" data-lens="bigfive">Big Five</button>
+      </div>
+      <div id="lensBody"></div>
+    </div>
+
+    <div class="glass card">
+      <div class="sectionlbl" style="margin-top:0">Strengths & Growth Edges</div>
+      <div class="swrow">
+        <div class="swbox"><div class="lbl">Dominant Strength</div><div class="val" style="color:${p.color}">${p.strength}</div></div>
+        <div class="swbox"><div class="lbl">Dominant Growth Edge</div><div class="val">${p.weakness}</div></div>
+      </div>
+      <div class="swrow">
+        <div class="swbox"><div class="lbl">Secondary Strength</div><div class="val" style="color:${s.color}">${s.strength}</div></div>
+        <div class="swbox"><div class="lbl">Secondary Growth Edge</div><div class="val">${s.weakness}</div></div>
+      </div>
+    </div>
+
+    <div class="glass card">
+      <div class="sectionlbl" style="margin-top:0">A Bible Personality Like ${isProxy? result.name : 'You'}</div>
+      <div class="bibleblock">
+        <b>${p.bible}</b> (${p.bibleRef}) is LaHaye's classic example of a ${p.name}. ${p.bibleNote}
+      </div>
+    </div>
+
+    <div class="glass card">
+      <div class="sectionlbl" style="margin-top:0">This Week's Growth Focus</div>
+      <div class="growthbox">${p.growth}</div>
+    </div>
+
+    <div id="compareWithMeSlot"></div>
+
+    <div class="btnrow">
+      <button class="btn btn-primary" onclick="shareCard()">📤 Save / Share My Card</button>
+      <button class="btn btn-ghost" onclick="goView('quiz'); document.getElementById('quizIntro').style.display='block'; document.getElementById('quizBody').style.display='none';">Retake Assessment</button>
+    </div>
+    <button class="btn btn-ghost" id="shareAppBtn" onclick="shareApp()" style="margin-top:10px;">🔗 Share This App With Someone</button>
+
+    <div class="glass card" id="resultsAppsPromo" style="margin-top:20px;"></div>
+  `;
+
+  renderWheel('resultWheel', result.tally);
+  const wheelCenter = document.querySelector('#resultWheel .center');
+  if(wheelCenter){ wheelCenter.innerHTML = `<b style="color:#fff;">${p.name[0]}${s.name[0]}</b><span style="color:rgba(255,255,255,.8);">blend</span>`; }
+
+  renderLensBody(result);
+  renderAppsPromo('resultsAppsPromo');
+  renderCompareWithMeSlot(result, isProxy);
+
+  document.querySelectorAll('.lensbtn').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      currentLens = b.dataset.lens;
+      document.getElementById('lensHeading').textContent = LENS_LABELS[currentLens];
+      document.querySelectorAll('.lensbtn').forEach(x=>x.classList.toggle('active', x===b));
+      renderLensBody(result);
+    });
+  });
+}
+
+// Offer a one-tap "compare with my own result" when viewing a proxy assessment
+function renderCompareWithMeSlot(result, isProxy){
+  const slot = document.getElementById('compareWithMeSlot');
+  if(!isProxy){ slot.innerHTML=''; return; }
+  const mine = getProfiles().filter(x=>!x.relationship).sort((a,b)=> new Date(b.date)-new Date(a.date))[0];
+  if(!mine){
+    slot.innerHTML = `<div class="glass card" style="text-align:center;"><p style="font-size:.82rem;color:var(--muted);">Take your own assessment (as "Myself") to see how you and ${result.name} fit together.</p></div>`;
+    return;
+  }
+  slot.innerHTML = `<button class="btn btn-primary" style="margin-bottom:16px;" onclick="compareWithMe('${result.id||''}')">🤝 See How You &amp; ${result.name} Fit Together</button>`;
+}
+
+function compareWithMe(resultId){
+  const list = getProfiles();
+  const proxyRec = resultId ? list.find(x=>x.id===resultId) : list.filter(x=>x.relationship).sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+  const mine = list.filter(x=>!x.relationship).sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+  if(!proxyRec || !mine) return;
+  goView('compare'); // note: this calls renderProfileList(), which resets selectedForCompare — must set selection AFTER
+  setTimeout(()=>{
+    selectedForCompare = [mine.id, proxyRec.id];
+    document.querySelectorAll('.profilerow').forEach(row=>{
+      row.classList.toggle('selected', selectedForCompare.includes(row.dataset.id));
+    });
+    document.getElementById('compareAction').style.display = 'block';
+    runCompare();
+    document.getElementById('compareOutput').scrollIntoView({behavior:'smooth'});
+  }, 60);
+}
+
+function formatDate(iso){
+  const d = new Date(iso);
+  return d.toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'});
+}
+
+function renderLensBody(result){
+  const p = T[result.primary], s = T[result.secondary];
+  const wrap = document.getElementById('lensBody');
+  if(currentLens==='lahaye'){
+    wrap.innerHTML = `<p style="font-size:.86rem;color:var(--muted);line-height:1.6;">
+      In Tim LaHaye's framework, ${result.relationship? result.name : "you're"} a <b style="color:var(--txt)">${p.name}-${s.name}</b> blend — ${p.desc}
+      Softened and shaped by the secondary: ${s.desc.toLowerCase()}</p>`;
+  } else if(currentLens==='disc'){
+    wrap.innerHTML = `
+      <p style="font-size:.86rem;color:var(--muted);line-height:1.6;margin-bottom:10px;">
+        Approximate translation only — DISC measures workplace behavior, not full personality.
+      </p>
+      <div class="disc-map">
+        <div class="row"><span>Dominant (${p.name})</span><b>${p.discLetter} — ${p.discName}</b></div>
+        <div class="row"><span>Secondary (${s.name})</span><b>${s.discLetter} — ${s.discName}</b></div>
+      </div>`;
+  } else {
+    wrap.innerHTML = `
+      <p style="font-size:.86rem;color:var(--muted);line-height:1.6;margin-bottom:10px;">
+        Loose, qualitative tendencies only — not a scored Big Five result. The Big Five is a spectrum, not a type.
+      </p>
+      <div class="bf-map">
+        <div class="row" style="display:block;"><b>Dominant (${p.name}):</b> ${p.bigfive}</div>
+        <div class="row" style="display:block;"><b>Secondary (${s.name}):</b> ${s.bigfive}</div>
+      </div>`;
+  }
+}
+
+function shareCard(){
+  const el = document.getElementById('shareCard');
+  html2canvas(el, {backgroundColor:'#1c1533', scale:2}).then(canvas=>{
+    const link = document.createElement('a');
+    link.download = 'HB-Temperament-Result.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  });
+}
+
+// ===================== HISTORY & HOUSEHOLD PROFILES =====================
+function getProfiles(){
+  const raw = localStorage.getItem('hb_temperament_profiles');
+  return raw ? JSON.parse(raw) : [];
+}
+function saveProfiles(list){
+  localStorage.setItem('hb_temperament_profiles', JSON.stringify(list));
+}
+function saveProfile(result){
+  const list = getProfiles();
+  const id = Date.now().toString();
+  list.push({...result, id});
+  saveProfiles(list);
+  return id;
+}
+function deleteProfile(id){
+  saveProfiles(getProfiles().filter(p=>p.id!==id));
+  renderProfileList();
+}
+function viewProfile(id){
+  const item = getProfiles().find(x=>x.id===id);
+  if(!item) return;
+  viewingResult = item;
+  goView('results');
+}
+
+let selectedForCompare = [];
+
+function renderProfileList(){
+  selectedForCompare = [];
+  const list = [...getProfiles()].sort((a,b)=> new Date(b.date) - new Date(a.date));
+  const wrap = document.getElementById('profileList');
+  document.getElementById('compareOutput').innerHTML = '';
+  document.getElementById('compareAction').style.display = 'none';
+
+  if(list.length===0){
+    wrap.innerHTML = `<div class="emptystate"><div class="ico">🕰️</div><p>No history yet. Take the assessment to start yours.</p></div>`;
+    return;
+  }
+  wrap.innerHTML = list.map(item=>{
+    const p = T[item.primary];
+    return `<div class="profilerow" data-id="${item.id}" tabindex="0">
+      <div class="dot" style="background:${p.color}"></div>
+      <div class="info">
+        <div class="name">${item.name} <span style="color:var(--muted);font-weight:400;font-size:.7rem;">· ${formatDate(item.date)}</span>${item.relationship? ` <span class="relchip">${item.relationship}</span>` : ''}</div>
+        <div class="blend">${T[item.primary].name} + ${T[item.secondary].name}</div>
+      </div>
+      <div class="viewlink" onclick="event.stopPropagation(); viewProfile('${item.id}')">View →</div>
+      <div class="del" onclick="event.stopPropagation(); deleteProfile('${item.id}')">✕</div>
+    </div>`;
+  }).join('');
+
+  wrap.querySelectorAll('.profilerow').forEach(row=>{
+    row.addEventListener('click', (e)=>{
+      if(e.target.closest('.viewlink') || e.target.closest('.del')) return;
+      const id = row.dataset.id;
+      if(selectedForCompare.includes(id)){
+        selectedForCompare = selectedForCompare.filter(x=>x!==id);
+        row.classList.remove('selected');
+      } else {
+        if(selectedForCompare.length>=2){
+          const first = selectedForCompare.shift();
+          wrap.querySelector(`.profilerow[data-id="${first}"]`).classList.remove('selected');
+        }
+        selectedForCompare.push(id);
+        row.classList.add('selected');
+      }
+      document.getElementById('compareAction').style.display = selectedForCompare.length===2 ? 'block' : 'none';
+    });
+  });
+}
+
+// bucket: 'personal' | 'work-peer' | 'work-power'
+function relationshipBucket(rel){
+  if(!rel) return 'personal';
+  if(rel==='Colleague') return 'work-peer';
+  if(rel==='Boss/Manager') return 'work-power';
+  return 'personal'; // Spouse/Partner, Friend, Family Member, Other
+}
+
+function runCompare(){
+  const list = getProfiles();
+  const a = list.find(x=>x.id===selectedForCompare[0]);
+  const b = list.find(x=>x.id===selectedForCompare[1]);
+  if(!a||!b) return;
+  const pa = T[a.primary], pb = T[b.primary];
+  const sameLean = pa.lean === pb.lean;
+  const samePerson = !a.relationship && !b.relationship && a.name.trim().toLowerCase() === b.name.trim().toLowerCase();
+
+  const aTagged = !!a.relationship, bTagged = !!b.relationship;
+  let selfSide=null, otherSide=null, bucket='personal';
+  if(aTagged && !bTagged){ selfSide=b; otherSide=a; bucket=relationshipBucket(a.relationship); }
+  else if(bTagged && !aTagged){ selfSide=a; otherSide=b; bucket=relationshipBucket(b.relationship); }
+  else if(aTagged && bTagged){ bucket = relationshipBucket(a.relationship)==='work-power'||relationshipBucket(b.relationship)==='work-power' ? 'work-power' : (relationshipBucket(a.relationship)==='work-peer'||relationshipBucket(b.relationship)==='work-peer' ? 'work-peer' : 'personal'); }
+
+  const blendA = BLENDS[a.primary+'-'+a.secondary], blendB = BLENDS[b.primary+'-'+b.secondary];
+  const benefitLine = `Together: <b>${a.name}</b> brings "${(blendA&&blendA.benefit? blendA.benefit.split(' — ')[0] : (blendA?blendA.desc:''))}" while <b>${b.name}</b> brings "${(blendB&&blendB.benefit? blendB.benefit.split(' — ')[0] : (blendB?blendB.desc:''))}."`;
+
+  let tips = [];
+  let heading = '';
+
+  if(samePerson){
+    heading = `${a.name}: ${formatDate(a.date)} vs ${formatDate(b.date)}`;
+    tips = sameLean ? [
+      `This leaning (${pa.lean}-prone) shows up both times — notice whether it's grown stronger or softer.`,
+      `Ask: what changed between these two results — season of life, growth, or just a different mood that day?`,
+      `Either way, this is worth naming to God in prayer, not just noting as data.`
+    ] : [
+      `A real shift in how this person shows up — one reading leans anger-prone, the other fear-prone.`,
+      `People's dominant expression can shift with seasons, roles, or spiritual growth. It doesn't mean either test was "wrong."`,
+      `If this was a big shift, it may be worth a quiet, honest check-in with yourself or them about what's changed.`
+    ];
+  } else if(bucket==='work-power'){
+    heading = `${selfSide? selfSide.name : a.name} &amp; ${otherSide? otherSide.name : b.name} (${(otherSide&&otherSide.relationship) || 'Boss/Manager'})`;
+    const bossT = otherSide ? T[otherSide.primary] : pb;
+    const bossName = otherSide ? otherSide.name : b.name;
+    tips = [
+      `You can't change how ${bossName} is wired, and it isn't your job to — but you can adapt how you bring things to them.`,
+      `With a ${bossT.name} lead: ${bossT.bossTip}`,
+      sameLean
+        ? `You're both leaning the same direction (${pa.lean}-prone) — under pressure, watch that you don't mirror their reaction instead of staying steady. That steadiness is what earns trust over time.`
+        : `Your different lean is actually useful here — you can supply what their temperament doesn't naturally offer, as long as it's offered with respect, not friction.`,
+      `This reading is about how you navigate the relationship well — not a verdict on ${bossName} as a person. Everyone's temperament, including theirs, is meant to be Spirit-led.`
+    ];
+  } else if(bucket==='work-peer'){
+    heading = `${selfSide? selfSide.name : a.name} &amp; ${otherSide? otherSide.name : b.name} (Colleague)`;
+    tips = sameLean ? [
+      `You lean the same direction at work (${pa.lean}-prone) — deadlines or disagreements can escalate fast with no one naturally slowing things down.`,
+      `Agree on a simple signal to pause before a decision, rather than both pushing through at once.`,
+      `Name it plainly if it helps: "We're wired similarly here, so let's build in a check before we both react the same way."`
+    ] : [
+      `You balance differently at work — one leans quick-reaction, the other leans careful. That's a real asset on a team.`,
+      `Let the more reaction-prone side carry momentum, and the more careful side catch the details neither of you enjoys chasing.`,
+      `Different isn't friction — it's coverage, as long as you both stay curious about why the other responds the way they do.`
+    ];
+  } else {
+    heading = `${a.name} (${pa.name}) &amp; ${b.name} (${pb.name})`;
+    tips = sameLean ? [
+      `You're both leaning the same direction (${pa.lean}-prone) — conflict can escalate fast with no one naturally slowing it down. Agree in advance on a pause signal for heated moments.`,
+      `Neither of you will naturally supply the opposite energy the other needs — that has to be a deliberate choice, not a hope.`,
+      `Name this pattern to each other directly: "We're the same kind of wired here, so we have to build the balance on purpose."`
+    ] : [
+      `One of you leans anger-prone, the other fear-prone — you have natural balancing potential, if you let each other's instinct correct your own blind spot instead of resenting it.`,
+      `The anger-leaning partner can learn patience by watching how the fear-leaning partner de-escalates; the fear-leaning partner can learn boldness by watching the other initiate.`,
+      `Don't mistake "different" for "wrong" — this pairing usually works well when both sides stay teachable.`
+    ];
+  }
+
+  document.getElementById('compareOutput').innerHTML = `
+    <div class="glass compareresult ${sameLean && bucket!=='work-power' ?'tension':'match'}">
+      <h4>${heading}</h4>
+      ${!samePerson ? `<p class="benefitline">✨ ${benefitLine}</p>` : ''}
+      <p>${sameLean ? '⚠ Same-lean pairing — both temperaments share a root emotion, so the weakness can double rather than balance.' : '✓ Cross-lean pairing — natural balancing potential.'}</p>
+      <ul>${tips.map(t=>`<li>${t}</li>`).join('')}</ul>
+    </div>
+  `;
+}
+
+// ===================== INIT =====================
+renderWheel('homeWheel', null);
+renderAppsPromo('homeAppsPromo');
+
+</script>
+</body>
+</html>
