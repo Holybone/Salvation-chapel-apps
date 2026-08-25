@@ -44,6 +44,7 @@ body::after{width:460px;height:460px;background:radial-gradient(circle,var(--acc
   .title p{font-size:.78rem;}
   nav.tabs{padding:8px;}
   nav.tabs button{font-size:.85rem;padding:13px 16px;}
+  .ctrlbtn{font-size:.78rem;padding:9px 13px;}
   .hero{padding:48px 40px;}
   .hero h2{font-size:2.5rem;}
   .hero p{font-size:1.05rem;max-width:640px;}
@@ -129,6 +130,10 @@ nav.tabs button:hover{color:var(--txt);}
 .optbtn{display:block;width:100%;text-align:left;padding:16px 18px;margin-bottom:12px;border-radius:16px;border:1.5px solid var(--glass-line);background:var(--glass-2);color:var(--txt);font-size:.92rem;cursor:pointer;transition:.15s;line-height:1.4;}
 .optbtn:hover{border-color:var(--gold-2);background:rgba(255,255,255,.16);}
 .optbtn:active{transform:scale(0.99);}
+.skipbtn{display:block;width:100%;text-align:center;padding:11px 14px;margin-top:2px;border-radius:12px;border:1px dashed var(--glass-line);background:transparent;color:var(--muted);font-size:.76rem;cursor:pointer;transition:.15s;}
+.skipbtn:hover{color:var(--txt);border-color:var(--gold-2);}
+.dataqualitynote{padding:10px 14px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid var(--glass-line);font-size:.76rem;color:var(--muted);margin-top:10px;text-align:center;}
+.dataqualitynote b{color:var(--gold-2);}
 
 .resulthead{text-align:center;padding:26px 20px 20px;}
 .blendglass{
@@ -223,6 +228,39 @@ footer.credit{text-align:center;font-size:.68rem;color:var(--muted);margin-top:2
 ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:10px;}
 
 button:focus-visible, .optbtn:focus-visible, .profilerow:focus-visible{outline:2px solid var(--gold-2);outline-offset:2px;}
+
+/* ===================== LIGHT THEME ===================== */
+body.light{
+  --bg1:#FDF6E7; --bg2:#FCEFD4; --bg3:#F8E7C4;
+  --glass:rgba(30,39,97,.05); --glass-2:rgba(30,39,97,.09); --glass-line:rgba(30,39,97,.16);
+  --txt:#1E2761; --muted:rgba(30,39,97,.62);
+}
+body.light .blendglass{ background: linear-gradient(0deg, rgba(255,255,255,.12), rgba(255,255,255,.02)), linear-gradient(135deg, var(--c1) 0%, var(--c2) 100%); }
+body.light .optbtn{color:var(--txt);}
+body.light input.nameinput{background:rgba(30,39,97,.04);color:var(--txt);}
+body.light ::-webkit-scrollbar-thumb{background:rgba(30,39,97,.2);}
+
+/* ===================== HEADER CONTROLS ===================== */
+.headerctrls{display:flex;gap:6px;margin-left:auto;flex:0 0 auto;}
+.ctrlbtn{font-size:.68rem;font-weight:700;padding:7px 9px;border-radius:10px;border:1px solid var(--glass-line);background:var(--glass-2);color:var(--txt);cursor:pointer;transition:.15s;}
+.ctrlbtn:hover{background:rgba(255,255,255,.18);}
+@media (max-width:400px){ .title p{display:none;} }
+
+/* ===================== QUIZ: BACK BUTTON, SKIP, PRIVACY ===================== */
+.backbtn{display:block;width:100%;text-align:center;padding:10px 14px;margin-top:10px;border-radius:12px;border:none;background:transparent;color:var(--muted);font-size:.76rem;font-weight:600;cursor:pointer;}
+.backbtn:hover{color:var(--gold-2);}
+.privacynote{font-size:.72rem;color:var(--muted);opacity:.85;margin:-6px 0 16px;line-height:1.5;}
+
+/* ===================== FAMILY / GROUP MAP ===================== */
+.familygrid{display:flex;flex-wrap:wrap;gap:16px;}
+.familychip{display:flex;flex-direction:column;align-items:center;width:78px;text-align:center;}
+.familydot{width:52px;height:52px;border-radius:50%;border:2px solid rgba(255,255,255,.25);margin-bottom:6px;}
+.familyname{font-size:.7rem;font-weight:700;line-height:1.2;}
+.familyblend{font-size:.6rem;color:var(--muted);letter-spacing:.5px;}
+
+/* ===================== SHARE CODE BOX ===================== */
+.codevalue{font-family:monospace;font-size:.72rem;word-break:break-all;background:rgba(0,0,0,.2);padding:12px;border-radius:10px;color:var(--gold-2);line-height:1.5;}
+body.light .codevalue{background:rgba(30,39,97,.06);}
 </style>
 </head>
 <body>
@@ -233,6 +271,11 @@ button:focus-visible, .optbtn:focus-visible, .profilerow:focus-visible{outline:2
     <div class="title">
       <h1>HB Temperament <b>Guide</b></h1>
       <p>Understand yourself. Understand each other.</p>
+    </div>
+    <div class="headerctrls">
+      <button class="ctrlbtn" onclick="adjustFont(-1)" title="Smaller text">A-</button>
+      <button class="ctrlbtn" onclick="adjustFont(1)" title="Larger text">A+</button>
+      <button class="ctrlbtn" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark">🌙</button>
     </div>
   </header>
 
@@ -281,12 +324,20 @@ button:focus-visible, .optbtn:focus-visible, .profilerow:focus-visible{outline:2
   <!-- ===================== QUIZ ===================== -->
   <section class="view" id="view-quiz">
     <div class="glass card">
+      <div id="resumeBanner" class="glass" style="display:none;padding:14px 16px;margin-bottom:14px;border-radius:14px;background:rgba(212,160,23,.1);border:1px solid rgba(212,160,23,.3);">
+        <p style="font-size:.82rem;color:#e9dcb8;margin-bottom:10px;">You have an assessment in progress — <b id="resumeInfo"></b></p>
+        <div class="btnrow">
+          <button class="btn btn-primary" onclick="resumeQuiz()">Resume</button>
+          <button class="btn btn-ghost" onclick="discardProgress()">Start Over</button>
+        </div>
+      </div>
       <div id="quizIntro">
         <div class="sectionlbl" style="margin-top:0">Before You Start</div>
         <p style="font-size:.86rem;color:var(--muted);line-height:1.6;margin-bottom:16px;">
           24 quick either/or questions. Pick whichever side sounds more like you on most days — there's no
           right answer, and no one's watching. Takes about 4 minutes.
         </p>
+        <p class="privacynote">🔒 Everything you enter stays on this device only — nothing is uploaded or shared unless you tap a Share button yourself.</p>
         <div class="sectionlbl" style="margin-top:0">Who Is This For?</div>
         <div class="viewtoggle" id="modePicker" style="margin-top:0;margin-bottom:14px;">
           <button class="active" data-mode="self">Myself</button>
@@ -314,6 +365,8 @@ button:focus-visible, .optbtn:focus-visible, .profilerow:focus-visible{outline:2
         <div class="qtext" id="qText"></div>
         <button class="optbtn" id="optA" onclick="answer('A')"></button>
         <button class="optbtn" id="optB" onclick="answer('B')"></button>
+        <button class="skipbtn" id="optSkip" onclick="answer('SKIP')">Neither really fits me — skip this one</button>
+        <button class="backbtn" id="backBtn" onclick="goBack()" style="visibility:hidden;">← Back</button>
       </div>
     </div>
   </section>
@@ -331,14 +384,26 @@ button:focus-visible, .optbtn:focus-visible, .profilerow:focus-visible{outline:2
 
   <!-- ===================== COMPARE ===================== -->
   <section class="view" id="view-compare">
+    <div class="glass card" id="familyMap" style="display:none;"></div>
+
     <div class="glass card">
       <div class="sectionlbl" style="margin-top:0">Your History</div>
-      <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">Every assessment you or your household has taken, saved on this device. Tap a name to reopen it, or select two (yours across time, or two different people) to compare.</p>
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:10px;">Every assessment you or your household has taken, saved on this device. Tap a name to reopen it, or select two (yours across time, or two different people) to compare.</p>
+      <p class="privacynote">🔒 This list lives only on this device — nothing is synced anywhere automatically.</p>
       <div class="profilelist" id="profileList"></div>
       <div id="compareAction" style="display:none;">
         <button class="btn btn-primary" onclick="runCompare()">Compare Selected (2)</button>
       </div>
     </div>
+
+    <div class="glass card">
+      <div class="sectionlbl" style="margin-top:0">Import a Code From Another Device</div>
+      <p style="font-size:.8rem;color:var(--muted);margin-bottom:10px;">If someone shared their result as a code (from a different phone or laptop), paste it here to add and compare.</p>
+      <input class="nameinput" id="importCodeInput" placeholder="Paste their code here">
+      <p id="importCodeError" style="display:none;font-size:.78rem;color:#ff8a6b;margin-bottom:10px;">That code doesn't look valid — please check it and try again.</p>
+      <button class="btn btn-ghost" onclick="importCode()">Import &amp; Add to History</button>
+    </div>
+
     <div id="compareOutput"></div>
   </section>
 
@@ -350,6 +415,11 @@ button:focus-visible, .optbtn:focus-visible, .profilerow:focus-visible{outline:2
 
 <script>
 // ===================== TEMPERAMENT CORE DATA =====================
+const SCRIPTURE_ANCHOR = {
+  verse: `But the fruit of the Spirit is love, joy, peace, longsuffering, kindness, goodness, faithfulness, gentleness, self-control. Against such there is no law.`,
+  ref: 'Galatians 5:22-23 (NKJV)'
+};
+
 const T = {
   san: {
     key:'san', name:'Sanguine', who:'the warm one', color:'#FF8C5A', dark:'#5A2200', lean:'anger',
@@ -357,6 +427,7 @@ const T = {
     desc:'The people-person. Draws energy from others, lights up a room, forgives and forgets fast.',
     bible:'Peter', bibleRef:'Matthew 14:28–30', bibleNote:'Impulsive, warm, quick to speak and quick to act — walked on water, then sank, then kept following.',
     growth:'Practice <b>faithfulness</b> — the fruit of the Spirit that outlasts your excitement. Finish the thing after the feeling fades.',
+    fruitWord:'faithfulness',
     discLetter:'I', discName:'Influence',
     bigfive:'Tends higher in Extraversion and Openness to new experiences; often lower in natural Conscientiousness (structure has to be built, not assumed).',
     bossTip:'keep updates warm and conversational — give them room to talk before you get to your ask.'
@@ -367,6 +438,7 @@ const T = {
     desc:'The natural leader. Sees the goal, moves toward it, and expects everyone else to keep up.',
     bible:'Paul', bibleRef:'Acts 9:1–22', bibleNote:'Relentless, mission-driven, strong-willed before and after his conversion — the direction changed, the drive did not.',
     growth:'Practice <b>gentleness</b> — strength under control. Let being right take longer than being kind.',
+    fruitWord:'gentleness',
     discLetter:'D', discName:'Dominance',
     bigfive:'Tends higher in Extraversion and Conscientiousness (goal-focus); often lower in Agreeableness (blunt, task over feelings in the moment).',
     bossTip:'lead with the bottom line first — the decision or ask — then offer detail only if they ask for it.'
@@ -377,6 +449,7 @@ const T = {
     desc:'The analyst and artist. Notices what others miss, holds a high bar, feels everything a little deeper.',
     bible:'Moses', bibleRef:'Exodus 3:11', bibleNote:'Reluctant, self-doubting at the burning bush, meticulous in every Tabernacle detail — depth and hesitation, side by side.',
     growth:'Practice <b>joy and peace</b> — receiving grace instead of auditing yourself against a standard no one else can see.',
+    fruitWord:'joy and peace',
     discLetter:'C', discName:'Conscientiousness',
     bigfive:'Tends higher in Conscientiousness and Neuroticism (emotional sensitivity, self-monitoring); often lower in Extraversion.',
     bossTip:"come prepared with real specifics, and don't rush them into deciding on the spot."
@@ -387,6 +460,7 @@ const T = {
     desc:'The steady one. Rarely rattled, easy to be around, quietly holds a room together without needing credit.',
     bible:'Abraham', bibleRef:'Genesis 13:8–9', bibleNote:'Peace-seeking enough to let Lot choose the better land first — calm as strength, not passivity.',
     growth:'Practice <b>diligence and boldness</b> — initiate instead of only enduring. Silence is not always peace.',
+    fruitWord:'diligence',
     discLetter:'S', discName:'Steadiness',
     bigfive:'Tends higher in Agreeableness and emotional stability (low Neuroticism); often lower in Extraversion and assertiveness.',
     bossTip:'give them time to process, and don\'t mistake their quiet for disinterest — check in gently rather than pushing.'
@@ -570,8 +644,9 @@ function goView(name){
   document.getElementById('view-'+name).classList.add('active');
   document.querySelectorAll('#mainNav button').forEach(b=>b.classList.toggle('active', b.dataset.view===name));
   if(name==='results') renderResults();
-  if(name==='compare') renderProfileList();
+  if(name==='compare') { renderProfileList(); renderFamilyMap(); }
   if(name==='home') renderWheel('homeWheel', null);
+  if(name==='quiz') checkResumable();
   window.scrollTo({top:0, behavior:'instant'});
 }
 document.getElementById('mainNav').addEventListener('click', (e)=>{
@@ -645,13 +720,61 @@ function renderAppsPromo(elId){
   `;
 }
 
+// ===================== SHAREABLE RESULT CODE (cross-device compare, no backend needed) =====================
+function encodeResultCode(rec){
+  const compact = {n:rec.name, p:rec.primary, s:rec.secondary, r:rec.relationship||'', d:rec.date};
+  try{ return btoa(encodeURIComponent(JSON.stringify(compact))); }catch(e){ return ''; }
+}
+function decodeResultCode(code){
+  try{
+    const obj = JSON.parse(decodeURIComponent(atob(code.trim())));
+    if(!obj.n || !T[obj.p] || !T[obj.s]) return null;
+    const t = {san:0,cho:0,mel:0,phl:0};
+    t[obj.p]=2; t[obj.s]=1;
+    return {name:obj.n, primary:obj.p, secondary:obj.s, relationship:obj.r||null, date:obj.d||new Date().toISOString(), tally:t, lens:'lahaye', imported:true};
+  }catch(e){ return null; }
+}
+function showShareCode(resultId){
+  const list = getProfiles();
+  const rec = resultId ? list.find(x=>x.id===resultId) : null;
+  const item = rec || getLastResult();
+  if(!item) return;
+  const code = encodeResultCode(item);
+  const box = document.getElementById('shareCodeBox');
+  if(!box) return;
+  box.style.display = 'block';
+  box.querySelector('.codevalue').textContent = code;
+}
+function copyShareCode(){
+  const code = document.querySelector('#shareCodeBox .codevalue').textContent;
+  navigator.clipboard.writeText(code).then(()=>{
+    const btn = document.getElementById('copyCodeBtn');
+    const old = btn.textContent; btn.textContent = '✓ Copied!'; setTimeout(()=>btn.textContent=old, 1800);
+  });
+}
+function importCode(){
+  const input = document.getElementById('importCodeInput');
+  const code = input.value.trim();
+  if(!code) return;
+  const decoded = decodeResultCode(code);
+  if(!decoded){
+    document.getElementById('importCodeError').style.display='block';
+    return;
+  }
+  document.getElementById('importCodeError').style.display='none';
+  saveProfile(decoded);
+  input.value='';
+  renderProfileList();
+  renderFamilyMap();
+}
+
 // ===================== SHARE THE APP ITSELF =====================
 function shareApp(){
-  const text = `I just found my temperament on HB Temperament Guide — try it yourself:`;
+  const message = `I just found my temperament on HB Temperament Guide — try it yourself: ${APP_URL}`;
   if(navigator.share){
-    navigator.share({title:'HB Temperament Guide', text, url: APP_URL}).catch(()=>{});
+    navigator.share({title:'HB Temperament Guide', text: message}).catch(()=>{});
   } else {
-    navigator.clipboard.writeText(`${text} ${APP_URL}`).then(()=>{
+    navigator.clipboard.writeText(message).then(()=>{
       const btn = document.getElementById('shareAppBtn');
       if(btn){ const old = btn.textContent; btn.textContent = '✓ Link Copied!'; setTimeout(()=>btn.textContent=old, 2000); }
     });
@@ -661,10 +784,12 @@ function shareApp(){
 // ===================== QUIZ ENGINE =====================
 let qIndex = 0;
 let tally = {};
+let skippedCount = 0;
 let quizName = '';
 let preferredLens = 'lahaye';
 let assessMode = 'self'; // 'self' | 'other'
 let subjectRelationship = '';
+let answerHistory = []; // [{type:'answer'|'skip', key?}] — enables Back
 
 document.querySelectorAll('#lensPicker button').forEach(b=>{
   b.addEventListener('click', ()=>{
@@ -701,11 +826,53 @@ function renderRelationshipPicker(){
 }
 renderRelationshipPicker();
 
+// ---- Resume-in-progress support ----
+function saveQuizProgress(){
+  localStorage.setItem('hb_temperament_inprogress', JSON.stringify({
+    qIndex, tally, skippedCount, quizName, assessMode, subjectRelationship, preferredLens, answerHistory
+  }));
+}
+function clearQuizProgress(){ localStorage.removeItem('hb_temperament_inprogress'); }
+
+function checkResumable(){
+  const banner = document.getElementById('resumeBanner');
+  if(!banner) return;
+  const raw = localStorage.getItem('hb_temperament_inprogress');
+  if(raw){
+    try{
+      const state = JSON.parse(raw);
+      document.getElementById('resumeInfo').textContent = `${state.quizName || 'Untitled'} — Question ${state.qIndex+1} of ${QUESTIONS.length}`;
+      banner.style.display='block';
+    }catch(e){ banner.style.display='none'; }
+  } else {
+    banner.style.display='none';
+  }
+}
+
+function resumeQuiz(){
+  const raw = localStorage.getItem('hb_temperament_inprogress');
+  if(!raw) return;
+  const state = JSON.parse(raw);
+  qIndex=state.qIndex; tally=state.tally; skippedCount=state.skippedCount; quizName=state.quizName;
+  assessMode=state.assessMode; subjectRelationship=state.subjectRelationship; preferredLens=state.preferredLens;
+  answerHistory=state.answerHistory||[];
+  document.getElementById('resumeBanner').style.display='none';
+  document.getElementById('quizIntro').style.display='none';
+  document.getElementById('quizBody').style.display='block';
+  showQuestion();
+}
+function discardProgress(){
+  clearQuizProgress();
+  checkResumable();
+}
+
 function startQuiz(){
   quizName = document.getElementById('quizName').value.trim() || (assessMode==='other' ? 'They' : 'You');
   if(assessMode==='other' && !subjectRelationship){ subjectRelationship = 'Other'; }
   qIndex = 0;
   tally = {san:0,cho:0,mel:0,phl:0};
+  skippedCount = 0;
+  answerHistory = [];
   document.getElementById('quizIntro').style.display='none';
   document.getElementById('quizBody').style.display='block';
   showQuestion();
@@ -733,13 +900,22 @@ function showQuestion(){
   document.getElementById('qText').textContent = assessMode==='other' ? `Which sounds more like ${quizName}?` : `Which sounds more like you?`;
   document.getElementById('optA').textContent = phraseFor(q.a);
   document.getElementById('optB').textContent = phraseFor(q.b);
+  const backBtn = document.getElementById('backBtn');
+  if(backBtn) backBtn.style.visibility = qIndex===0 ? 'hidden' : 'visible';
 }
 
 function answer(choice){
   const q = QUESTIONS[qIndex];
-  const key = choice==='A' ? q.pair[0] : q.pair[1];
-  tally[key]++;
+  if(choice==='SKIP'){
+    skippedCount++;
+    answerHistory.push({type:'skip'});
+  } else {
+    const key = choice==='A' ? q.pair[0] : q.pair[1];
+    tally[key]++;
+    answerHistory.push({type:'answer', key});
+  }
   qIndex++;
+  saveQuizProgress();
   if(qIndex>=QUESTIONS.length){
     finishQuiz();
   } else {
@@ -747,13 +923,26 @@ function answer(choice){
   }
 }
 
+function goBack(){
+  if(qIndex===0 || answerHistory.length===0) return;
+  qIndex--;
+  const last = answerHistory.pop();
+  if(last.type==='skip') skippedCount--;
+  else tally[last.key]--;
+  saveQuizProgress();
+  showQuestion();
+}
+
 function finishQuiz(){
   const sorted = [...ORDER].sort((a,b)=>tally[b]-tally[a]);
   const primary = sorted[0], secondary = sorted[1];
+  const answeredCount = QUESTIONS.length - skippedCount;
+  const isTie = tally[primary] === tally[secondary] && tally[primary] > 0;
   let result = {
     name: quizName,
     primary, secondary,
     tally: {...tally},
+    answeredCount, skippedCount, isTie,
     lens: preferredLens,
     relationship: assessMode==='other' ? subjectRelationship : null,
     date: new Date().toISOString()
@@ -762,6 +951,7 @@ function finishQuiz(){
   const id = saveProfile(result);
   result = {...result, id};
   localStorage.setItem('hb_temperament_last', JSON.stringify(result));
+  clearQuizProgress();
   goView('results');
 }
 
@@ -792,9 +982,14 @@ function renderResults(){
   const sameLean = p.lean === s.lean;
   const dateStr = result.date ? formatDate(result.date) : '';
   const isProxy = !!result.relationship;
+  const hasDataQuality = typeof result.answeredCount === 'number';
+  const lowConfidence = hasDataQuality && (result.skippedCount >= 6 || result.isTie);
+  const staleDays = result.date ? Math.floor((Date.now() - new Date(result.date).getTime()) / 86400000) : 0;
+  const isStale = staleDays >= 90;
 
   body.innerHTML = `
     ${isProxy ? `<div class="glass proxynote">👀 This is <b>your read on ${result.name}</b> (${result.relationship}) — not their own self-assessment. Treat it as a starting point for empathy and a better conversation, not a verdict on who they are.</div>` : ''}
+    ${isStale && !isProxy ? `<div class="glass proxynote">🕰️ This result is from <b>${dateStr}</b> (${staleDays} days ago). Life changes — a new season, a new role, a new relationship — can shift how you show up. Consider <a href="#" onclick="event.preventDefault(); goView('quiz');" style="color:var(--gold-2);text-decoration:underline;">retaking it</a> if it's been a while.</div>` : ''}
 
     <div class="glass resulthead blendglass" id="shareCard" style="--c1:${p.color}; --c2:${s.color};">
       <div style="font-size:.68rem;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.85);font-weight:700;">${result.name}'s Temperament${isProxy? ' · '+result.relationship : ''}${dateStr? ' · '+dateStr : ''}</div>
@@ -805,7 +1000,12 @@ function renderResults(){
         <span class="chip" style="background:rgba(255,255,255,.22);color:#fff;">Dominant · ${p.name}</span>
         <span class="chip" style="background:rgba(255,255,255,.22);color:#fff;">Secondary · ${s.name}</span>
       </div>
+      ${hasDataQuality ? `<div class="dataqualitynote" style="background:rgba(0,0,0,.22);border-color:rgba(255,255,255,.3);color:#fff;">Based on <b>${result.answeredCount} of ${QUESTIONS.length}</b> questions${result.skippedCount>0 ? ` (${result.skippedCount} skipped as not applicable)` : ''}.${result.isTie ? ` Your top two temperaments tied — ${p.name} is shown first, but ${s.name} may lead just as much. Trust your own read on which fits better.` : ''}</div>` : ''}
     </div>
+
+    ${lowConfidence ? `<div class="glass card" style="border-color:rgba(212,160,23,.4);">
+      <p style="font-size:.84rem;color:var(--muted);line-height:1.6;margin:0;">🤔 <b style="color:var(--gold-2);">A good number of questions didn't quite fit your situation.</b> This result is still a reasonable starting point, but if it doesn't feel like you, that's useful information too — consider retaking it while imagining how you'd respond in a season of life where more of the questions applied.</p>
+    </div>` : ''}
 
     <div class="glass card">
       <div class="sectionlbl" style="margin-top:0">Gifts of This Blend</div>
@@ -846,6 +1046,7 @@ function renderResults(){
     <div class="glass card">
       <div class="sectionlbl" style="margin-top:0">This Week's Growth Focus</div>
       <div class="growthbox">${p.growth}</div>
+      <div class="versebox">"${SCRIPTURE_ANCHOR.verse.replace(p.fruitWord, `<b>${p.fruitWord}</b>`)}"<span class="ref">${SCRIPTURE_ANCHOR.ref}</span></div>
     </div>
 
     <div id="compareWithMeSlot"></div>
@@ -855,6 +1056,12 @@ function renderResults(){
       <button class="btn btn-ghost" onclick="goView('quiz'); document.getElementById('quizIntro').style.display='block'; document.getElementById('quizBody').style.display='none';">Retake Assessment</button>
     </div>
     <button class="btn btn-ghost" id="shareAppBtn" onclick="shareApp()" style="margin-top:10px;">🔗 Share This App With Someone</button>
+    <button class="btn btn-ghost" onclick="showShareCode('${result.id||''}')" style="margin-top:10px;">🔢 Get a Compare Code (for a phone that isn't this one)</button>
+    <div id="shareCodeBox" class="glass card" style="display:none;margin-top:12px;text-align:center;">
+      <p style="font-size:.78rem;color:var(--muted);margin-bottom:10px;">Send this code to someone on another device — they can paste it under History → Import a Code to compare with you.</p>
+      <div class="codevalue"></div>
+      <button class="btn btn-ghost" id="copyCodeBtn" onclick="copyShareCode()" style="margin-top:12px;">Copy Code</button>
+    </div>
 
     <div class="glass card" id="resultsAppsPromo" style="margin-top:20px;"></div>
   `;
@@ -1022,6 +1229,29 @@ function renderProfileList(){
 }
 
 // bucket: 'personal' | 'work-peer' | 'work-power'
+// ===================== FAMILY / GROUP MAP =====================
+function renderFamilyMap(){
+  const el = document.getElementById('familyMap');
+  if(!el) return;
+  const list = getProfiles();
+  if(list.length < 2){ el.innerHTML=''; el.style.display='none'; return; }
+  el.style.display='block';
+  el.innerHTML = `
+    <div class="sectionlbl" style="margin-top:0">Group Temperament Map</div>
+    <p style="font-size:.78rem;color:var(--muted);margin-bottom:14px;">A quick visual of everyone saved on this device — useful for a family or small-group teaching moment.</p>
+    <div class="familygrid">
+      ${list.map(item=>{
+        const p = T[item.primary], s = T[item.secondary];
+        return `<div class="familychip">
+          <div class="familydot" style="background:conic-gradient(${p.color} 0deg 180deg, ${s.color} 180deg 360deg);"></div>
+          <div class="familyname">${item.name}</div>
+          <div class="familyblend">${p.name[0]}${s.name[0]}</div>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+}
+
 function relationshipBucket(rel){
   if(!rel) return 'personal';
   if(rel==='Colleague') return 'work-peer';
@@ -1046,6 +1276,18 @@ function runCompare(){
 
   const blendA = BLENDS[a.primary+'-'+a.secondary], blendB = BLENDS[b.primary+'-'+b.secondary];
   const benefitLine = `Together: <b>${a.name}</b> brings "${(blendA&&blendA.benefit? blendA.benefit.split(' — ')[0] : (blendA?blendA.desc:''))}" while <b>${b.name}</b> brings "${(blendB&&blendB.benefit? blendB.benefit.split(' — ')[0] : (blendB?blendB.desc:''))}."`;
+
+  // Full-blend coverage analysis (not just dominant-lean) — considers both primary+secondary of each side
+  const setA = [a.primary, a.secondary], setB = [b.primary, b.secondary];
+  const shared = setA.filter(t=>setB.includes(t));
+  const covered = [...new Set([...setA, ...setB])];
+  const missing = ORDER.filter(t=>!covered.includes(t));
+  let coverageLine = '';
+  if(shared.length>0 && !samePerson){
+    coverageLine = `You both carry <b>${shared.map(k=>T[k].name).join(' & ')}</b> somewhere in your wiring — common ground, for better or worse.`;
+  } else if(missing.length>0 && !samePerson){
+    coverageLine = `Between the two of you, neither naturally brings <b>${missing.map(k=>T[k].name).join(' & ')}</b> — that's a shared blind spot, not just an individual one, and may need deliberate practice from both sides.`;
+  }
 
   let tips = [];
   let heading = '';
@@ -1101,11 +1343,40 @@ function runCompare(){
     <div class="glass compareresult ${sameLean && bucket!=='work-power' ?'tension':'match'}">
       <h4>${heading}</h4>
       ${!samePerson ? `<p class="benefitline">✨ ${benefitLine}</p>` : ''}
+      ${coverageLine ? `<p class="benefitline">🧩 ${coverageLine}</p>` : ''}
       <p>${sameLean ? '⚠ Same-lean pairing — both temperaments share a root emotion, so the weakness can double rather than balance.' : '✓ Cross-lean pairing — natural balancing potential.'}</p>
       <ul>${tips.map(t=>`<li>${t}</li>`).join('')}</ul>
     </div>
   `;
 }
+
+// ===================== THEME + FONT SIZE (accessibility) =====================
+function toggleTheme(){
+  const isLight = document.body.classList.toggle('light');
+  const btn = document.getElementById('themeToggle');
+  if(btn) btn.textContent = isLight ? '☀️' : '🌙';
+  localStorage.setItem('hb_theme', isLight?'light':'dark');
+}
+const FONT_SCALES = [87.5, 100, 112.5, 125];
+let fontLevel = 1;
+function adjustFont(delta){
+  fontLevel = Math.min(FONT_SCALES.length-1, Math.max(0, fontLevel+delta));
+  document.documentElement.style.fontSize = FONT_SCALES[fontLevel] + '%';
+  localStorage.setItem('hb_fontlevel', String(fontLevel));
+}
+(function initPrefs(){
+  const savedTheme = localStorage.getItem('hb_theme');
+  if(savedTheme==='light'){
+    document.body.classList.add('light');
+    const btn = document.getElementById('themeToggle');
+    if(btn) btn.textContent = '☀️';
+  }
+  const savedFont = localStorage.getItem('hb_fontlevel');
+  if(savedFont!==null){
+    fontLevel = parseInt(savedFont, 10);
+    document.documentElement.style.fontSize = FONT_SCALES[fontLevel] + '%';
+  }
+})();
 
 // ===================== INIT =====================
 renderWheel('homeWheel', null);
