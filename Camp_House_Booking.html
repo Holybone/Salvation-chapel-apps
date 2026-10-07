@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Camp House Booking · Salvation Chapel</title>
+<meta name="theme-color" content="#1E2761">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Camp House Booking · Salvation Chapel">
+<meta property="og:description" content="Book a bed or floor space at the camp house. Live availability, family bookings, and confirmation from the coordinator.">
+<meta property="og:image" content="https://holybone.github.io/Salvation-chapel-apps/Camp_House_Booking.png">
+<meta property="og:url" content="https://holybone.github.io/Salvation-chapel-apps/Camp_House_Booking.html">
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<style>
+  :root{
+    --navy:#1E2761; --navy-2:#2A3585; --gold:#D4A017; --gold-d:#B58610; --maroon:#A3281F;
+    --bg:#FAF5E9; --paper:#FFFFFF; --ink:#1A1A22; --muted:#6B6A74; --line:#E7E1D4;
+    --ok:#2E7D5B; --warn:#B26B00; --bad:#A3281F;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{font-family:'Segoe UI',system-ui,-apple-system,Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;
+       -webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:rgba(212,160,23,.28);padding-bottom:30px;}
+  body.has-bar{padding-bottom:130px;}
+  button,select,input,.chip,.opt{touch-action:manipulation;}
+  h1,h2,h3{font-family:Georgia,'Times New Roman',serif;margin:0;color:var(--navy);font-weight:600;}
+  .wrap{max-width:720px;margin:0 auto;padding:0 16px;}
+  header.top{background:linear-gradient(120deg,var(--navy-2),var(--navy));color:#fff;padding:22px 16px 16px;border-bottom:3px solid var(--gold);text-align:center;}
+  header.top h1{color:#fff;font-size:23px;}
+  header.top .sub{font-size:13.5px;opacity:.88;margin-top:4px;}
+  .liveline{font-size:12.5px;color:#D5DAF0;margin-top:8px;}
+  .liveline .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#46C98B;margin-right:6px;}
+  .liveline .dot.off{background:#E0A93B;}
+  .demo{background:#FFF1CC;border-bottom:1px solid #E9CF86;color:#6D5200;font-size:13px;padding:9px 0;}
+  .closed{background:#F9E3E0;border:1px solid #E5B1AA;color:#7B2A22;border-radius:10px;padding:12px 14px;margin:14px 0;font-weight:700;}
+
+  .card{background:var(--paper);border:1px solid var(--line);border-top:4px solid var(--gold);border-radius:14px;padding:18px 16px 16px;margin:14px 0;box-shadow:0 2px 14px rgba(30,39,97,.07);}
+  .card h2{font-size:19px;margin-bottom:10px;}
+  .field{margin-bottom:12px;}
+  .field label,.lbl{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin-bottom:5px;}
+  input[type=text],input[type=tel],input[type=email],input[type=password],input[type=date],select,textarea{
+    width:100%;padding:11px 12px;border:1.5px solid #D8D0BC;border-radius:10px;font-size:16px;font-family:inherit;background:#fff;color:var(--ink);}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,160,23,.25);}
+  textarea{min-height:90px;}
+  .tiny{font-size:12px;color:var(--muted);margin:8px 0 0;line-height:1.5;}
+  .seg button{width:49%;min-height:50px;border:2px solid #D8D0BC;background:#fff;border-radius:12px;font-size:15px;font-weight:800;font-family:inherit;color:var(--navy);cursor:pointer;transition:background .12s,border-color .12s,transform .08s;}
+  .seg button+button{margin-left:1%;}
+  .seg button:active{transform:scale(.97);}
+  .seg button.on{background:var(--navy);border-color:var(--navy);color:#fff;}
+  .seg button.on::before{content:'\2713  ';}
+  .chk{display:block;font-size:14px;margin:6px 0 2px;}
+  .chk input{width:auto;margin-right:8px;transform:scale(1.25);}
+
+  .strip{margin:0 -4px;}
+  .nstat{display:inline-block;margin:4px;padding:8px 11px;border-radius:10px;font-size:12.5px;font-weight:800;border:1.5px solid;}
+  .nstat.ok{border-color:#9ED0B8;background:#EAF6F0;color:#1D6B49;}
+  .nstat.low{border-color:#EBCB86;background:#FFF6DD;color:#8A5C00;}
+  .nstat.full{border-color:#E5B1AA;background:#FBE9E6;color:#8A2A20;}
+  .chips{margin:0 -4px;}
+  .chip{display:inline-block;margin:4px;min-height:46px;padding:11px 16px;border-radius:999px;border:2px solid #D8D0BC;background:#fff;font-size:14.5px;font-weight:800;color:var(--navy);cursor:pointer;font-family:inherit;transition:background .12s,border-color .12s,transform .08s;}
+  .chip:active{transform:scale(.96);}
+  .chip.on{background:var(--navy);border-color:var(--navy);color:#fff;}
+  .chip.on::before{content:'\2713  ';}
+  .chip[disabled]{opacity:.8;cursor:default;}
+
+  .psum{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:8px;}
+  .prow{background:#FBF8EF;border:1px solid var(--line);border-radius:10px;padding:8px;margin-bottom:8px;}
+  .prow input,.prow select{margin-bottom:6px;padding:9px 10px;font-size:15px;}
+  .prow .premove{margin:0;}
+
+  .hint{background:#EEF1FB;border:1px solid #CBD3F0;color:var(--navy);border-radius:10px;padding:10px 12px;font-size:13.5px;margin-bottom:12px;}
+  .room{border:2px solid var(--line);border-radius:14px;padding:14px 14px 12px;margin-bottom:12px;background:#fff;transition:border-color .12s,box-shadow .12s,background .12s;}
+  .room.sel{border-color:var(--gold);background:#FFFBEF;box-shadow:0 0 0 3px rgba(212,160,23,.28);}
+  .room.locked{background:#F6F2E9;}
+  .rtop{display:flex;justify-content:space-between;align-items:flex-start;}
+  .rname{font-family:Georgia,serif;font-size:18px;font-weight:600;color:var(--navy);}
+  .rwho{font-size:12px;color:var(--muted);margin-top:2px;}
+  .tags{text-align:right;margin-left:8px;}
+  .badge{display:inline-block;font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;background:#EEF1F8;color:var(--navy-2);white-space:nowrap;margin:0 0 3px 4px;}
+  .badge.council{background:#F4E9CC;color:#7A5A12;}
+  .badge.sugg{background:#E5F4EC;color:#1D6B49;}
+  .badge.seltag{display:none;background:var(--gold);color:#2B2208;}
+  .room.sel .badge.seltag{display:inline-block;}
+  .spaces{margin:10px 0 4px;}
+  .sp{display:inline-block;margin:0 5px 5px 0;vertical-align:middle;}
+  .sp.bed{width:24px;height:24px;border-radius:5px;border:2px solid var(--ok);border-bottom-width:6px;}
+  .sp.mat{width:28px;height:15px;border-radius:7px;border:2px solid var(--ok);}
+  .sp.taken{background:#C7CBD6;border-color:#9BA1B3;}
+  .sp.unknown{border-style:dashed;border-color:#C9C2B0;}
+  .sp.gap{margin-left:10px;}
+  .rfree{font-size:13px;}
+  .rfree b{color:var(--navy);}
+  .legend{font-size:11.5px;color:var(--muted);margin-bottom:10px;}
+  .why{font-size:13px;color:#7A5A12;margin-top:9px;font-weight:700;}
+  .rnote{font-size:12px;color:#7A5A12;margin-top:6px;}
+  .opts{display:flex;flex-wrap:wrap;margin:10px -4px 0;}
+  .opt{flex:1 1 150px;margin:4px;min-height:54px;border:2px solid #D8D0BC;background:#fff;border-radius:12px;padding:8px 12px;text-align:left;font-family:inherit;cursor:pointer;transition:transform .08s,background .12s,border-color .12s,box-shadow .12s;}
+  .opt:active{transform:scale(.97);}
+  .opt .ot{display:block;font-weight:800;font-size:14.5px;color:var(--navy);}
+  .opt .os{display:block;font-size:12px;color:var(--muted);}
+  .opt.on{background:var(--gold);border-color:var(--gold-d);box-shadow:0 2px 10px rgba(212,160,23,.5);}
+  .opt.on .ot,.opt.on .os{color:#2B2208;}
+  .opt[disabled]{opacity:.45;cursor:not-allowed;}
+
+  .btn{display:inline-block;border:none;border-radius:10px;padding:12px 16px;font-size:14.5px;font-weight:800;font-family:inherit;cursor:pointer;margin:0 8px 8px 0;transition:transform .08s;}
+  .btn:active{transform:scale(.97);}
+  .btn.primary{background:var(--navy);color:#fff;}
+  .btn.gold{background:var(--gold);color:#2B2208;}
+  .btn.ghost{background:#fff;border:1.5px solid #D8D0BC;color:var(--navy);}
+  .btn.danger{background:#fff;border:1.5px solid #E5B1AA;color:var(--bad);}
+  .btn.ok{background:#fff;border:1.5px solid #9ED0B8;color:#1D6B49;}
+  .btn.wa{background:#25D366;color:#073B1B;text-decoration:none;}
+  .btn.small{padding:8px 12px;font-size:13px;}
+  .btn.big{padding:14px 18px;font-size:15.5px;margin:0;}
+  .btn[disabled]{opacity:.45;cursor:not-allowed;}
+
+  .selbar{position:fixed;left:0;right:0;bottom:0;z-index:50;background:#fff;border-top:3px solid var(--gold);box-shadow:0 -6px 20px rgba(30,39,97,.18);padding:8px 14px calc(10px + env(safe-area-inset-bottom,0px));}
+  .selbar .inner{max-width:720px;margin:0 auto;}
+  .selrow{display:flex;align-items:center;}
+  .seltext{flex:1;font-size:13px;line-height:1.35;color:var(--navy);font-weight:700;padding-right:10px;}
+  .seltext .seltop{font-family:Georgia,serif;font-size:15.5px;}
+
+  .msg{font-size:14px;margin:0;border-radius:9px;}
+  .msg.err{padding:10px 12px;margin-bottom:8px;background:#FBE9E6;border:1px solid #E5B1AA;color:#7B2A22;font-weight:700;}
+  .msg.ok{padding:10px 12px;margin-bottom:8px;background:#EAF6F0;border:1px solid #9ED0B8;color:#1D6B49;font-weight:700;}
+  .notice{border:2px solid var(--ok);background:#F2FAF6;}
+  .notice.wait{border-color:var(--gold);background:#FFFBEF;}
+  .notice.bad{border-color:#E5B1AA;background:#FBE9E6;}
+  .notice h2{margin-bottom:6px;}
+  .ref{font-family:Georgia,serif;font-size:30px;letter-spacing:.1em;color:var(--navy);margin:2px 0 8px;}
+  .st{display:inline-block;font-size:11.5px;font-weight:800;padding:3px 9px;border-radius:999px;margin-left:6px;}
+  .st.pending{background:#FFF1CC;color:#7A5A12;}
+  .st.approved{background:#E5F4EC;color:#1D6B49;}
+  .st.declined{background:#FBE9E6;color:#8A2A20;}
+  .st.cancelled{background:#ECECEF;color:#555;}
+  .mine-item{border-top:1px solid var(--line);padding:12px 0;}
+  .mine-item:first-child{border-top:none;}
+  .empty{color:var(--muted);font-size:14px;padding:6px 0;}
+
+  footer.foot{text-align:center;padding:18px 0 22px;font-size:12.5px;color:var(--muted);}
+  footer.foot a{color:var(--muted);}
+
+  /* admin */
+  .tabs{margin:14px 0 4px;}
+  .tab{display:inline-block;min-height:42px;padding:9px 13px;margin:0 6px 6px 0;border-radius:10px;border:2px solid #D8D0BC;background:#fff;font-weight:800;font-size:13.5px;color:var(--navy);cursor:pointer;font-family:inherit;}
+  .tab.on{background:var(--navy);border-color:var(--navy);color:#fff;}
+  .scroll{overflow-x:auto;}
+  table.g{border-collapse:collapse;width:100%;font-size:12.5px;}
+  table.g th,table.g td{border:1px solid var(--line);padding:6px 7px;text-align:left;vertical-align:top;}
+  table.g th{background:#F3EEDF;color:var(--navy);white-space:nowrap;}
+  table.g td.free{color:#B0AA9A;font-style:italic;}
+  table.g td.occ{font-weight:700;}
+  table.g td.occ.approved{background:#E5F4EC;color:#14553A;}
+  table.g td.occ.pending{background:#FFF8E1;color:#7A5A12;border:1.5px dashed #D4A017;}
+  table.g td.occ.F{border-left:4px solid #C2548C;}
+  table.g td.occ.M{border-left:4px solid #2A6FB8;}
+  .room-block{margin-bottom:16px;}
+  .room-block h3{font-size:16px;margin-bottom:6px;}
+  .bk{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;background:#fff;}
+  .bk .btop{font-weight:800;color:var(--navy);}
+  .bk .line{font-size:13.5px;margin-top:3px;}
+  .bk .acts{margin-top:10px;}
+  .grid2 .field{display:inline-block;width:48%;vertical-align:top;margin-right:1.5%;}
+  .inline{display:inline-block;width:auto;margin-right:12px;font-weight:600;color:var(--ink);}
+  .totals{margin:0 -4px 6px;}
+  [hidden]{display:none !important;}
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>Salvation Chapel &middot; Camp House</h1>
+  <div class="sub" id="campTitle">Book your bed or floor space</div>
+  <div class="liveline" id="liveLine"></div>
+</header>
+<div class="demo" id="demoBanner" hidden>
+  <div class="wrap"><b>Preview mode.</b> Nothing here is saved or shared between phones yet. Make a booking, then tap Admin at the bottom and sign in with <b>demo@church.test</b> / <b>demo</b> to approve it. Phone <b>08011111111</b> unlocks the council rooms.</div>
+</div>
+
+<main class="wrap">
+  <section id="pubView">
+    <div class="closed" id="closedBanner" hidden>Bookings are closed right now. Please contact the camp coordinator.</div>
+    <div id="statusBox"></div>
+
+    <div class="card">
+      <h2>Spaces left each night</h2>
+      <div class="strip" id="nightStrip"></div>
+      <p class="tiny">Updates live as people book. The house has 35 spaces in total.</p>
+    </div>
+
+    <div class="card">
+      <h2>1 &middot; Your details</h2>
+      <div class="field"><label for="fName">Full name</label><input type="text" id="fName" autocomplete="name" maxlength="80" placeholder="e.g. Grace Adeyemi"></div>
+      <div class="field"><label for="fPhone">Phone number (WhatsApp)</label><input type="tel" id="fPhone" autocomplete="tel" inputmode="tel" placeholder="0803 123 4567"></div>
+      <div class="field"><span class="lbl">Male or female</span>
+        <div class="seg" id="genderSeg"><button type="button" data-g="M">Male</button><button type="button" data-g="F">Female</button></div>
+      </div>
+      <div class="field">
+        <span class="lbl">Who is staying?</span>
+        <div class="psum" id="partySummary">Just you</div>
+        <div id="partyRows"></div>
+        <button type="button" class="btn ghost small" id="addMember">+ Add a family member or child</button>
+        <p class="tiny">Add your spouse, children and babies so they stay together. Babies under 3 sleep with a parent and do not need a space. Children must be on the booking of a parent or guardian.</p>
+      </div>
+      <label class="chk"><input type="checkbox" id="fAdult"> I am 18 or over</label>
+      <p class="tiny">We use these details to organise rooms. The church council keeps the list for reporting and audit.</p>
+    </div>
+
+    <div class="card">
+      <h2>2 &middot; Which nights?</h2>
+      <div class="chips" id="nightChips"></div>
+      <p class="tiny" id="nightNote"></p>
+    </div>
+
+    <div class="card">
+      <h2>3 &middot; Choose your space</h2>
+      <div class="legend"><span class="sp bed free"></span> bed &nbsp; <span class="sp mat free"></span> floor space &nbsp; <span class="sp bed taken"></span><span class="sp mat taken"></span> taken</div>
+      <div id="roomsIntro"></div>
+      <div id="rooms"></div>
+    </div>
+
+    <div class="card">
+      <h2>My bookings on this phone</h2>
+      <div id="mine"><div class="empty">Nothing yet.</div></div>
+      <p class="tiny">Only bookings made on this phone show here. If you lose one, send your name and number to the camp coordinator.</p>
+    </div>
+  </section>
+
+  <section id="adminView" hidden>
+    <div class="card" id="adminLogin">
+      <h2>Admin sign in</h2>
+      <div class="field"><label for="aEmail">Email</label><input type="email" id="aEmail" autocomplete="username"></div>
+      <div class="field"><label for="aPass">Password</label><input type="password" id="aPass" autocomplete="current-password"></div>
+      <div id="aMsg" class="msg" role="alert"></div>
+      <button class="btn primary" id="aSignIn" type="button">Sign in</button>
+      <button class="btn ghost" id="aBack" type="button">Back to booking</button>
+    </div>
+    <div id="adminPanel" hidden>
+      <div class="tabs" id="adminTabs">
+        <button class="tab on" data-tab="requests" type="button">Requests</button>
+        <button class="tab" data-tab="rooms" type="button">Rooms</button>
+        <button class="tab" data-tab="bookings" type="button">Bookings</button>
+        <button class="tab" data-tab="council" type="button">Council list</button>
+        <button class="tab" data-tab="setup" type="button">Setup</button>
+      </div>
+      <div id="adminBody"></div>
+      <p><button class="btn ghost small" id="aOut" type="button">Sign out</button> <button class="btn ghost small" id="aBack2" type="button">Back to booking</button></p>
+    </div>
+  </section>
+</main>
+
+<div class="selbar" id="selbar" hidden>
+  <div class="inner">
+    <div id="msg" class="msg" role="alert" aria-live="polite"></div>
+    <div class="selrow"><div class="seltext" id="selText"></div><button class="btn gold big" id="bookBtn" type="button">Request booking</button></div>
+  </div>
+</div>
+<footer class="foot"><a href="#" id="adminLink">Admin</a></footer>
+<noscript><div class="wrap"><p>This page needs JavaScript to show live availability.</p></div></noscript>
+
+<script>
+/* ============================================================
+   CONFIG: paste your church's own Firebase project values here.
+   While apiKey still says PASTE..., the page runs in PREVIEW mode
+   with in-memory sample data so you can click through everything.
+   ============================================================ */
+const FIREBASE_CONFIG = {
+  apiKey: "PASTE_API_KEY",
+  authDomain: "PASTE_AUTH_DOMAIN",
+  projectId: "PASTE_PROJECT_ID",
+  storageBucket: "PASTE_STORAGE_BUCKET",
+  messagingSenderId: "PASTE_SENDER_ID",
+  appId: "PASTE_APP_ID"
+};
+// Must match the admin emails listed in firestore.rules
+const ADMIN_EMAILS = ["salvationchapelmedia@gmail.com"];
+const DEMO = FIREBASE_CONFIG.apiKey.indexOf('PASTE') === 0;
+const DEMO_ADMIN = 'demo@church.test';
+
+/* Rooms. capacity = beds + floor spaces (35 in all). Council Male has no bunk bed. */
+const ROOMS = [
+  {id:'fwi',   name:'FWI General Room',      beds:4, floor:4, council:false, defaultGender:'F',   who:'FWI general room'},
+  {id:'cfm',   name:'CFM General Room',      beds:4, floor:4, council:false, defaultGender:'M',   who:'CFM general room'},
+  {id:'cf',    name:'Council Room (Female)', beds:2, floor:3, council:true,  defaultGender:'F',   who:'Council members and ministers'},
+  {id:'cm',    name:'Council Room (Male)',   beds:0, floor:5, council:true,  defaultGender:'M',   who:'Council members and ministers'},
+  {id:'lobby', name:'Entrance Lobby',        beds:0, floor:4, council:false, defaultGender:'any', who:'Shared area, families can stay together'},
+  {id:'open',  name:'Open Space',            beds:0, floor:5, council:false, defaultGender:'any', who:'Shared area, families can stay together'}
+];
+const AGE_LABEL = {adult:'Adult', child:'Child', infant:'Baby'};
+const STATUS_LABEL = {pending:'Awaiting approval', approved:'Approved', declined:'Not approved', cancelled:'Cancelled'};
+
+/* ---------- helpers ---------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function normPhone(raw){
+  let d = String(raw||'').replace(/\D/g,'');
+  if(d.indexOf('234')===0 && d.length===13) d = '0'+d.slice(3);
+  else if(d.length===10) d = '0'+d;
+  return d;
+}
+const validPhone = p => /^0\d{10}$/.test(p);
+const intlPhone = p => { const d=String(p||'').replace(/\D/g,''); return d.indexOf('0')===0 ? '234'+d.slice(1) : d; };
+function isoAddDays(iso,n){
+  const d = new Date(iso+'T12:00:00'); d.setDate(d.getDate()+n);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function dayLabel(iso){ return new Date(iso+'T12:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}); }
+function weekdayOf(iso){ return new Date(iso+'T12:00:00').getDay(); }
+function nextThursday(){
+  const d = new Date(); d.setHours(12,0,0,0);
+  d.setDate(d.getDate() + (((4 - d.getDay()) + 7) % 7 || 7));
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+const defaultRoomGender = () => { const o={}; ROOMS.forEach(r=>o[r.id]=r.defaultGender); return o; };
+const roomById = id => ROOMS.find(r=>r.id===id);
+const tsMillis = v => v && v.toMillis ? v.toMillis() : (typeof v==='number' ? v : 0);
+const tsText = v => { const m=tsMillis(v); return m ? new Date(m).toISOString().replace('T',' ').slice(0,16) : ''; };
+function shortName(n){ n=String(n||''); if(n.length<=14) return n; const p=n.split(' '); return p[0]+(p.length>1?' '+p[p.length-1].charAt(0)+'.':''); }
+function setHTML(el, html){ if(el.__h!==html){ el.innerHTML=html; el.__h=html; } }
+
+/* ============================================================
+   In-memory Firestore stand-in (preview mode only). Mimics the
+   parts of the Firestore API this page uses, including transaction
+   retry when two people grab the same space at once.
+   ============================================================ */
+function makeFakeFirebase(){
+  const data = {}, ver = {}, listeners = []; let seq = 0;
+  const clone = o => o===undefined ? undefined : JSON.parse(JSON.stringify(o));
+  const colName = p => p.split('/')[0];
+  function snapOf(path){
+    const exists = path in data; const d = clone(data[path]);
+    return { id:path.split('/').pop(), exists:exists, ref:refOf(path), data:()=>clone(d) };
+  }
+  function setSync(path,v,merge){ data[path] = (merge && data[path]) ? Object.assign({},data[path],clone(v)) : clone(v); ver[path]=(ver[path]||0)+1; }
+  function updSync(path,v){ if(!(path in data)) throw new Error('not-found'); data[path]=Object.assign({},data[path],clone(v)); ver[path]=(ver[path]||0)+1; }
+  function delSync(path){ delete data[path]; ver[path]=(ver[path]||0)+1; }
+  function notify(){ listeners.slice().forEach(l=>l.fire()); }
+  function listen(fire){
+    const l = {fire:fire}; listeners.push(l);
+    setTimeout(()=>{ if(listeners.indexOf(l)>=0) fire(); },0);
+    return ()=>{ const i=listeners.indexOf(l); if(i>=0) listeners.splice(i,1); };
+  }
+  function refOf(path){
+    return { id:path.split('/').pop(), path:path,
+      get: async ()=>snapOf(path),
+      set: async (v,o)=>{ setSync(path,v,o&&o.merge); notify(); },
+      update: async v=>{ updSync(path,v); notify(); },
+      delete: async ()=>{ delSync(path); notify(); },
+      onSnapshot: cb=>listen(()=>cb(snapOf(path))) };
+  }
+  function qSnap(name,filters){
+    const docs = Object.keys(data).filter(p=>colName(p)===name && p.split('/').length===2 && filters.every(f=>data[p][f[0]]===f[1])).map(snapOf);
+    return { docs:docs, size:docs.length, empty:!docs.length, forEach:fn=>docs.forEach(fn) };
+  }
+  function query(name,filters){
+    return { where:(f,op,v)=>query(name,filters.concat([[f,v]])),
+             get: async ()=>qSnap(name,filters),
+             onSnapshot: cb=>listen(()=>cb(qSnap(name,filters))) };
+  }
+  const db = {
+    collection: name => Object.assign(query(name,[]), { doc:id=>refOf(name+'/'+(id||('auto'+(++seq)+Math.random().toString(36).slice(2,7)))) }),
+    doc: path => refOf(path),
+    batch: ()=>{ const ops=[]; return {
+      set:(r,v,o)=>{ops.push(()=>setSync(r.path,v,o&&o.merge));},
+      update:(r,v)=>{ops.push(()=>updSync(r.path,v));},
+      delete:r=>{ops.push(()=>delSync(r.path));},
+      commit: async ()=>{ ops.forEach(f=>f()); notify(); } }; },
+    runTransaction: async fn=>{
+      for(let attempt=0; attempt<6; attempt++){
+        const reads={}, writes=[];
+        const tx = {
+          get: async r=>{ reads[r.path]=ver[r.path]||0; return snapOf(r.path); },
+          set:(r,v,o)=>{writes.push(()=>setSync(r.path,v,o&&o.merge));},
+          update:(r,v)=>{writes.push(()=>updSync(r.path,v));},
+          delete:r=>{writes.push(()=>delSync(r.path));}
+        };
+        const result = await fn(tx);
+        if(Object.keys(reads).some(p=>(ver[p]||0)!==reads[p])) continue;
+        writes.forEach(f=>f()); notify(); return result;
+      }
+      throw new Error('Too many people booking at once. Please try again.');
+    }
+  };
+  let user = {uid:'demo-'+Math.random().toString(36).slice(2,8), email:null, isAnonymous:true};
+  const cbs = [];
+  const auth = {
+    get currentUser(){ return user; },
+    onAuthStateChanged: cb=>{ cbs.push(cb); setTimeout(()=>cb(user),0); },
+    signInAnonymously: async ()=>user,
+    signInWithEmailAndPassword: async (e,p)=>{
+      if(String(e).toLowerCase()===DEMO_ADMIN && p==='demo'){ user={uid:'demo-admin',email:DEMO_ADMIN,isAnonymous:false}; cbs.forEach(cb=>cb(user)); return {user:user}; }
+      throw new Error('Wrong email or password. In preview mode use '+DEMO_ADMIN+' / demo');
+    },
+    signOut: async ()=>{ user={uid:'demo-'+Math.random().toString(36).slice(2,8), email:null, isAnonymous:true}; cbs.forEach(cb=>cb(user)); }
+  };
+  return {auth:auth, db:db};
+}
+
+/* ---------- backend init ---------- */
+let auth, db;
+if(DEMO){ const f = makeFakeFirebase(); auth=f.auth; db=f.db; }
+else { firebase.initializeApp(FIREBASE_CONFIG); auth=firebase.auth(); db=firebase.firestore(); }
+const stamp = () => DEMO ? Date.now() : firebase.firestore.FieldValue.serverTimestamp();
+
+/* ---------- state ---------- */
+let CAMP=null, AVAIL={}, COUNCIL=null, MINE=[], ALLB=[], COUNCIL_LIST=[];
+let IS_ADMIN=false, adminOpen=false, adminTab='requests', bookingFilter='', statusFilter='all';
+let unsubMine=null, unsubAdmin=[], listenersStarted=false, liveOK=true, prevStatus=null;
+const form = {name:'', phone:'', gender:'', party:[], nights:[], roomId:null, bedType:null};
+const allNights = () => CAMP ? CAMP.nights : [];
+const roomGender = r => (CAMP && CAMP.roomGender && CAMP.roomGender[r.id]) || r.defaultGender;
+const nightsFor = r => r.council ? allNights() : form.nights;
+const needsApproval = () => !(CAMP && CAMP.requireApproval===false);
+
+/* the people on this booking. Babies sleep with a parent and take no space. */
+function partyInfo(){
+  const people = [{name:form.name.trim(), gender:form.gender, age:'adult'}]
+    .concat(form.party.map(p=>({name:String(p.name||'').trim(), gender:p.gender, age:p.age})));
+  const sleepers = people.filter(p=>p.age!=='infant');
+  const g = {}; sleepers.forEach(p=>{ if(p.gender) g[p.gender]=true; });
+  const genders = Object.keys(g);
+  return {people:people, need:sleepers.length, genders:genders, mixed:genders.length>1, infants:people.length-sleepers.length};
+}
+function freeOf(a,type){
+  const arr = a[type==='bed'?'bedSlots':'floorSlots'];
+  const cap = type==='bed' ? a.capBed : a.capFloor;
+  return arr ? arr.filter(x=>!x).length : cap - (a[type]||0);
+}
+function freeFor(roomId, nights){
+  const none = {bed:0,floor:0,capBed:0,capFloor:0,known:false};
+  if(!nights.length) return none;
+  let bed=Infinity, floor=Infinity, capBed=0, capFloor=0;
+  for(const n of nights){
+    const a = AVAIL[roomId+'_'+n]; if(!a) return none;
+    bed = Math.min(bed, freeOf(a,'bed')); floor = Math.min(floor, freeOf(a,'floor'));
+    capBed=a.capBed; capFloor=a.capFloor;
+  }
+  return {bed:Math.max(0,bed), floor:Math.max(0,floor), capBed:capBed, capFloor:capFloor, known:true};
+}
+/* hidden = the room is not for this person/family at all, so we do not show it */
+function roomAccess(room){
+  if(!form.gender) return {ok:false, hidden:true, why:''};
+  const pi = partyInfo(); const g = roomGender(room);
+  if(g!=='any' && pi.genders.some(x=>x!==g)) return {ok:false, hidden:true, why: g==='F' ? 'For women only.' : 'For men only.'};
+  if(room.council){
+    if(pi.need>1) return {ok:false, why:'Council rooms are booked one person at a time.'};
+    if(!validPhone(normPhone(form.phone))) return {ok:false, why:'Enter your phone number above to check council access.'};
+    if(COUNCIL===null) return {ok:false, why:'Checking the council list...'};
+    if(!COUNCIL) return {ok:false, why:'Reserved. Your number is not on the council list, please ask the coordinator.'};
+  }
+  return {ok:true};
+}
+function canTake(room, type){
+  const pi = partyInfo(); const nights = nightsFor(room);
+  if(!nights.length) return false;
+  const f = freeFor(room.id, nights);
+  return f.known && (type==='bed' ? f.bed : f.floor) >= pi.need;
+}
+function validateSelection(){
+  if(!form.roomId) return;
+  const room = roomById(form.roomId);
+  if(!roomAccess(room).ok || (form.bedType==='bed' && room.beds===0) || (nightsFor(room).length && !canTake(room, form.bedType))){
+    form.roomId=null; form.bedType=null;
+  }
+}
+
+/* ---------- rendering (public) ---------- */
+function renderHeader(){
+  $('campTitle').textContent = CAMP ? CAMP.name : 'Book your bed or floor space';
+  $('demoBanner').hidden = !DEMO;
+  setHTML($('liveLine'), '<span class="dot '+(liveOK?'':'off')+'"></span>'+(liveOK?'Live availability':'Reconnecting...'));
+  $('closedBanner').hidden = !(CAMP && CAMP.open===false);
+}
+function renderNightStrip(){
+  const box = $('nightStrip');
+  if(!CAMP){ setHTML(box,'<div class="empty">No camp is open for booking yet.</div>'); return; }
+  setHTML(box, CAMP.nights.map(n=>{
+    let left=0, known=false;
+    ROOMS.forEach(r=>{ const a=AVAIL[r.id+'_'+n]; if(a){ known=true; left += freeOf(a,'bed')+freeOf(a,'floor'); } });
+    const cls = !known ? 'low' : left<=0 ? 'full' : left<=6 ? 'low' : 'ok';
+    return '<span class="nstat '+cls+'">'+esc(dayLabel(n))+' &middot; '+(left<=0&&known?'Full':left+' left')+'</span>';
+  }).join(''));
+}
+function renderNights(){
+  const box = $('nightChips');
+  if(!CAMP){ setHTML(box,''); return; }
+  const locked = form.roomId && roomById(form.roomId).council;
+  setHTML(box, CAMP.nights.map(n=>{
+    const on = form.nights.indexOf(n)>=0;
+    return '<button type="button" class="chip '+(on?'on':'')+'" data-night="'+esc(n)+'" aria-pressed="'+on+'" '+(locked?'disabled':'')+'>'+esc(dayLabel(n))+'</button>';
+  }).join(''));
+  $('nightNote').textContent = locked ? 'Council rooms are for the whole camp, so every night is selected for you.' : 'Tap each night you will sleep at the camp house.';
+}
+function renderPartyRows(){
+  setHTML($('partyRows'), form.party.map((p,i)=>
+    '<div class="prow" data-i="'+i+'">'
+    +'<input type="text" class="pname" maxlength="80" placeholder="Name" aria-label="Name" value="'+esc(p.name)+'">'
+    +'<select class="pgender" aria-label="Male or female"><option value="M"'+(p.gender==='M'?' selected':'')+'>Male</option><option value="F"'+(p.gender==='F'?' selected':'')+'>Female</option></select> '
+    +'<select class="page" aria-label="Age group"><option value="adult"'+(p.age==='adult'?' selected':'')+'>Adult</option><option value="child"'+(p.age==='child'?' selected':'')+'>Child (3 to 17)</option><option value="infant"'+(p.age==='infant'?' selected':'')+'>Baby (under 3)</option></select> '
+    +'<button type="button" class="btn danger small premove" aria-label="Remove">Remove</button></div>').join(''));
+  renderPartySummary();
+}
+function renderPartySummary(){
+  const pi = partyInfo();
+  let t = pi.people.length===1 ? 'Just you' : 'Booking for '+pi.people.length+' people';
+  t += ' · '+pi.need+' space'+(pi.need===1?'':'s')+' needed';
+  if(pi.infants) t += ' ('+pi.infants+' baby sleeps with a parent)';
+  $('partySummary').textContent = t;
+}
+function spacesHTML(f, room, type){
+  const cap = type==='bed' ? (f.known?f.capBed:room.beds) : (f.known?f.capFloor:room.floor);
+  const free = type==='bed' ? f.bed : f.floor;
+  let h='';
+  for(let i=0;i<cap;i++){
+    const taken = f.known && i<(cap-free);
+    h += '<span class="sp '+(type==='bed'?'bed':'mat')+' '+(f.known?(taken?'taken':'free'):'unknown')+(type==='floor'&&i===0&&room.beds>0?' gap':'')+'"></span>';
+  }
+  return h;
+}
+function renderRooms(){
+  const box = $('rooms'), intro = $('roomsIntro');
+  if(!CAMP){ setHTML(intro,''); setHTML(box,'<div class="empty">No camp is open for booking yet. Please check back soon.</div>'); return; }
+  if(!form.gender){ setHTML(intro,'<div class="hint">Choose male or female in step 1 and we will show you the rooms for you.</div>'); setHTML(box,''); return; }
+  const pi = partyInfo();
+  const list = ROOMS.map(room=>{ const access=roomAccess(room); return {room:room, access:access}; }).filter(x=>!x.access.hidden);
+  list.forEach(x=>{
+    x.nights = nightsFor(x.room);
+    x.f = freeFor(x.room.id, x.nights.length ? x.nights : allNights());
+    x.avail = x.access.ok && x.nights.length>0 && ((x.room.beds>0 && canTake(x.room,'bed')) || canTake(x.room,'floor'));
+  });
+  list.sort((a,b)=> (b.avail?1:0)-(a.avail?1:0));
+  const firstAvail = list.filter(x=>x.avail && !x.room.council)[0];
+  const who = pi.mixed ? 'your family' : (form.gender==='F' ? 'women' : 'men');
+  setHTML(intro, '<div class="hint">'+(pi.mixed
+      ? 'Your family has men and women, so these shared areas are where you can all stay together. Or make two separate bookings: women in the FWI room and men in the CFM room.'
+      : 'Showing the rooms for '+who+(pi.need>1?' ('+pi.need+' spaces needed)':'')+'.')+'</div>');
+  setHTML(box, list.map(x=>{
+    const room=x.room, f=x.f, access=x.access;
+    const g = roomGender(room);
+    const badge = room.council ? 'Council &middot; '+(g==='F'?'Women':g==='M'?'Men':'Any') : (g==='F'?'Women':g==='M'?'Men':'Men or women');
+    const sel = form.roomId===room.id;
+    const canPick = access.ok && x.nights.length>0 && !(CAMP.open===false);
+    let body;
+    if(!access.ok){ body = '<div class="why">&#128274; '+esc(access.why)+'</div>'; }
+    else {
+      const hint = x.nights.length ? '' : '<div class="why">Pick your nights first (step 2).</div>';
+      const opt = (type,label)=>{
+        const free = type==='bed' ? f.bed : f.floor;
+        const enough = canPick && f.known && free>=pi.need;
+        const on = sel && form.bedType===type;
+        const sub = !f.known ? 'Not open yet' : free<pi.need ? (free? 'Only '+free+' free':'Full') : free+' free'+(pi.need>1?' · takes '+pi.need:'');
+        return '<button type="button" class="opt '+(on?'on':'')+'" data-room="'+room.id+'" data-type="'+type+'" aria-pressed="'+on+'" '+(enough||on?'':'disabled')+'>'
+          +'<span class="ot">'+(on?'&#10003; ':'')+(type==='bed'?(pi.need>1?'Beds':'A bed'):(pi.need>1?'Floor spaces':'Floor space'))+(on?' selected':'')+'</span><span class="os">'+sub+'</span></button>';
+      };
+      body = hint+'<div class="opts">'+(room.beds>0?opt('bed'):'')+opt('floor')+'</div>';
+    }
+    return '<div class="room '+(sel?'sel ':'')+(access.ok?'':'locked')+'">'
+      +'<div class="rtop"><div><div class="rname">'+esc(room.name)+'</div><div class="rwho">'+esc(room.who)+'</div></div>'
+      +'<div class="tags"><span class="badge seltag">&#10003; Selected</span>'
+      +(firstAvail&&firstAvail.room.id===room.id?'<span class="badge sugg">Suggested</span>':'')
+      +'<span class="badge '+(room.council?'council':'')+'">'+badge+'</span></div></div>'
+      +'<div class="spaces">'+(room.beds>0?spacesHTML(f,room,'bed'):'')+spacesHTML(f,room,'floor')+'</div>'
+      +'<div class="rfree">'+(f.known ? (room.beds>0?'Beds free: <b>'+f.bed+'</b> of '+f.capBed+' &middot; ':'')+'Floor spaces free: <b>'+f.floor+'</b> of '+f.capFloor : 'Not open yet')+'</div>'
+      +(room.council?'<div class="rnote">Whole camp stay only (all nights).</div>':'')
+      +body+'</div>';
+  }).join(''));
+}
+function renderBar(){
+  const bar = $('selbar');
+  if(!form.roomId){ bar.hidden=true; document.body.classList.remove('has-bar'); return; }
+  const room = roomById(form.roomId), pi = partyInfo(), nights = nightsFor(room);
+  bar.hidden = false; document.body.classList.add('has-bar');
+  setHTML($('selText'), '<span class="seltop">'+esc(room.name)+'</span><br>'+(form.bedType==='bed'?(pi.need>1?'Beds':'A bed'):(pi.need>1?'Floor spaces':'Floor space'))+(pi.need>1?' × '+pi.need:'')+' · '+(nights.length?nights.map(n=>esc(dayLabel(n))).join(', '):'choose nights'));
+  $('bookBtn').textContent = needsApproval() ? 'Request booking' : 'Confirm booking';
+  $('bookBtn').disabled = !!(CAMP && CAMP.open===false);
+}
+function slotText(b){
+  const type = b.bedType==='bed' ? 'Bed' : 'Floor space';
+  const nights = Object.keys(b.assign||{}).sort();
+  if(!nights.length) return type;
+  const lab = n => (b.assign[n]||[]).map(i=>i+1).join(', ');
+  const first = lab(nights[0]);
+  return nights.every(n=>lab(n)===first) ? type+' '+first : nights.map(n=>dayLabel(n)+': '+type+' '+lab(n)).join('; ');
+}
+function renderMine(){
+  const box = $('mine');
+  if(!MINE.length){ setHTML(box,'<div class="empty">Nothing yet.</div>'); return; }
+  const list = MINE.slice().sort((a,b)=>tsMillis(b.createdAt)-tsMillis(a.createdAt));
+  setHTML(box, list.map(b=>{
+    const room = roomById(b.roomId) || {name:b.roomId};
+    const active = b.status==='pending' || b.status==='approved';
+    const others = (b.people||[]).slice(1);
+    return '<div class="mine-item"><div><b>'+esc(b.ref)+'</b> &middot; '+esc(room.name)+'<span class="st '+esc(b.status)+'">'+esc(STATUS_LABEL[b.status]||b.status)+'</span></div>'
+      +'<div class="tiny" style="margin:2px 0 4px;">'+esc(slotText(b))+' &middot; '+(b.nights||[]).map(n=>esc(dayLabel(n))).join(', ')+'</div>'
+      +(others.length?'<div class="tiny" style="margin:0 0 4px;">With: '+others.map(p=>esc(p.name)).join(', ')+'</div>':'')
+      +(b.status==='approved'?'<div class="msg ok" style="margin:6px 0;">Confirmed. Show this reference at the camp house.</div>':'')
+      +(b.status==='pending'?'<div class="tiny" style="margin:0 0 6px;">Your space is being held while the coordinator approves it.</div>':'')
+      +(b.status==='declined'?'<div class="tiny" style="margin:0 0 6px;">This request was not approved and the space was released. Please contact the coordinator.</div>':'')
+      +(active?'<button type="button" class="btn danger small" data-cancel="'+esc(b.id)+'">Cancel this booking</button>':'')+'</div>';
+  }).join(''));
+}
+function renderAll(){
+  validateSelection();
+  renderHeader(); renderNightStrip(); renderNights(); renderPartySummary(); renderRooms(); renderBar(); renderMine();
+  if(IS_ADMIN && adminOpen) renderAdmin();
+}
+function showMsg(text, kind){ const m=$('msg'); m.className='msg '+(kind||''); m.textContent=text||''; }
+
+/* ---------- booking / releasing (transactions) ---------- */
+function makeRef(){
+  // 6 characters, no look-alikes (no 0/O, 1/I), easy to read out over WhatsApp
+  const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s='';
+  for(let i=0;i<6;i++) s+=A.charAt(Math.floor(Math.random()*A.length));
+  return s;
+}
+/* Books N spaces in one room, same space type, on every chosen night, all or nothing.
+   Each space gets a numbered slot (Bed 1, Floor 3 ...) which is kept the same across nights where possible. */
+async function bookTx(b, opts){
+  opts = opts || {};
+  const uid = opts.uid || auth.currentUser.uid;
+  const people = (b.people && b.people.length) ? b.people : [{name:b.name, gender:b.gender, age:'adult'}];
+  const need = people.filter(p=>p.age!=='infant').length;
+  const type = b.bedType==='bed' ? 'bed' : 'floor';
+  const slotKey = type==='bed' ? 'bedSlots' : 'floorSlots';
+  const status = opts.status || (needsApproval() ? 'pending' : 'approved');
+  const bref = db.collection('bookings').doc();
+  const refCode = makeRef();
+  let assign = {};
+  await db.runTransaction(async tx=>{
+    const refs = b.nights.map(n=>db.collection('avail').doc(b.roomId+'_'+n));
+    const snaps = [];
+    for(const r of refs) snaps.push(await tx.get(r));
+    const frees = snaps.map((s,i)=>{
+      if(!s.exists) throw new Error('NOT_OPEN:'+b.nights[i]);
+      const free=[]; (s.data()[slotKey]||[]).forEach((v,k)=>{ if(!v) free.push(k); });
+      if(free.length<need) throw new Error('FULL:'+b.nights[i]);
+      return free;
+    });
+    const common = frees[0].filter(i=>frees.every(f=>f.indexOf(i)>=0));
+    assign = {};
+    b.nights.forEach((n,k)=>{ assign[n] = (common.length>=need ? common : frees[k]).slice(0,need); });
+    snaps.forEach((s,k)=>{
+      const slots = (s.data()[slotKey]||[]).slice();
+      assign[b.nights[k]].forEach(i=>{ slots[i]=bref.id; });
+      tx.update(refs[k], {[slotKey]:slots, [type]:slots.filter(Boolean).length});
+    });
+    tx.set(bref, {uid:uid, ref:refCode, status:status, name:b.name, phone:b.phone, gender:b.gender, people:people, partySize:need,
+                  roomId:b.roomId, bedType:type, nights:b.nights, assign:assign, createdAt:stamp()});
+  });
+  return {id:bref.id, ref:refCode, status:status, assign:assign, need:need};
+}
+/* Frees the slots and keeps the booking on record with a new status (audit trail). */
+async function releaseTx(bookingId, newStatus){
+  const bref = db.collection('bookings').doc(bookingId);
+  const isAdminNow = IS_ADMIN;
+  await db.runTransaction(async tx=>{
+    const bs = await tx.get(bref);
+    if(!bs.exists) throw new Error('GONE');
+    const b = bs.data();
+    if(b.status==='cancelled' || b.status==='declined') return;
+    const type = b.bedType==='bed' ? 'bed' : 'floor', slotKey = type==='bed' ? 'bedSlots' : 'floorSlots';
+    const nights = b.nights||[];
+    const refs = nights.map(n=>db.collection('avail').doc(b.roomId+'_'+n));
+    const snaps = [];
+    for(const r of refs) snaps.push(await tx.get(r));
+    snaps.forEach((s,k)=>{
+      if(!s.exists) return;
+      const slots = (s.data()[slotKey]||[]).slice();
+      slots.forEach((v,i)=>{ if(v===bookingId) slots[i]=''; });
+      tx.update(refs[k], {[slotKey]:slots, [type]:slots.filter(Boolean).length});
+    });
+    const upd = {status:newStatus}; upd[newStatus+'At'] = stamp();
+    if(isAdminNow) upd[newStatus+'By'] = (auth.currentUser.email||'admin');
+    tx.update(bref, upd);
+  });
+}
+function friendlyError(e){
+  const m = String(e && e.message || e);
+  if(m.indexOf('FULL:')===0) return 'Sorry, that space was just taken for '+dayLabel(m.slice(5))+'. The list has refreshed, please choose another.';
+  if(m.indexOf('NOT_OPEN:')===0) return 'Booking is not open for '+dayLabel(m.slice(9))+' yet.';
+  if(m.toLowerCase().indexOf('permission')>=0) return 'The booking was refused. If you chose a council room, your number may not be on the council list.';
+  return 'Something went wrong: '+m;
+}
+async function submitBooking(){
+  showMsg('');
+  const name = form.name.trim().replace(/\s+/g,' '); const phone = normPhone(form.phone);
+  if(name.length<2) return showMsg('Please enter your full name.','err');
+  if(!validPhone(phone)) return showMsg('Please enter a valid 11-digit phone number.','err');
+  if(!form.gender) return showMsg('Please choose male or female.','err');
+  if(!$('fAdult').checked) return showMsg('Bookings must be made by someone aged 18 or over. Please tick the box.','err');
+  for(const p of form.party){ if(String(p.name||'').trim().length<2) return showMsg('Please enter a name for everyone you added.','err'); }
+  if(!form.roomId) return showMsg('Please choose a space.','err');
+  const room = roomById(form.roomId); const access = roomAccess(room);
+  if(!access.ok) return showMsg(access.why,'err');
+  const nights = nightsFor(room).slice();
+  if(!nights.length) return showMsg('Please pick at least one night.','err');
+  if(CAMP && CAMP.open===false) return showMsg('Bookings are closed right now.','err');
+  const pi = partyInfo();
+  const btn = $('bookBtn'); btn.disabled = true; btn.textContent = 'Sending...';
+  try{
+    const res = await bookTx({name:name, phone:phone, gender:form.gender, people:pi.people.map(p=>({name:p.name||name, gender:p.gender, age:p.age})),
+                              roomId:room.id, bedType:form.bedType, nights:nights});
+    showNotice(res.status, {ref:res.ref, room:room, bedType:form.bedType, nights:nights, assign:res.assign, need:res.need});
+    form.roomId=null; form.bedType=null;
+    renderAll();
+  }catch(e){ showMsg(friendlyError(e),'err'); renderAll(); }
+  finally{ btn.disabled=false; renderBar(); }
+}
+function showNotice(status, s){
+  const b = {bedType:s.bedType, assign:s.assign};
+  const wait = status==='pending';
+  let wa='';
+  if(CAMP && CAMP.whatsapp){
+    const text = 'Hello, I have '+(wait?'requested':'booked')+' at the camp house. Ref '+s.ref+': '+s.room.name+', '+slotText(b)+', '+s.nights.map(dayLabel).join(', ')+'.';
+    wa = '<a class="btn wa small" target="_blank" rel="noopener" href="https://wa.me/'+esc(CAMP.whatsapp)+'?text='+encodeURIComponent(text)+'">Message the coordinator</a>';
+  }
+  setHTML($('statusBox'), '<div class="card notice '+(wait?'wait':'')+'"><h2>'+(wait?'Request received &#10003;':'You are booked &#10003;')+'</h2><div class="ref">'+esc(s.ref)+'</div>'
+    +'<p style="margin:0 0 8px;font-size:15px;"><b>'+esc(s.room.name)+'</b> &middot; '+esc(slotText(b))+'<br>'+s.nights.map(n=>esc(dayLabel(n))).join(', ')+'</p>'
+    +(wait?'<p style="margin:0 0 8px;font-size:14px;">Your space is being held. The coordinator will approve it and you will get a confirmation here and on WhatsApp.</p>':'<p style="margin:0 0 8px;font-size:14px;">Show this reference at the camp house.</p>')
+    +wa+'<p class="tiny">Screenshot this page and keep your reference.</p></div>');
+  window.scrollTo(0,0);
+}
+function notifyStatusChanges(){
+  const now = {}; MINE.forEach(b=>{ now[b.id]=b.status; });
+  if(prevStatus){
+    MINE.forEach(b=>{
+      if(prevStatus[b.id]==='pending' && b.status==='approved'){
+        const room = roomById(b.roomId)||{name:b.roomId};
+        setHTML($('statusBox'), '<div class="card notice"><h2>Approved &#10003; Your booking is confirmed</h2><div class="ref">'+esc(b.ref)+'</div>'
+          +'<p style="margin:0 0 8px;font-size:15px;"><b>'+esc(room.name)+'</b> &middot; '+esc(slotText(b))+'<br>'+b.nights.map(n=>esc(dayLabel(n))).join(', ')+'</p><p style="margin:0;font-size:14px;">Show this reference at the camp house.</p></div>');
+        window.scrollTo(0,0);
+      } else if(prevStatus[b.id]==='pending' && b.status==='declined'){
+        setHTML($('statusBox'), '<div class="card notice bad"><h2>Request not approved</h2><p style="margin:0;font-size:14px;">Reference '+esc(b.ref)+' was not approved and the space has been released. Please contact the camp coordinator.</p></div>');
+        window.scrollTo(0,0);
+      }
+    });
+  }
+  prevStatus = now;
+}
+
+/* ---------- council eligibility check (by phone) ---------- */
+let councilTimer=null, councilChecked='';
+function checkCouncil(){
+  clearTimeout(councilTimer);
+  const p = normPhone(form.phone);
+  if(!validPhone(p)){ COUNCIL=null; councilChecked=''; renderAll(); return; }
+  if(p===councilChecked) return;
+  COUNCIL=null; renderAll();
+  councilTimer = setTimeout(()=>{
+    db.collection('councilList').doc(p).get().then(s=>{
+      if(normPhone(form.phone)===p){ COUNCIL=!!s.exists; councilChecked=p; renderAll(); }
+    }).catch(()=>{ if(normPhone(form.phone)===p){ COUNCIL=false; councilChecked=p; renderAll(); } });
+  }, 300);
+}
+
+/* ---------- public event wiring ---------- */
+$('fName').addEventListener('input', e=>{ form.name=e.target.value; renderPartySummary(); renderBar(); });
+$('fPhone').addEventListener('input', e=>{ form.phone=e.target.value; checkCouncil(); });
+$('genderSeg').addEventListener('click', e=>{
+  const b = e.target.closest('button[data-g]'); if(!b) return;
+  form.gender = b.getAttribute('data-g');
+  document.querySelectorAll('#genderSeg button').forEach(x=>{ const on=x===b; x.classList.toggle('on',on); x.setAttribute('aria-pressed',on); });
+  renderAll();
+});
+$('addMember').addEventListener('click', ()=>{
+  if(form.party.length>=7) return showMsg('A single booking can have up to 8 people.','err');
+  form.party.push({name:'', gender:form.gender||'M', age:'child'});
+  renderPartyRows(); renderAll();
+});
+$('partyRows').addEventListener('input', e=>{
+  const row = e.target.closest('.prow'); if(!row) return;
+  if(e.target.classList.contains('pname')){ form.party[+row.getAttribute('data-i')].name = e.target.value; renderPartySummary(); renderBar(); }
+});
+$('partyRows').addEventListener('change', e=>{
+  const row = e.target.closest('.prow'); if(!row) return; const p = form.party[+row.getAttribute('data-i')];
+  if(e.target.classList.contains('pgender')) p.gender = e.target.value;
+  if(e.target.classList.contains('page')) p.age = e.target.value;
+  renderAll();
+});
+$('partyRows').addEventListener('click', e=>{
+  const b = e.target.closest('.premove'); if(!b) return;
+  form.party.splice(+b.closest('.prow').getAttribute('data-i'),1);
+  renderPartyRows(); renderAll();
+});
+$('nightChips').addEventListener('click', e=>{
+  const b = e.target.closest('button[data-night]'); if(!b || b.disabled) return;
+  const n = b.getAttribute('data-night'); const i = form.nights.indexOf(n);
+  if(i>=0) form.nights.splice(i,1); else form.nights.push(n);
+  form.nights.sort(); showMsg('');
+  renderAll();
+});
+$('rooms').addEventListener('click', e=>{
+  const b = e.target.closest('button[data-room]'); if(!b || b.disabled) return;
+  const room = roomById(b.getAttribute('data-room')), type = b.getAttribute('data-type');
+  if(form.roomId===room.id && form.bedType===type){ form.roomId=null; form.bedType=null; }   // tap again to unselect
+  else { form.roomId=room.id; form.bedType=type; if(room.council) form.nights = allNights().slice(); }
+  showMsg(''); renderAll();
+});
+$('bookBtn').addEventListener('click', submitBooking);
+$('mine').addEventListener('click', async e=>{
+  const b = e.target.closest('button[data-cancel]'); if(!b) return;
+  if(!confirm('Cancel this booking? The space will be released for someone else.')) return;
+  try{ await releaseTx(b.getAttribute('data-cancel'), 'cancelled'); }catch(err){ alert(friendlyError(err)); }
+});
+
+/* ============================================================
+   ADMIN
+   ============================================================ */
+$('adminLink').addEventListener('click', e=>{ e.preventDefault(); adminOpen=true; $('pubView').hidden=true; $('selbar').hidden=true; $('adminView').hidden=false; renderAdmin(); });
+function leaveAdmin(){ adminOpen=false; $('pubView').hidden=false; $('adminView').hidden=true; renderAll(); }
+$('aBack').addEventListener('click', leaveAdmin);
+$('aBack2').addEventListener('click', leaveAdmin);
+$('aSignIn').addEventListener('click', async ()=>{
+  const m=$('aMsg'); m.className='msg'; m.textContent='';
+  try{ await auth.signInWithEmailAndPassword($('aEmail').value.trim(), $('aPass').value); }
+  catch(e){ m.className='msg err'; m.textContent = String(e.message||e); }
+});
+$('aOut').addEventListener('click', async ()=>{ await auth.signOut(); });
+$('adminTabs').addEventListener('click', e=>{
+  const b = e.target.closest('button[data-tab]'); if(!b) return;
+  adminTab = b.getAttribute('data-tab'); renderAdmin();
+});
+
+const pendingList = () => ALLB.filter(b=>b.status==='pending').sort((a,b)=>tsMillis(a.createdAt)-tsMillis(b.createdAt));
+function waLink(phone, text){ return 'https://wa.me/'+intlPhone(phone)+'?text='+encodeURIComponent(text); }
+function peopleText(b){ return (b.people||[]).map(p=>p.name+' ('+p.gender+', '+(AGE_LABEL[p.age]||p.age).toLowerCase()+')').join('; '); }
+function confirmText(b){
+  const room = roomById(b.roomId)||{name:b.roomId};
+  return 'Hello '+b.name+', your camp house booking '+b.ref+' is CONFIRMED.\nRoom: '+room.name+'\nYour space: '+slotText(b)+'\nNights: '+(b.nights||[]).map(dayLabel).join(', ')
+    +((b.people||[]).length>1?'\nPeople: '+(b.people||[]).map(p=>p.name).join(', '):'')+'\nPlease show this reference at the camp house. God bless you.';
+}
+function declineText(b){
+  return 'Hello '+b.name+', we are sorry, your camp house request '+b.ref+' could not be approved and the space has been released. Please speak to the camp coordinator. God bless you.';
+}
+function bookingCard(b){
+  const room = roomById(b.roomId)||{name:b.roomId};
+  const others = (b.people||[]).slice(1);
+  const acts = [];
+  if(b.status==='pending'){
+    acts.push('<button class="btn ok small" type="button" data-approve="'+esc(b.id)+'">Approve</button>');
+    acts.push('<button class="btn danger small" type="button" data-decline="'+esc(b.id)+'">Decline</button>');
+  }
+  if(b.status==='approved'){
+    acts.push('<a class="btn wa small" target="_blank" rel="noopener" href="'+esc(waLink(b.phone, confirmText(b)))+'">Send confirmation on WhatsApp</a>');
+    acts.push('<button class="btn danger small" type="button" data-admincancel="'+esc(b.id)+'">Cancel</button>');
+  }
+  if(b.status==='declined') acts.push('<a class="btn wa small" target="_blank" rel="noopener" href="'+esc(waLink(b.phone, declineText(b)))+'">Tell them on WhatsApp</a>');
+  return '<div class="bk"><div class="btop">'+esc(b.ref)+'<span class="st '+esc(b.status)+'">'+esc(STATUS_LABEL[b.status]||b.status)+'</span></div>'
+    +'<div class="line"><b>'+esc(b.name)+'</b> &middot; '+esc(b.phone)+' &middot; '+(b.gender==='F'?'Female':'Male')+'</div>'
+    +(others.length?'<div class="line">With: '+others.map(p=>esc(p.name)+' ('+esc(p.gender)+', '+esc((AGE_LABEL[p.age]||p.age).toLowerCase())+')').join('; ')+'</div>':'')
+    +'<div class="line">'+esc(room.name)+' &middot; '+esc(slotText(b))+(b.partySize>1?' ('+b.partySize+' spaces)':'')+'</div>'
+    +'<div class="line">'+(b.nights||[]).map(n=>esc(dayLabel(n))).join(', ')+'</div>'
+    +'<div class="line tiny">Requested '+esc(tsText(b.createdAt))+(b.approvedBy?' &middot; approved by '+esc(b.approvedBy):'')+'</div>'
+    +(acts.length?'<div class="acts">'+acts.join(' ')+'</div>':'')+'</div>';
+}
+function buildGrid(){
+  const g = {};
+  ROOMS.forEach(r=>{ g[r.id]={}; allNights().forEach(n=>{ g[r.id][n]={bed:{},floor:{}}; }); });
+  ALLB.filter(b=>b.status==='pending'||b.status==='approved').forEach(b=>{
+    const sleepers = (b.people && b.people.length ? b.people : [{name:b.name,gender:b.gender,age:'adult'}]).filter(p=>p.age!=='infant');
+    const type = b.bedType==='bed' ? 'bed' : 'floor';
+    Object.keys(b.assign||{}).forEach(n=>{
+      if(!g[b.roomId] || !g[b.roomId][n]) return;
+      (b.assign[n]||[]).forEach((idx,k)=>{ const p = sleepers[k] || {name:b.name, gender:b.gender}; g[b.roomId][n][type][idx] = {name:p.name, gender:p.gender, status:b.status, ref:b.ref}; });
+    });
+  });
+  return g;
+}
+function renderAdmin(){
+  $('adminLogin').hidden = IS_ADMIN; $('adminPanel').hidden = !IS_ADMIN;
+  if(!IS_ADMIN) return;
+  const np = pendingList().length;
+  document.querySelectorAll('#adminTabs .tab').forEach(t=>{
+    const k = t.getAttribute('data-tab'); t.classList.toggle('on', k===adminTab);
+    if(k==='requests') t.textContent = 'Requests'+(np?' ('+np+')':'');
+  });
+  const body = $('adminBody');
+  if(adminTab==='requests') setHTML(body, adminRequestsHTML());
+  else if(adminTab==='rooms') setHTML(body, adminRoomsHTML());
+  else if(adminTab==='bookings'){
+    if(!$('bkList')){ body.innerHTML = adminBookingsHTML(); body.__h=null; }
+    renderBookingList();
+  }
+  else if(adminTab==='council') setHTML(body, adminCouncilHTML());
+  else { if(!$('sName')){ body.innerHTML = adminSetupHTML(); body.__h=null; } }
+}
+function adminRequestsHTML(){
+  if(!CAMP) return '<div class="card"><p>No camp has been created yet. Open the Setup tab to create one.</p></div>';
+  const p = pendingList();
+  const recent = ALLB.filter(b=>b.status==='approved'||b.status==='declined').sort((a,b)=>tsMillis(b.approvedAt||b.declinedAt)-tsMillis(a.approvedAt||a.declinedAt)).slice(0,8);
+  return '<div class="card"><h2>Waiting for approval ('+p.length+')</h2>'
+    +'<p class="tiny" style="margin-top:0">Their space is already held. Approve to confirm it, then tap the green button to send the confirmation on WhatsApp. Declining releases the space.'+(needsApproval()?'':' <b>Approval is switched off in Setup, so new bookings are confirmed automatically.</b>')+'</p>'
+    +(p.length? p.map(bookingCard).join('') : '<div class="empty">Nothing waiting.</div>')+'</div>'
+    +'<div class="card"><h2>Recently decided</h2>'+(recent.length? recent.map(bookingCard).join('') : '<div class="empty">Nothing yet.</div>')+'</div>';
+}
+function adminRoomsHTML(){
+  if(!CAMP) return '<div class="card"><p>No camp has been created yet. Open the Setup tab to create one.</p></div>';
+  const grid = buildGrid();
+  const totals = CAMP.nights.map(n=>{ let u=0,c=0; ROOMS.forEach(r=>{ const a=AVAIL[r.id+'_'+n]; if(a){ c+=a.capBed+a.capFloor; u+=(a.capBed-freeOf(a,'bed'))+(a.capFloor-freeOf(a,'floor')); } }); return '<span class="nstat '+(u>=c&&c?'full':u>=c-6?'low':'ok')+'">'+esc(dayLabel(n))+' &middot; '+u+' of '+c+' used</span>'; }).join('');
+  const rooms = ROOMS.map(r=>{
+    const a0 = AVAIL[r.id+'_'+CAMP.nights[0]]; const capB = a0?a0.capBed:r.beds, capF = a0?a0.capFloor:r.floor;
+    const rows = [];
+    for(let i=0;i<capB;i++) rows.push(['Bed '+(i+1),'bed',i]);
+    for(let i=0;i<capF;i++) rows.push(['Floor '+(i+1),'floor',i]);
+    const head = '<tr><th>Space</th>'+CAMP.nights.map(n=>'<th>'+esc(dayLabel(n))+'</th>').join('')+'</tr>';
+    const trs = rows.map(x=>'<tr><th>'+x[0]+'</th>'+CAMP.nights.map(n=>{
+      const c = grid[r.id][n][x[1]][x[2]];
+      return c ? '<td class="occ '+esc(c.status)+' '+esc(c.gender)+'" title="'+esc(c.name)+' ('+esc(c.ref)+')">'+esc(shortName(c.name))+'</td>' : '<td class="free">free</td>';
+    }).join('')+'</tr>').join('');
+    return '<div class="room-block"><h3>'+esc(r.name)+'</h3><div class="scroll"><table class="g">'+head+trs+'</table></div></div>';
+  }).join('');
+  return '<div class="card"><h2>Live room view</h2><p class="tiny" style="margin-top:0">Updates the moment anyone books or you approve. Green is approved, dashed gold is waiting for approval. Pink edge is female, blue edge is male.</p><div class="totals">'+totals+'</div></div>'
+    +'<div class="card">'+rooms+'</div>';
+}
+function adminBookingsHTML(){
+  const roomOpts = ROOMS.map(r=>'<option value="'+r.id+'">'+esc(r.name)+'</option>').join('');
+  const nightBoxes = allNights().map(n=>'<label class="inline"><input type="checkbox" class="addNight" value="'+esc(n)+'"> '+esc(dayLabel(n))+'</label>').join('');
+  return '<div class="card"><h2>All bookings (<span id="bkCount">0</span>)</h2>'
+    +'<div class="grid2"><div class="field"><select id="bkStatus"><option value="all">All statuses</option><option value="pending">Awaiting approval</option><option value="approved">Approved</option><option value="declined">Not approved</option><option value="cancelled">Cancelled</option></select></div>'
+    +'<div class="field"><input type="text" id="bkSearch" placeholder="Search name, phone, ref"></div></div>'
+    +'<p><button class="btn ghost small" type="button" id="csvBtn">Download CSV</button></p>'
+    +'<div id="bkList"></div></div>'
+    +'<div class="card"><h2>Add a booking for someone</h2><p class="tiny" style="margin-top:0">For people without a phone. It is approved straight away. Council limits and gender rules are not applied here, so use your judgement.</p>'
+    +'<div class="grid2"><div class="field"><label>Name</label><input type="text" id="addName"></div><div class="field"><label>Phone</label><input type="tel" id="addPhone"></div></div>'
+    +'<div class="grid2"><div class="field"><label>Male / female</label><select id="addGender"><option value="M">Male</option><option value="F">Female</option></select></div>'
+    +'<div class="field"><label>Space type</label><select id="addType"><option value="bed">Bed</option><option value="floor">Floor space</option></select></div></div>'
+    +'<div class="field"><label>Room</label><select id="addRoom">'+roomOpts+'</select></div>'
+    +'<div class="field"><label>Others with them (optional), one per line: name, M or F, adult / child / baby</label><textarea id="addOthers" placeholder="Ada, F, adult&#10;Tobi, M, child"></textarea></div>'
+    +'<div class="field"><span class="lbl">Nights</span>'+nightBoxes+'</div><div id="addMsg" class="msg"></div>'
+    +'<button class="btn primary" type="button" id="addBtn">Add booking</button></div>';
+}
+function renderBookingList(){
+  const el = $('bkList'); if(!el) return;
+  const q = bookingFilter.trim().toLowerCase();
+  const list = ALLB.filter(b=>(statusFilter==='all'||b.status===statusFilter)
+      && (!q || (b.name||'').toLowerCase().indexOf(q)>=0 || (b.phone||'').indexOf(q)>=0 || (b.ref||'').toLowerCase().indexOf(q)>=0 || (b.people||[]).some(p=>(p.name||'').toLowerCase().indexOf(q)>=0)))
+    .sort((a,b)=>(a.roomId+a.name).localeCompare(b.roomId+b.name));
+  $('bkCount').textContent = list.length;
+  setHTML(el, list.length ? list.map(bookingCard).join('') : '<div class="empty">No bookings found.</div>');
+}
+function adminCouncilHTML(){
+  const rows = COUNCIL_LIST.slice().sort((a,b)=>(a.name||'').localeCompare(b.name||'')).map(c=>
+    '<div class="bk"><div class="btop">'+esc(c.name||'(no name)')+'</div><div class="line">'+esc(c.id)+'</div><div class="acts"><button class="btn danger small" type="button" data-rmcouncil="'+esc(c.id)+'">Remove</button></div></div>').join('');
+  return '<div class="card"><h2>Council room list ('+COUNCIL_LIST.length+')</h2>'
+    +'<p class="tiny" style="margin-top:0">Only phone numbers on this list can book the council rooms, one person at a time and for the whole camp. Leadership decides who is on it; the page only checks it.</p>'
+    +'<div class="field"><label for="councilText">Add people, one per line: name and phone</label><textarea id="councilText" placeholder="Pastor Tunde, 0803 111 2222&#10;Mrs Ada, 0902 333 4444"></textarea></div>'
+    +'<div id="councilMsg" class="msg"></div><button class="btn primary" type="button" id="councilAdd">Add to list</button></div>'
+    +'<div class="card">'+(rows||'<div class="empty">Nobody on the list yet.</div>')+'</div>';
+}
+function adminSetupHTML(){
+  const c = CAMP || {};
+  const rg = c.roomGender || defaultRoomGender();
+  const start = (c.nights && c.nights[0]) || nextThursday();
+  const count = (c.nights && c.nights.length) || 3;
+  const sel = (id,val)=>'<select data-rg="'+id+'"><option value="F" '+(val==='F'?'selected':'')+'>Women only</option><option value="M" '+(val==='M'?'selected':'')+'>Men only</option><option value="any" '+(val==='any'?'selected':'')+'>Men or women (families)</option></select>';
+  return '<div class="card"><h2>Camp settings</h2>'
+    +'<div class="field"><label>Camp name</label><input type="text" id="sName" value="'+esc(c.name||'Annual Camp')+'"></div>'
+    +'<div class="field"><label>Coordinator WhatsApp (e.g. 08031234567)</label><input type="tel" id="sWa" value="'+esc(c.whatsapp?'0'+String(c.whatsapp).replace(/^234/,''):'')+'"></div>'
+    +'<div class="field"><label class="inline"><input type="checkbox" id="sOpen" '+(c.open===false?'':'checked')+'> Bookings are open</label></div>'
+    +'<div class="field"><label class="inline"><input type="checkbox" id="sApprove" '+(c.requireApproval===false?'':'checked')+'> Admin must approve each booking before it is confirmed</label></div>'
+    +'<h3 style="margin:12px 0 8px">Who each room is for</h3>'
+    +ROOMS.map(r=>'<div class="field"><label>'+esc(r.name)+'</label>'+sel(r.id, rg[r.id]||r.defaultGender)+'</div>').join('')
+    +'<div id="sMsg" class="msg"></div><button class="btn primary" type="button" id="sSave">Save settings</button></div>'
+    +'<div class="card"><h2>Start a new camp</h2>'
+    +'<p class="tiny" style="margin-top:0">Starting a new camp <b>clears the live list</b>, but every booking from the old camp is first saved to the archive for reporting and audit. You can download the archive below.</p>'
+    +'<div class="grid2"><div class="field"><label>First night (a Thursday)</label><input type="date" id="sStart" value="'+esc(start)+'"></div>'
+    +'<div class="field"><label>Number of nights</label><select id="sCount">'+[1,2,3,4,5].map(n=>'<option value="'+n+'" '+(n===count?'selected':'')+'>'+n+'</option>').join('')+'</select></div></div>'
+    +'<div id="rMsg" class="msg"></div><button class="btn danger" type="button" id="sReset">Start new camp</button></div>'
+    +'<div class="card"><h2>Records</h2><p class="tiny" style="margin-top:0">Download everything for reporting and audit.</p>'
+    +'<button class="btn ghost small" type="button" id="csvLive">Download this camp (CSV)</button> <button class="btn ghost small" type="button" id="csvArchive">Download past camps (CSV)</button>'
+    +'<div id="fMsg" class="msg" style="margin-top:8px"></div><hr style="border:none;border-top:1px solid var(--line);margin:14px 0">'
+    +'<p class="tiny" style="margin-top:0">If the space counts ever look wrong, this recounts them from the bookings list.</p><button class="btn ghost small" type="button" id="sRecalc">Recalculate availability</button></div>';
+}
+
+/* admin actions */
+function csvCell(v){ let s=String(v==null?'':v); if(/^[=+\-@]/.test(s)) s="'"+s; return '"'+s.replace(/"/g,'""')+'"'; }
+function csvFrom(list, withCamp){
+  const head = ['Ref','Status','Name','Phone','People','Spaces','Room','Space','Nights','Requested','Approved','Approved by'].concat(withCamp?['Camp']:[]);
+  const rows = [head];
+  list.slice().sort((a,b)=>(a.roomId+a.name).localeCompare(b.roomId+b.name)).forEach(b=>{
+    rows.push([b.ref, STATUS_LABEL[b.status]||b.status, b.name, b.phone, peopleText(b), b.partySize||1, (roomById(b.roomId)||{name:b.roomId}).name, slotText(b),
+      (b.nights||[]).map(dayLabel).join(' / '), tsText(b.createdAt), tsText(b.approvedAt), b.approvedBy||''].concat(withCamp?[b.campName||'']:[]));
+  });
+  return rows.map(r=>r.map(csvCell).join(',')).join('\n');
+}
+const bookingsCSV = () => csvFrom(ALLB, false);
+function downloadText(name,text){
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type:'text/csv'})); a.download=name;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+async function createCamp(o){
+  const nights=[]; for(let i=0;i<o.count;i++) nights.push(isoAddDays(o.start,i));
+  const snaps = await Promise.all([db.collection('bookings').get(), db.collection('avail').get()]);
+  const ops=[]; let archived=0;
+  const oldName = CAMP ? CAMP.name : 'Previous camp';
+  snaps[0].forEach(d=>{
+    ops.push(b=>b.set(db.collection('archive').doc(d.id), Object.assign({}, d.data(), {campName:oldName, archivedAt:stamp()})));
+    ops.push(b=>b.delete(d.ref)); archived++;
+  });
+  snaps[1].forEach(d=>ops.push(b=>b.delete(d.ref)));
+  ROOMS.forEach(r=>nights.forEach(n=>{ ops.push(b=>b.set(db.collection('avail').doc(r.id+'_'+n),{room:r.id,date:n,capBed:r.beds,capFloor:r.floor,bed:0,floor:0,
+      bedSlots:new Array(r.beds).fill(''), floorSlots:new Array(r.floor).fill('')})); }));
+  ops.push(b=>b.set(db.doc('camp/current'),{name:o.name,nights:nights,whatsapp:o.whatsapp||'',open:true,requireApproval:o.requireApproval!==false,roomGender:o.roomGender,createdAt:stamp()}));
+  for(let i=0;i<ops.length;i+=400){ const batch=db.batch(); ops.slice(i,i+400).forEach(f=>f(batch)); await batch.commit(); }
+  return {nights:nights, archived:archived};
+}
+async function recalcAvail(){
+  const snaps = await Promise.all([db.collection('bookings').get(), db.collection('avail').get()]);
+  const occ = {};
+  snaps[1].forEach(d=>{ const a=d.data(); occ[d.id]={bed:new Array(a.capBed).fill(''), floor:new Array(a.capFloor).fill('')}; });
+  snaps[0].forEach(d=>{
+    const b=d.data(); if(b.status!=='pending' && b.status!=='approved') return;
+    const t = b.bedType==='bed' ? 'bed' : 'floor';
+    Object.keys(b.assign||{}).forEach(n=>{ const o=occ[b.roomId+'_'+n]; if(o) (b.assign[n]||[]).forEach(i=>{ if(i<o[t].length) o[t][i]=d.id; }); });
+  });
+  const batch=db.batch(); let changed=0;
+  snaps[1].forEach(d=>{
+    const a=d.data(), o=occ[d.id];
+    const same = JSON.stringify(a.bedSlots||[])===JSON.stringify(o.bed) && JSON.stringify(a.floorSlots||[])===JSON.stringify(o.floor)
+      && a.bed===o.bed.filter(Boolean).length && a.floor===o.floor.filter(Boolean).length;
+    if(!same){ batch.update(d.ref,{bedSlots:o.bed,floorSlots:o.floor,bed:o.bed.filter(Boolean).length,floor:o.floor.filter(Boolean).length}); changed++; }
+  });
+  if(changed) await batch.commit();
+  return changed;
+}
+function parseCouncilLines(text){
+  const out=[], bad=[];
+  String(text||'').split(/\n/).forEach(line=>{
+    const t=line.trim(); if(!t) return;
+    const m=t.match(/(\+?\d[\d\s\-]{8,}\d)/);
+    const phone = m ? normPhone(m[1]) : '';
+    if(!validPhone(phone)){ bad.push(t); return; }
+    out.push({phone:phone, name:t.replace(m[1],'').replace(/[,;\-]+/g,' ').replace(/\s+/g,' ').trim()});
+  });
+  return {out:out, bad:bad};
+}
+function parseOthers(text){
+  const out=[];
+  String(text||'').split(/\n/).forEach(line=>{
+    const parts=line.split(',').map(s=>s.trim()); if(!parts[0]) return;
+    const g = /^f/i.test(parts[1]||'') ? 'F' : 'M';
+    const a = /^b|^inf/i.test(parts[2]||'') ? 'infant' : /^c|^k/i.test(parts[2]||'') ? 'child' : 'adult';
+    out.push({name:parts[0], gender:g, age:a});
+  });
+  return out;
+}
+function say(id,text,kind){ const m=$(id); if(m){ m.className='msg '+(kind||''); m.textContent=text; } }
+function readRoomGender(){ const rg={}; document.querySelectorAll('select[data-rg]').forEach(s=>{rg[s.getAttribute('data-rg')]=s.value;}); return rg; }
+
+$('adminBody').addEventListener('input', e=>{
+  if(e.target.id==='bkSearch'){ bookingFilter=e.target.value; renderBookingList(); }
+});
+$('adminBody').addEventListener('change', e=>{
+  if(e.target.id==='bkStatus'){ statusFilter=e.target.value; renderBookingList(); }
+});
+$('adminBody').addEventListener('click', async e=>{
+  const t = e.target.closest('button'); if(!t) return;
+  try{
+    if(t.id==='csvBtn' || t.id==='csvLive'){ downloadText('camp-bookings.csv', bookingsCSV()); return; }
+    if(t.id==='csvArchive'){
+      const s = await db.collection('archive').get(); const list=[]; s.forEach(d=>list.push(Object.assign({id:d.id},d.data())));
+      downloadText('camp-archive.csv', csvFrom(list,true)); say('fMsg','Downloaded '+list.length+' archived booking(s).','ok'); return;
+    }
+    if(t.getAttribute('data-approve')){
+      await db.collection('bookings').doc(t.getAttribute('data-approve')).update({status:'approved', approvedAt:stamp(), approvedBy:(auth.currentUser.email||'admin')});
+      return;
+    }
+    if(t.getAttribute('data-decline')){
+      if(confirm('Decline this request and release the space?')) await releaseTx(t.getAttribute('data-decline'),'declined');
+      return;
+    }
+    if(t.getAttribute('data-admincancel')){
+      if(confirm('Cancel this booking and release the space?')) await releaseTx(t.getAttribute('data-admincancel'),'cancelled');
+      return;
+    }
+    if(t.id==='addBtn'){
+      const nights = Array.prototype.filter.call(document.querySelectorAll('.addNight'), c=>c.checked).map(c=>c.value);
+      const name = $('addName').value.trim(), phone = normPhone($('addPhone').value);
+      if(name.length<2) return say('addMsg','Enter a name.','err');
+      if(!validPhone(phone)) return say('addMsg','Enter a valid 11-digit phone number.','err');
+      if(!nights.length) return say('addMsg','Choose at least one night.','err');
+      const gender = $('addGender').value;
+      const people = [{name:name, gender:gender, age:'adult'}].concat(parseOthers($('addOthers').value));
+      const res = await bookTx({name:name,phone:phone,gender:gender,people:people,roomId:$('addRoom').value,bedType:$('addType').value,nights:nights}, {status:'approved'});
+      say('addMsg','Added and approved. Reference '+res.ref+', '+res.need+' space'+(res.need>1?'s':''),'ok'); $('addName').value=''; $('addPhone').value=''; $('addOthers').value='';
+      return;
+    }
+    if(t.id==='councilAdd'){
+      const p = parseCouncilLines($('councilText').value);
+      if(!p.out.length) return say('councilMsg','Nothing to add. Put one person per line with a valid phone number.','err');
+      const batch=db.batch(); p.out.forEach(x=>batch.set(db.collection('councilList').doc(x.phone),{name:x.name,addedAt:stamp()}));
+      await batch.commit();
+      say('councilMsg','Added '+p.out.length+(p.bad.length?'. Skipped '+p.bad.length+' line(s) with no valid phone number.':'.'),'ok');
+      $('councilText').value=''; return;
+    }
+    if(t.getAttribute('data-rmcouncil')){ await db.collection('councilList').doc(t.getAttribute('data-rmcouncil')).delete(); return; }
+    if(t.id==='sSave'){
+      if(!CAMP) return say('sMsg','Create the camp first (below).','err');
+      const wa = $('sWa').value.replace(/\D/g,'');
+      await db.doc('camp/current').set({name:$('sName').value.trim()||'Camp', whatsapp: wa ? intlPhone(wa) : '', open:$('sOpen').checked, requireApproval:$('sApprove').checked, roomGender:readRoomGender()},{merge:true});
+      say('sMsg','Saved.','ok'); return;
+    }
+    if(t.id==='sReset'){
+      const start=$('sStart').value; if(!start) return say('rMsg','Choose the first night.','err');
+      if(!confirm('Start a new camp? The live list will be cleared (all bookings are saved to the archive first).')) return;
+      const wa = $('sWa').value.replace(/\D/g,'');
+      const r = await createCamp({name:$('sName').value.trim()||'Camp', start:start, count:parseInt($('sCount').value,10), whatsapp: wa?intlPhone(wa):'', requireApproval:$('sApprove').checked, roomGender:readRoomGender()});
+      form.nights=[]; form.roomId=null; form.bedType=null;
+      say('rMsg','New camp created for '+r.nights.map(dayLabel).join(', ')+'. '+r.archived+' booking(s) saved to the archive'+(weekdayOf(start)!==4?'. Note: the first night is not a Thursday.':'.'),'ok'); return;
+    }
+    if(t.id==='sRecalc'){ const n = await recalcAvail(); say('fMsg', n? 'Fixed '+n+' record(s).' : 'All counts were already correct.','ok'); return; }
+  }catch(err){ alert(friendlyError(err)); }
+});
+
+/* ============================================================
+   LISTENERS + AUTH
+   ============================================================ */
+function startPublicListeners(){
+  if(listenersStarted) return; listenersStarted=true;
+  db.doc('camp/current').onSnapshot(s=>{ CAMP = s.exists ? s.data() : null; liveOK=true;
+    form.nights = form.nights.filter(n=>allNights().indexOf(n)>=0); renderAll(); }, ()=>{ liveOK=false; renderHeader(); });
+  db.collection('avail').onSnapshot(snap=>{ AVAIL={}; snap.forEach(d=>{AVAIL[d.id]=d.data();}); liveOK=true; renderAll(); }, ()=>{ liveOK=false; renderHeader(); });
+}
+function watchMine(uid){
+  if(unsubMine){ unsubMine(); unsubMine=null; }
+  MINE=[]; prevStatus=null; renderMine();
+  unsubMine = db.collection('bookings').where('uid','==',uid).onSnapshot(snap=>{
+    MINE=[]; snap.forEach(d=>MINE.push(Object.assign({id:d.id},d.data()))); notifyStatusChanges(); renderMine();
+  }, ()=>{});
+}
+function startAdminListeners(){
+  stopAdminListeners();
+  unsubAdmin.push(db.collection('bookings').onSnapshot(snap=>{ ALLB=[]; snap.forEach(d=>ALLB.push(Object.assign({id:d.id},d.data()))); if(adminOpen) renderAdmin(); }, ()=>{}));
+  unsubAdmin.push(db.collection('councilList').onSnapshot(snap=>{ COUNCIL_LIST=[]; snap.forEach(d=>COUNCIL_LIST.push(Object.assign({id:d.id},d.data()))); if(adminOpen) renderAdmin(); }, ()=>{}));
+}
+function stopAdminListeners(){ unsubAdmin.forEach(u=>{ try{u();}catch(e){} }); unsubAdmin=[]; ALLB=[]; COUNCIL_LIST=[]; }
+function onUser(user){
+  const email = (user.email||'').toLowerCase();
+  IS_ADMIN = !!email && (ADMIN_EMAILS.map(x=>x.toLowerCase()).indexOf(email)>=0 || (DEMO && email===DEMO_ADMIN));
+  if(IS_ADMIN) startAdminListeners(); else stopAdminListeners();
+  watchMine(user.uid);
+  startPublicListeners();
+  renderAll();
+}
+async function seedDemo(){
+  const start = nextThursday();
+  await createCamp({name:'Annual Camp (preview)', start:start, count:3, whatsapp:'', requireApproval:true, roomGender:defaultRoomGender()});
+  await db.doc('councilList/08011111111').set({name:'Demo Pastor', addedAt:Date.now()});
+  const n3=[start,isoAddDays(start,1),isoAddDays(start,2)];
+  const P = (n,g,a)=>({name:n,gender:g,age:a||'adult'});
+  const seeds=[['fwi','bed',n3,[P('Grace A.','F')],'08020000001','approved'],['fwi','bed',n3.slice(0,2),[P('Ruth O.','F')],'08020000002','approved'],['fwi','floor',n3,[P('Esther K.','F')],'08020000003','approved'],
+    ['cfm','bed',n3,[P('David M.','M')],'08020000004','approved'],['cfm','bed',n3,[P('Samuel T.','M')],'08020000005','approved'],['cfm','bed',n3,[P('Peter N.','M')],'08020000006','approved'],['cfm','bed',n3,[P('John B.','M')],'08020000007','approved'],
+    ['open','floor',n3.slice(1),[P('Tunde P.','M')],'08020000008','approved'],
+    ['fwi','floor',n3,[P('Mary Johnson','F'),P('Deborah Johnson','F','child')],'08020000009','pending'],
+    ['open','floor',n3.slice(0,2),[P('Chidi Okafor','M'),P('Ngozi Okafor','F'),P('Kelechi Okafor','M','child'),P('Baby Okafor','F','infant')],'08020000010','pending']];
+  for(const s of seeds) await bookTx({roomId:s[0],bedType:s[1],nights:s[2],name:s[3][0].name,phone:s[4],gender:s[3][0].gender,people:s[3]},{uid:'seed-user',status:s[5]});
+}
+(async function boot(){
+  renderAll();
+  if(DEMO){ try{ await seedDemo(); }catch(e){ console.error(e); } }
+  auth.onAuthStateChanged(user=>{
+    if(!user){ auth.signInAnonymously().catch(err=>{ showMsg('Setup incomplete: turn on Anonymous sign-in in Firebase. '+(err.message||''),'err'); }); return; }
+    onUser(user);
+  });
+})();
+</script>
+</body>
+</html>
