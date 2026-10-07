@@ -142,6 +142,26 @@
   footer.foot{text-align:center;padding:18px 0 22px;font-size:12.5px;color:var(--muted);}
   footer.foot a{color:var(--muted);}
 
+  /* ---- Booking card (shareable) ---- */
+  .bkcard{
+    background:linear-gradient(155deg,var(--navy) 0%,var(--navy-2) 100%);
+    color:#fff;border-radius:16px;padding:20px 18px 16px;margin:10px 0;
+    border:3px solid var(--gold);
+  }
+  .bkcard .bchead{font-family:Georgia,serif;font-size:13px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+  .bkcard .bcref{font-family:Georgia,serif;font-size:36px;letter-spacing:.12em;
+    color:#fff;margin:0 0 10px;line-height:1;}
+  .bkcard .bcroom{font-family:Georgia,serif;font-size:18px;color:#fff;margin:0 0 3px;}
+  .bkcard .bcdetail{font-size:13.5px;color:#C9D1E3;margin:0 0 10px;line-height:1.6;}
+  .bkcard .bcname{font-size:14px;font-weight:800;color:#fff;margin:0 0 12px;}
+  .bkcard .bcnote{font-size:12px;color:#9AA8C8;border-top:1px solid rgba(255,255,255,.15);
+    padding-top:10px;margin-top:4px;line-height:1.5;}
+  .bkcard .bcseal{display:flex;align-items:center;gap:8px;margin-top:8px;}
+  .bkcard .bcseal .cross{width:22px;height:22px;opacity:.7;}
+  .bkcard .bcseal span{font-size:11.5px;color:#9AA8C8;}
+  .bkshare-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+
   /* admin */
   .tabs{margin:14px 0 4px;}
   .tab{display:inline-block;min-height:42px;padding:9px 13px;margin:0 6px 6px 0;border-radius:10px;border:2px solid #D8D0BC;background:#fff;font-weight:800;font-size:13.5px;color:var(--navy);cursor:pointer;font-family:inherit;}
@@ -274,7 +294,7 @@ const FIREBASE_CONFIG = {
   appId: "PASTE_APP_ID"
 };
 // Must match the admin emails listed in firestore.rules
-const ADMIN_EMAILS = ["salvationchapelmedia@gmail.com"];
+const ADMIN_EMAILS = ["holybone2000@gmail.com"];
 const DEMO = FIREBASE_CONFIG.apiKey.indexOf('PASTE') === 0;
 const DEMO_ADMIN = 'demo@church.test';
 
@@ -707,18 +727,71 @@ async function submitBooking(){
   }catch(e){ showMsg(friendlyError(e),'err'); renderAll(); }
   finally{ btn.disabled=false; renderBar(); }
 }
+function buildCardHTML(ref, roomName, spaceText, nightsArr, name, status){
+  const isPending = status==='pending';
+  const stBadge = isPending
+    ? '<span style="display:inline-block;padding:3px 10px;background:rgba(212,160,23,.25);color:#F5D282;border-radius:20px;font-size:12px;font-weight:800;margin-bottom:10px;">Awaiting confirmation</span>'
+    : '<span style="display:inline-block;padding:3px 10px;background:rgba(46,125,91,.4);color:#7DE8B6;border-radius:20px;font-size:12px;font-weight:800;margin-bottom:10px;">\u2713 Confirmed</span>';
+  return '<div class="bkcard">'
+    +'<div class="bchead">Salvation Chapel \u00b7 Camp House</div>'
+    +stBadge
+    +'<div class="bcref">'+esc(ref)+'</div>'
+    +'<div class="bcroom">'+esc(roomName)+'</div>'
+    +'<div class="bcdetail">'+esc(spaceText)+'<br>'+nightsArr.map(n=>esc(dayLabel(n))).join(', ')+'</div>'
+    +'<div class="bcname">'+esc(name)+'</div>'
+    +'<div class="bcnote">Screenshot this card and save it to WhatsApp. Show the reference at the camp house. To cancel, open the booking app and tap Cancel.</div>'
+    +'</div>';
+}
+
+function cardShareText(ref, roomName, spaceText, nightsArr, name, campName, status){
+  const lines=[
+    (status==='pending'?'\uD83C\uDFD5\uFE0F CAMP HOUSE BOOKING REQUEST':'\uD83C\uDFD5\uFE0F CAMP HOUSE BOOKING CONFIRMED'),
+    '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501',
+    'Reference: *'+ref+'*',
+    'Name: '+name,
+    'Room: '+roomName,
+    'Space: '+spaceText,
+    'Nights: '+nightsArr.map(dayLabel).join(', '),
+    '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501',
+    'Camp: '+(campName||'Salvation Chapel Annual Camp'),
+    (status==='pending'?'Status: Awaiting approval. Your space is held.':'Status: Confirmed \u2705 Show this at the camp house.')
+  ];
+  return lines.join('\n');
+}
+
 function showNotice(status, s){
   const b = {bedType:s.bedType, assign:s.assign};
   const wait = status==='pending';
-  let wa='';
+  const spaceText = slotText(b);
+  const name = (form.name||'').trim() || ($('fName')&&$('fName').value.trim()||'');
+  const cardHTML = buildCardHTML(s.ref, s.room.name, spaceText, s.nights, name, status);
+  const shareText = cardShareText(s.ref, s.room.name, spaceText, s.nights, name, CAMP&&CAMP.name, status);
+  const shareHref = 'https://wa.me/?text='+encodeURIComponent(shareText);
+
+  // Auto-notify coordinator on WhatsApp immediately
   if(CAMP && CAMP.whatsapp){
-    const text = 'Hello, I have '+(wait?'requested':'booked')+' at the camp house. Ref '+s.ref+': '+s.room.name+', '+slotText(b)+', '+s.nights.map(dayLabel).join(', ')+'.';
-    wa = '<a class="btn wa small" target="_blank" rel="noopener" href="https://wa.me/'+esc(CAMP.whatsapp)+'?text='+encodeURIComponent(text)+'">Message the coordinator</a>';
+    const coordText = '\uD83D\uDD14 *New camp house booking request*\n'
+      +'Reference: *'+s.ref+'*\n'
+      +'Name: '+name+'\n'
+      +'Phone: '+normPhone(($('fPhone')&&$('fPhone').value)||form.phone||'')+'\n'
+      +'Room: '+s.room.name+'\n'
+      +'Space: '+spaceText+'\n'
+      +'Nights: '+s.nights.map(dayLabel).join(', ')+'\n'
+      +(form.party&&form.party.length?'Party: '+(form.party.length+1)+' people\n':'')
+      +'\u2192 Open the booking app Admin tab to approve or decline.';
+    setTimeout(()=>{ window.open('https://wa.me/'+intlPhone(CAMP.whatsapp)+'?text='+encodeURIComponent(coordText),'_blank'); },800);
   }
-  setHTML($('statusBox'), '<div class="card notice '+(wait?'wait':'')+'"><h2>'+(wait?'Request received &#10003;':'You are booked &#10003;')+'</h2><div class="ref">'+esc(s.ref)+'</div>'
-    +'<p style="margin:0 0 8px;font-size:15px;"><b>'+esc(s.room.name)+'</b> &middot; '+esc(slotText(b))+'<br>'+s.nights.map(n=>esc(dayLabel(n))).join(', ')+'</p>'
-    +(wait?'<p style="margin:0 0 8px;font-size:14px;">Your space is being held. The coordinator will approve it and you will get a confirmation here and on WhatsApp.</p>':'<p style="margin:0 0 8px;font-size:14px;">Show this reference at the camp house.</p>')
-    +wa+'<p class="tiny">Screenshot this page and keep your reference.</p></div>');
+
+  setHTML($('statusBox'),
+    '<div class="card notice '+(wait?'wait':'')+'">'
+    +'<h2 style="margin-bottom:6px;">'+(wait?'Request received \u2713':'You are booked \u2713')+'</h2>'
+    +(wait?'<p style="margin:0 0 12px;font-size:14px;">Your space is held while the coordinator approves it. You will see a confirmation here the moment they approve.</p>':'')
+    +cardHTML
+    +'<div class="bkshare-row">'
+    +'<a class="btn wa" target="_blank" rel="noopener" href="'+esc(shareHref)+'">\uD83D\uDCF1 Save this card to WhatsApp</a>'
+    +'</div>'
+    +'<p class="tiny" style="margin-top:8px;">The coordinator has been notified. Screenshot this page or tap the button above to keep a copy.</p>'
+    +'</div>');
   window.scrollTo(0,0);
 }
 function notifyStatusChanges(){
@@ -727,8 +800,19 @@ function notifyStatusChanges(){
     MINE.forEach(b=>{
       if(prevStatus[b.id]==='pending' && b.status==='approved'){
         const room = roomById(b.roomId)||{name:b.roomId};
-        setHTML($('statusBox'), '<div class="card notice"><h2>Approved &#10003; Your booking is confirmed</h2><div class="ref">'+esc(b.ref)+'</div>'
-          +'<p style="margin:0 0 8px;font-size:15px;"><b>'+esc(room.name)+'</b> &middot; '+esc(slotText(b))+'<br>'+b.nights.map(n=>esc(dayLabel(n))).join(', ')+'</p><p style="margin:0;font-size:14px;">Show this reference at the camp house.</p></div>');
+        const spaceText = slotText(b);
+        const memberName = b.name||'';
+        const cardHTML = buildCardHTML(b.ref, room.name, spaceText, b.nights||[], memberName, 'approved');
+        const shareText = cardShareText(b.ref, room.name, spaceText, b.nights||[], memberName, CAMP&&CAMP.name, 'approved');
+        const shareHref = 'https://wa.me/?text='+encodeURIComponent(shareText);
+        setHTML($('statusBox'),
+          '<div class="card notice"><h2 style="margin-bottom:6px;">Approved ✓ Your booking is confirmed</h2>'
+          +cardHTML
+          +'<div class="bkshare-row">'
+          +'<a class="btn wa" target="_blank" rel="noopener" href="'+esc(shareHref)+'">&#128247; Save confirmed card to WhatsApp</a>'
+          +'</div>'
+          +'<p class="tiny" style="margin-top:8px;">Show this reference at the camp house.</p>'
+          +'</div>');
         window.scrollTo(0,0);
       } else if(prevStatus[b.id]==='pending' && b.status==='declined'){
         setHTML($('statusBox'), '<div class="card notice bad"><h2>Request not approved</h2><p style="margin:0;font-size:14px;">Reference '+esc(b.ref)+' was not approved and the space has been released. Please contact the camp coordinator.</p></div>');
