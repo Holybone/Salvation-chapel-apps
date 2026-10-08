@@ -1174,7 +1174,11 @@ function friendlyError(e){
   const m = String(e && e.message || e);
   if(m.indexOf('FULL:')===0) return 'Sorry, that space was just taken for '+dayLabel(m.slice(5))+'. The list has refreshed, please choose another.';
   if(m.indexOf('NOT_OPEN:')===0) return 'Booking is not open for '+dayLabel(m.slice(9))+' yet.';
-  if(m.toLowerCase().indexOf('permission')>=0) return 'The booking was refused. If you chose a council room, your number may not be on the council list.';
+  if(m.toLowerCase().indexOf('permission')>=0){
+    // permission-denied can mean: (a) council room and number not on list,
+    // or (b) the Firestore rules blocked the avail update — tell the user clearly
+    return 'The booking could not be saved. Please check your internet connection and try again. If the problem continues, contact the camp coordinator and quote reference error: permission.';
+  }
   return 'Something went wrong: '+m;
 }
 async function submitBooking(){
