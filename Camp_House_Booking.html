@@ -793,6 +793,7 @@ let unsubMine=null, unsubAdmin=[], listenersStarted=false, liveOK=true, prevStat
 const form = {name:'', phone:'', gender:'', party:[], nights:[], roomId:null, bedType:null};
 const allNights = () => CAMP ? CAMP.nights : [];
 const roomGender = r => (CAMP && CAMP.roomGender && CAMP.roomGender[r.id]) || r.defaultGender;
+const isCouncilOpen = r => r.council && CAMP && Array.isArray(CAMP.openRooms) && CAMP.openRooms.indexOf(r.id) >= 0;
 const nightsFor = r => form.nights;
 const needsApproval = () => !(CAMP && CAMP.requireApproval===false);
 
@@ -826,7 +827,7 @@ function roomAccess(room){
   if(!form.gender) return {ok:false, hidden:true, why:''};
   const pi = partyInfo(); const g = roomGender(room);
   if(g!=='any' && pi.genders.some(x=>x!==g)) return {ok:false, hidden:true, why: g==='F' ? 'For women only.' : 'For men only.'};
-  if(room.council){
+  if(room.council && !isCouncilOpen(room)){
     if(pi.need>1) return {ok:false, why:'Council rooms are booked one person at a time.'};
     if(!validPhone(normPhone(form.phone))) return {ok:false, why:'Enter your phone number above to check council access.'};
     if(COUNCIL===null) return {ok:false, why:'Checking the council list...'};
@@ -910,7 +911,8 @@ function renderPubDash(){
         for(let i=0;i<a0.capBed;i++) slotRows+=mkRow('bed',i);
         for(let i=0;i<a0.capFloor;i++) slotRows+=mkRow('floor',i);
       }
-      const g=roomGender(room), gTag=g==='F'?'Women':g==='M'?'Men':'All';
+      const g=roomGender(room);
+      const gTag = room.council ? (isCouncilOpen(room)?'Open to all':'Council') : (g==='F'?'Women':g==='M'?'Men':'All');
       const legend='<div style="font-size:12px;color:var(--muted);margin-bottom:10px;display:flex;gap:12px;flex-wrap:wrap;">'
         +'<span><span style="display:inline-block;width:12px;height:12px;border-radius:3px;border:1.5px solid #9ED0B8;background:rgba(29,122,82,.07);margin-right:4px;vertical-align:middle;"></span>Free</span>'
         +'<span><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#9ED0B8;border:1.5px solid var(--ok);margin-right:4px;vertical-align:middle;"></span>Booked</span>'
@@ -1034,7 +1036,9 @@ function renderRooms(){
   setHTML(box, '<div class="rooms-wrap">'+list.map(x=>{
     const room=x.room, f=x.f, access=x.access;
     const g = roomGender(room);
-    const badge = room.council ? 'Council &middot; '+(g==='F'?'Women':g==='M'?'Men':'Any') : (g==='F'?'Women':g==='M'?'Men':'Men or women');
+    const badge = room.council
+      ? (isCouncilOpen(room) ? 'Open to all · '+(g==='F'?'Women':g==='M'?'Men':'Any') : 'Council · '+(g==='F'?'Women':g==='M'?'Men':'Any'))
+      : (g==='F'?'Women':g==='M'?'Men':'Men or women');
     const sel = form.roomId===room.id;
     const canPick = access.ok && x.nights.length>0 && !(CAMP.open===false);
     let body;
@@ -1504,7 +1508,12 @@ function adminRoomsHTML(){
         const c=grid[r.id][n][x[1]][x[2]];
         return c?'<td class="occ '+esc(c.status)+' '+esc(c.gender)+'" title="'+esc(c.name)+' ('+esc(c.ref)+')">'+esc(shortName(c.name))+'</td>':'<td class="free">free</td>';
       }).join('')+'</tr>').join('');
-      detail='<p class="tiny" style="margin:0 0 8px;">Green = approved · Dashed gold = awaiting approval · Pink edge = female · Blue edge = male · Hover/tap cell for name.</p>'
+      const isOpen = isCouncilOpen(r);
+      const openBtn = r.council
+        ? '<button type="button" class="btn '+(isOpen?'danger':'ok')+' small" style="margin-bottom:10px;" data-toggleopen="'+r.id+'">'
+          +(isOpen?'🔒 Close to council members only':'🔓 Open to all members — council slots are free')+'</button>'
+        : '';
+      detail= openBtn + '<p class="tiny" style="margin:0 0 8px;">Green = approved · Dashed gold = awaiting approval · Pink edge = female · Blue edge = male · Hover/tap cell for name.</p>'
         +'<div class="scroll"><table class="g">'+head+trs+'</table></div>';
     }
   }
@@ -1658,6 +1667,16 @@ $('adminBody').addEventListener('change', e=>{
   if(e.target.id==='bkStatus'){ statusFilter=e.target.value; renderBookingList(); }
 });
 $('adminBody').addEventListener('click', async e=>{
+  // Toggle council room open/closed
+  const tog = e.target.closest && e.target.closest('button[data-toggleopen]');
+  if(tog){
+    const roomId = tog.getAttribute('data-toggleopen');
+    const current = (CAMP && Array.isArray(CAMP.openRooms)) ? CAMP.openRooms.slice() : [];
+    const idx = current.indexOf(roomId);
+    if(idx>=0) current.splice(idx,1); else current.push(roomId);
+    await db.doc('camp/current').update({openRooms: current});
+    return;
+  }
   const ar = e.target.closest && e.target.closest('button[data-adminroom]');
   if(ar){ selectedAdminRoom = selectedAdminRoom===ar.getAttribute('data-adminroom')?null:ar.getAttribute('data-adminroom'); renderAdmin(); return; }
   const t = e.target.closest('button'); if(!t) return;
