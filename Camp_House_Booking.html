@@ -368,6 +368,32 @@ textarea{min-height:88px;}
 /* ═══════════════════════════════════════
    PUBLIC DASHBOARD
 ═══════════════════════════════════════ */
+/* ── Dashboard room picker ── */
+.pd-picker{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;}
+.pd-chip{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:10px 14px;border-radius:999px;border:2px solid var(--line);
+  background:var(--white);font-size:13.5px;font-weight:700;
+  color:var(--navy);cursor:pointer;transition:all .15s;
+  font-family:'Inter',sans-serif;
+}
+.pd-chip:active{transform:scale(.96);}
+.pd-chip .pd-icon{font-size:16px;}
+.pd-chip .pd-free{font-size:11px;font-weight:600;padding:2px 7px;border-radius:999px;margin-left:2px;}
+.pd-chip .pd-free.ok{background:var(--ok-bg);color:var(--ok);}
+.pd-chip .pd-free.low{background:var(--warn-bg);color:var(--warn);}
+.pd-chip .pd-free.full{background:var(--bad-bg);color:var(--bad);}
+.pd-chip.active{background:var(--navy);border-color:var(--navy);color:#fff;}
+.pd-chip.active .pd-free.ok{background:rgba(255,255,255,.2);color:#fff;}
+.pd-chip.active .pd-free.low{background:rgba(255,255,255,.2);color:#fff;}
+.pd-chip.active .pd-free.full{background:rgba(255,255,255,.15);color:rgba(255,255,255,.85);}
+.pd-prompt{
+  text-align:center;padding:24px 16px;
+  color:var(--muted);font-size:14px;
+  border:2px dashed var(--line);border-radius:var(--r);
+  background:var(--ivory);
+}
+.pd-prompt .pd-big{font-size:32px;display:block;margin-bottom:8px;}
 #pubDash{margin:14px 0;}
 .pdcard{
   background:var(--white);border:1px solid var(--line);border-radius:var(--r-lg);
@@ -700,6 +726,7 @@ const stamp = () => DEMO ? Date.now() : firebase.firestore.FieldValue.serverTime
 
 /* ---------- state ---------- */
 let CAMP=null, AVAIL={}, COUNCIL=null, MINE=[], ALLB=[], COUNCIL_LIST=[];
+let selectedDashRoom=null;
 let IS_ADMIN=false, adminOpen=false, adminTab='requests', bookingFilter='', statusFilter='all';
 let unsubMine=null, unsubAdmin=[], listenersStarted=false, liveOK=true, prevStatus=null;
 const form = {name:'', phone:'', gender:'', party:[], nights:[], roomId:null, bedType:null};
@@ -768,51 +795,79 @@ function roomIcon(id){
 function renderPubDash(){
   const box = $('pubDash');
   if(!CAMP || !Object.keys(AVAIL).length){ setHTML(box,''); return; }
-  const cards = ROOMS.map(room=>{
-    // Night columns
-    const nightCols = CAMP.nights.map(n=>{
-      const a=AVAIL[room.id+'_'+n];
-      if(!a) return '<div class="pdnight low"><span class="pdn-label">'+esc(dayLabel(n).split(' ')[0])+'</span><span class="pdn-count">?</span><span class="pdn-sub">unknown</span></div>';
-      const free = freeOf(a,'bed')+freeOf(a,'floor');
-      const total = a.capBed+a.capFloor;
-      const cls = free<=0?'full':free<=2?'low':'ok';
-      return '<div class="pdnight '+cls+'"><span class="pdn-label">'+esc(dayLabel(n).split(' ')[0]+' '+dayLabel(n).split(' ')[1])+'</span><span class="pdn-count">'+(free<=0?'Full':free+' free')+'</span><span class="pdn-sub">of '+total+'</span></div>';
-    }).join('');
-    // Slot rows
-    const n0 = CAMP.nights[0]; const a0 = AVAIL[room.id+'_'+n0];
-    let slotRows = '';
-    if(a0){
-      const capB=a0.capBed, capF=a0.capFloor;
-      const mkRow = (label,type,idx)=>{
-        const dots = CAMP.nights.map(n=>{
-          const av=AVAIL[room.id+'_'+n]; if(!av) return '<div class="sslot free" title="unknown"></div>';
-          const slotKey=type==='bed'?'bedSlots':'floorSlots';
-          const slots=av[slotKey]||[];
-          // Look up if this slot is taken, pending or free
-          const bookingId = slots[idx];
-          if(!bookingId) return '<div class="sslot free" title="free"></div>';
-          // Check approval status from ALLB (admin only) or just show taken
-          const bk = ALLB.find(b=>b.id===bookingId);
-          const cls = bk ? (bk.status==='pending'?'pending':'taken') : 'taken';
-          return '<div class="sslot '+cls+'" title="'+(cls==='pending'?'Awaiting approval':'Occupied')+'"></div>';
-        }).join('');
-        return '<div class="pdrow"><span class="sname">'+(type==='bed'?'Bed':'Floor')+' '+(idx+1)+'</span><div class="sbar">'+dots+'</div></div>';
-      };
-      for(let i=0;i<capB;i++) slotRows+=mkRow('Bed '+i,'bed',i);
-      for(let i=0;i<capF;i++) slotRows+=mkRow('Floor '+i,'floor',i);
-    }
-    const g=roomGender(room);
-    const gTag=g==='F'?'Women':g==='M'?'Men':'All';
-    return '<div class="pdcard r-'+room.id+'"><h3><span class="icon">'+roomIcon(room.id)+'</span>'+esc(room.name)+'<span class="badge '+(room.council?'council':'')+'">'+gTag+'</span></h3>'
-      +'<div class="pdnights">'+nightCols+'</div>'
-      +slotRows+'</div>';
+
+  // Build a free-count summary per room (across all nights, worst night)
+  function roomFreeCount(room){
+    let mn=Infinity;
+    CAMP.nights.forEach(n=>{ const a=AVAIL[room.id+'_'+n]; if(a){ const f=freeOf(a,'bed')+freeOf(a,'floor'); mn=Math.min(mn,f); } });
+    return mn===Infinity?null:mn;
+  }
+
+  // Room picker chips
+  const pickerChips = ROOMS.map(room=>{
+    const free = roomFreeCount(room);
+    const total = room.beds+room.floor;
+    const cls = free===null?'low':free<=0?'full':free<=2?'low':'ok';
+    const freeLabel = free===null?'?':free<=0?'Full':free+' free';
+    const isActive = selectedDashRoom===room.id;
+    return '<button type="button" class="pd-chip'+(isActive?' active':'')+'" data-pdroom="'+room.id+'">'
+      +'<span class="pd-icon">'+roomIcon(room.id)+'</span>'
+      +esc(room.name)
+      +'<span class="pd-free '+cls+'">'+freeLabel+'</span>'
+      +'</button>';
   }).join('');
-  const legend='<div style="font-size:12px;color:var(--muted);margin-bottom:10px;display:flex;gap:10px;flex-wrap:wrap;">'
-    +'<span><span class="sslot free" style="display:inline-block;width:12px;height:12px;border-radius:3px;border:1.5px solid #C5D5BF;margin-right:4px;"></span>Free</span>'
-    +'<span><span class="sslot taken" style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#B8D4C8;border:1.5px solid #7BAF9A;margin-right:4px;"></span>Booked</span>'
-    +'<span><span class="sslot pending" style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#F5E0A0;border:1.5px dashed #C9A24B;margin-right:4px;"></span>Pending approval</span>'
-    +'</div>';
-  setHTML(box,'<div class="card"><h2>🏕️ Room availability</h2><p style="font-size:13px;color:var(--muted);margin:0 0 12px;">Live view of every space. Names are not shown here.</p>'+legend+cards+'</div>');
+
+  // Selected room card
+  let cardHTML = '';
+  if(!selectedDashRoom){
+    cardHTML = '<div class="pd-prompt"><span class="pd-big">🏕️</span>Select a room above to see live slot availability.</div>';
+  } else {
+    const room = roomById(selectedDashRoom);
+    if(room){
+      const n0=CAMP.nights[0], a0=AVAIL[room.id+'_'+n0];
+      const nightCols = CAMP.nights.map(n=>{
+        const a=AVAIL[room.id+'_'+n];
+        if(!a) return '<div class="pdnight low"><span class="pdn-label">'+esc(dayLabel(n).split(' ')[0])+'</span><span class="pdn-count">?</span><span class="pdn-sub">unknown</span></div>';
+        const free=freeOf(a,'bed')+freeOf(a,'floor'), total=a.capBed+a.capFloor;
+        const cls=free<=0?'full':free<=2?'low':'ok';
+        return '<div class="pdnight '+cls+'"><span class="pdn-label">'+esc(dayLabel(n).split(' ')[0]+' '+dayLabel(n).split(' ')[1])+'</span><span class="pdn-count">'+(free<=0?'Full':free+' free')+'</span><span class="pdn-sub">of '+total+'</span></div>';
+      }).join('');
+      let slotRows='';
+      if(a0){
+        const mkRow=(type,idx)=>{
+          const dots=CAMP.nights.map(n=>{
+            const av=AVAIL[room.id+'_'+n]; if(!av) return '<div class="sslot free" title="unknown"></div>';
+            const slotKey=type==='bed'?'bedSlots':'floorSlots';
+            const bookingId=(av[slotKey]||[])[idx];
+            if(!bookingId) return '<div class="sslot free" title="Free"></div>';
+            const bk=ALLB.find(b=>b.id===bookingId);
+            const sc=bk?(bk.status==='pending'?'pending':'taken'):'taken';
+            return '<div class="sslot '+sc+'" title="'+(sc==='pending'?'Awaiting approval':'Occupied')+'"></div>';
+          }).join('');
+          return '<div class="pdrow"><span class="sname">'+(type==='bed'?'Bed':'Floor')+' '+(idx+1)+'</span><div class="sbar">'+dots+'</div></div>';
+        };
+        for(let i=0;i<a0.capBed;i++) slotRows+=mkRow('bed',i);
+        for(let i=0;i<a0.capFloor;i++) slotRows+=mkRow('floor',i);
+      }
+      const g=roomGender(room), gTag=g==='F'?'Women':g==='M'?'Men':'All';
+      const legend='<div style="font-size:12px;color:var(--muted);margin-bottom:10px;display:flex;gap:12px;flex-wrap:wrap;">'
+        +'<span><span style="display:inline-block;width:12px;height:12px;border-radius:3px;border:1.5px solid #9ED0B8;background:rgba(29,122,82,.07);margin-right:4px;vertical-align:middle;"></span>Free</span>'
+        +'<span><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#9ED0B8;border:1.5px solid var(--ok);margin-right:4px;vertical-align:middle;"></span>Booked</span>'
+        +'<span><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#F5E0A0;border:1.5px dashed var(--gold);margin-right:4px;vertical-align:middle;"></span>Awaiting approval</span>'
+        +'</div>';
+      cardHTML = '<div class="pdcard r-'+room.id+'"><h3><span class="icon">'+roomIcon(room.id)+'</span>'+esc(room.name)+'<span class="badge '+(room.council?'council':'')+'">'+gTag+'</span></h3>'
+        +legend+'<div class="pdnights">'+nightCols+'</div>'+slotRows+'</div>';
+    }
+  }
+
+  setHTML(box,
+    '<div class="card">'
+    +'<h2 style="margin-bottom:4px;">View available slots</h2>'
+    +'<p style="font-size:13px;color:var(--muted);margin:0 0 14px;">Live view — no names shown. Tap a room to check it.</p>'
+    +'<div class="pd-picker" id="pdPicker">'+pickerChips+'</div>'
+    +cardHTML
+    +'</div>'
+  );
 }
 
 /* ---------- Audit history helpers ---------- */
@@ -1225,6 +1280,11 @@ $('partyRows').addEventListener('click', e=>{
   const b = e.target.closest('.premove'); if(!b) return;
   form.party.splice(+b.closest('.prow').getAttribute('data-i'),1);
   renderPartyRows(); renderAll();
+});
+$('pubDash').addEventListener('click', e=>{
+  const b = e.target.closest('button[data-pdroom]'); if(!b) return;
+  selectedDashRoom = selectedDashRoom===b.getAttribute('data-pdroom') ? null : b.getAttribute('data-pdroom');
+  renderPubDash();
 });
 $('nightChips').addEventListener('click', e=>{
   const b = e.target.closest('button[data-night]'); if(!b || b.disabled) return;
