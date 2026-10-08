@@ -727,6 +727,7 @@ const stamp = () => DEMO ? Date.now() : firebase.firestore.FieldValue.serverTime
 /* ---------- state ---------- */
 let CAMP=null, AVAIL={}, COUNCIL=null, MINE=[], ALLB=[], COUNCIL_LIST=[];
 let selectedDashRoom=null;
+let selectedAdminRoom=null;
 let IS_ADMIN=false, adminOpen=false, adminTab='requests', bookingFilter='', statusFilter='all';
 let unsubMine=null, unsubAdmin=[], listenersStarted=false, liveOK=true, prevStatus=null;
 const form = {name:'', phone:'', gender:'', party:[], nights:[], roomId:null, bedType:null};
@@ -1401,21 +1402,55 @@ function adminRequestsHTML(){
 function adminRoomsHTML(){
   if(!CAMP) return '<div class="card"><p>No camp has been created yet. Open the Setup tab to create one.</p></div>';
   const grid = buildGrid();
-  const totals = CAMP.nights.map(n=>{ let u=0,c=0; ROOMS.forEach(r=>{ const a=AVAIL[r.id+'_'+n]; if(a){ c+=a.capBed+a.capFloor; u+=(a.capBed-freeOf(a,'bed'))+(a.capFloor-freeOf(a,'floor')); } }); return '<span class="nstat '+(u>=c&&c?'full':u>=c-6?'low':'ok')+'">'+esc(dayLabel(n))+' &middot; '+u+' of '+c+' used</span>'; }).join('');
-  const rooms = ROOMS.map(r=>{
-    const a0 = AVAIL[r.id+'_'+CAMP.nights[0]]; const capB = a0?a0.capBed:r.beds, capF = a0?a0.capFloor:r.floor;
-    const rows = [];
-    for(let i=0;i<capB;i++) rows.push(['Bed '+(i+1),'bed',i]);
-    for(let i=0;i<capF;i++) rows.push(['Floor '+(i+1),'floor',i]);
-    const head = '<tr><th>Space</th>'+CAMP.nights.map(n=>'<th>'+esc(dayLabel(n))+'</th>').join('')+'</tr>';
-    const trs = rows.map(x=>'<tr><th>'+x[0]+'</th>'+CAMP.nights.map(n=>{
-      const c = grid[r.id][n][x[1]][x[2]];
-      return c ? '<td class="occ '+esc(c.status)+' '+esc(c.gender)+'" title="'+esc(c.name)+' ('+esc(c.ref)+')">'+esc(shortName(c.name))+'</td>' : '<td class="free">free</td>';
-    }).join('')+'</tr>').join('');
-    return '<div class="room-block"><h3>'+esc(r.name)+'</h3><div class="scroll"><table class="g">'+head+trs+'</table></div></div>';
+
+  // Totals strip — always visible so admin sees overall picture instantly
+  const totals = CAMP.nights.map(n=>{
+    let u=0,c=0;
+    ROOMS.forEach(r=>{ const a=AVAIL[r.id+'_'+n]; if(a){ c+=a.capBed+a.capFloor; u+=(a.capBed-freeOf(a,'bed'))+(a.capFloor-freeOf(a,'floor')); } });
+    return '<span class="nstat '+(u>=c&&c?'full':u>=c-6?'low':'ok')+'">'+esc(dayLabel(n))+' · '+u+' of '+c+' used</span>';
   }).join('');
-  return '<div class="card"><h2>Live room view</h2><p class="tiny" style="margin-top:0">Updates the moment anyone books or you approve. Green is approved, dashed gold is waiting for approval. Pink edge is female, blue edge is male.</p><div class="totals">'+totals+'</div></div>'
-    +'<div class="card">'+rooms+'</div>';
+
+  // Room picker chips — same pattern as member dashboard
+  const chips = ROOMS.map(r=>{
+    const a0=AVAIL[r.id+'_'+CAMP.nights[0]];
+    const used = a0 ? (a0.capBed-freeOf(a0,'bed'))+(a0.capFloor-freeOf(a0,'floor')) : 0;
+    const total = a0 ? a0.capBed+a0.capFloor : r.beds+r.floor;
+    const cls = used>=total&&total?'full':used>=total-2?'low':'ok';
+    const label = used>=total&&total?'Full':used+' of '+total+' used';
+    const active = selectedAdminRoom===r.id;
+    return '<button type="button" class="pd-chip'+(active?' active':'')+'" data-adminroom="'+r.id+'">'
+      +'<span class="pd-icon">'+roomIcon(r.id)+'</span>'
+      +esc(r.name)
+      +'<span class="pd-free '+cls+'">'+label+'</span>'
+      +'</button>';
+  }).join('');
+
+  // Selected room detail table — names visible to admin
+  let detail = '<div class="pd-prompt"><span class="pd-big">🏠</span>Select a room above to see who is in each slot.</div>';
+  if(selectedAdminRoom){
+    const r = roomById(selectedAdminRoom);
+    if(r){
+      const a0=AVAIL[r.id+'_'+CAMP.nights[0]];
+      const capB=a0?a0.capBed:r.beds, capF=a0?a0.capFloor:r.floor;
+      const rows=[];
+      for(let i=0;i<capB;i++) rows.push(['Bed '+(i+1),'bed',i]);
+      for(let i=0;i<capF;i++) rows.push(['Floor '+(i+1),'floor',i]);
+      const head='<tr><th>Space</th>'+CAMP.nights.map(n=>'<th>'+esc(dayLabel(n))+'</th>').join('')+'</tr>';
+      const trs=rows.map(x=>'<tr><th>'+x[0]+'</th>'+CAMP.nights.map(n=>{
+        const c=grid[r.id][n][x[1]][x[2]];
+        return c?'<td class="occ '+esc(c.status)+' '+esc(c.gender)+'" title="'+esc(c.name)+' ('+esc(c.ref)+')">'+esc(shortName(c.name))+'</td>':'<td class="free">free</td>';
+      }).join('')+'</tr>').join('');
+      detail='<p class="tiny" style="margin:0 0 8px;">Green = approved · Dashed gold = awaiting approval · Pink edge = female · Blue edge = male · Hover/tap cell for name.</p>'
+        +'<div class="scroll"><table class="g">'+head+trs+'</table></div>';
+    }
+  }
+
+  return '<div class="card"><h2>Live room view</h2>'
+    +'<p class="tiny" style="margin-top:0;margin-bottom:10px;">Updates the moment anyone books or cancels. Tap a room to see who is in each slot.</p>'
+    +'<div class="totals" style="margin-bottom:14px;">'+totals+'</div>'
+    +'<div class="pd-picker">'+chips+'</div>'
+    +detail
+    +'</div>';
 }
 function adminBookingsHTML(){
   const roomOpts = ROOMS.map(r=>'<option value="'+r.id+'">'+esc(r.name)+'</option>').join('');
@@ -1559,6 +1594,8 @@ $('adminBody').addEventListener('change', e=>{
   if(e.target.id==='bkStatus'){ statusFilter=e.target.value; renderBookingList(); }
 });
 $('adminBody').addEventListener('click', async e=>{
+  const ar = e.target.closest && e.target.closest('button[data-adminroom]');
+  if(ar){ selectedAdminRoom = selectedAdminRoom===ar.getAttribute('data-adminroom')?null:ar.getAttribute('data-adminroom'); renderAdmin(); return; }
   const t = e.target.closest('button'); if(!t) return;
   try{
     if(t.id==='csvBtn' || t.id==='csvLive'){ downloadText('camp-bookings.csv', bookingsCSV()); return; }
