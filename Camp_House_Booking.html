@@ -503,6 +503,7 @@ footer.foot a{color:var(--muted);}
 @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
 @media print{body{background:#fff;}.selbar,.demo{display:none;}}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 <!-- In-app browser warning — shown only when opened inside WhatsApp or Facebook -->
@@ -603,6 +604,7 @@ footer.foot a{color:var(--muted);}
         <button class="tab" data-tab="bookings" type="button">Bookings</button>
         <button class="tab" data-tab="council" type="button">Council list</button>
         <button class="tab" data-tab="history" type="button">History</button>
+        <button class="tab" data-tab="analytics" type="button">📊 Analytics</button>
         <button class="tab" data-tab="setup" type="button">Setup</button>
       </div>
       <div id="adminBody"></div>
@@ -1456,6 +1458,7 @@ function renderAdmin(){
   }
   else if(adminTab==='council') setHTML(body, adminCouncilHTML());
   else if(adminTab==='history') setHTML(body, adminHistoryHTML());
+  else if(adminTab==='analytics'){ setHTML(body, adminAnalyticsHTML()); }
   else { if(!$('sName')){ body.innerHTML = adminSetupHTML(); body.__h=null; } }
 }
 function adminRequestsHTML(){
@@ -1531,7 +1534,7 @@ function adminBookingsHTML(){
   return '<div class="card"><h2>All bookings (<span id="bkCount">0</span>)</h2>'
     +'<div class="grid2"><div class="field"><select id="bkStatus"><option value="all">All statuses</option><option value="pending">Awaiting approval</option><option value="approved">Approved</option><option value="declined">Not approved</option><option value="cancelled">Cancelled</option></select></div>'
     +'<div class="field"><input type="text" id="bkSearch" placeholder="Search name, phone, ref"></div></div>'
-    +'<p><button class="btn ghost small" type="button" id="csvBtn">Download CSV</button></p>'
+    +'<p><button class="btn ghost small" type="button" id="csvBtn">Download CSV</button> <button class="btn primary small" type="button" id="xlsxBtnBookings">⬇ Download Excel Report</button></p>'
     +'<div id="bkList"></div></div>'
     +'<div class="card"><h2>Add a booking for someone</h2><p class="tiny" style="margin-top:0">For people without a phone. It is approved straight away. Council limits and gender rules are not applied here, so use your judgement.</p>'
     +'<div class="grid2"><div class="field"><label>Name</label><input type="text" id="addName"></div><div class="field"><label>Phone</label><input type="tel" id="addPhone"></div></div>'
@@ -1580,7 +1583,7 @@ function adminSetupHTML(){
     +'<div class="field"><label>Number of nights</label><select id="sCount">'+[1,2,3,4,5].map(n=>'<option value="'+n+'" '+(n===count?'selected':'')+'>'+n+'</option>').join('')+'</select></div></div>'
     +'<div id="rMsg" class="msg"></div><button class="btn danger" type="button" id="sReset">Start new camp</button></div>'
     +'<div class="card"><h2>Records</h2><p class="tiny" style="margin-top:0">Download everything for reporting and audit.</p>'
-    +'<button class="btn ghost small" type="button" id="csvLive">Download this camp (CSV)</button> <button class="btn ghost small" type="button" id="csvArchive">Download past camps (CSV)</button>'
+    +'<button class="btn ghost small" type="button" id="csvLive">Download this camp (CSV)</button> <button class="btn primary small" type="button" id="xlsxLiveBtn">⬇ Download Excel Report</button> <button class="btn ghost small" type="button" id="csvArchive">Download past camps (CSV)</button>'
     +'<div id="fMsg" class="msg" style="margin-top:8px"></div><hr style="border:none;border-top:1px solid var(--line);margin:14px 0">'
     +'<p class="tiny" style="margin-top:0">If the space counts ever look wrong, this recounts them from the bookings list.</p><button class="btn ghost small" type="button" id="sRecalc">Recalculate availability</button></div>';
 }
@@ -1682,6 +1685,7 @@ $('adminBody').addEventListener('click', async e=>{
   const t = e.target.closest('button'); if(!t) return;
   try{
     if(t.id==='csvBtn' || t.id==='csvLive'){ downloadText('camp-bookings.csv', bookingsCSV()); return; }
+    if(t.id==='xlsxBtnBookings' || t.id==='xlsxLiveBtn' || t.id==='xlsxAnalyticsBtn'){ downloadExcelReport(); return; }
     if(t.id==='csvArchive'){
       const s = await db.collection('archive').get(); const list=[]; s.forEach(d=>list.push(Object.assign({id:d.id},d.data())));
       downloadText('camp-archive.csv', csvFrom(list,true)); say('fMsg','Downloaded '+list.length+' archived booking(s).','ok'); return;
@@ -1736,6 +1740,364 @@ $('adminBody').addEventListener('click', async e=>{
     if(t.id==='sRecalc'){ const n = await recalcAvail(); say('fMsg', n? 'Fixed '+n+' record(s).' : 'All counts were already correct.','ok'); return; }
   }catch(err){ alert(friendlyError(err)); }
 });
+
+/* ============================================================
+   ANALYTICS HELPERS
+   ============================================================ */
+function analyticsData(){
+  const approved = ALLB.filter(b=>b.status==='approved');
+  const cancelled = ALLB.filter(b=>b.status==='cancelled');
+  const declined  = ALLB.filter(b=>b.status==='declined');
+  const total = ALLB.length;
+
+  function getGender(b){
+    const p = (b.people&&b.people.length) ? b.people[0] : {gender:b.gender};
+    return p.gender==='F' ? 'Female' : p.gender==='M' ? 'Male' : 'Unknown';
+  }
+  const female = approved.filter(b=>getGender(b)==='Female').length;
+  const male   = approved.filter(b=>getGender(b)==='Male').length;
+
+  const byRoom = {};
+  ROOMS.forEach(r=>{ byRoom[r.id]={name:r.name, count:0, spaces:0}; });
+  approved.forEach(b=>{
+    if(byRoom[b.roomId]){ byRoom[b.roomId].count++; byRoom[b.roomId].spaces+=(b.partySize||1); }
+  });
+
+  const byNight = {};
+  allNights().forEach(n=>{ byNight[n]=0; });
+  approved.forEach(b=>{ (b.nights||[]).forEach(n=>{ if(byNight[n]!==undefined) byNight[n]++; }); });
+
+  const apprTimes = ALLB
+    .filter(b=>b.createdAt && b.approvedAt)
+    .map(b=>{ const req=tsMillis(b.createdAt), appr=tsMillis(b.approvedAt); return (appr-req)/60000; })
+    .filter(t=>t>0);
+  const avgAppr = apprTimes.length ? apprTimes.reduce((a,b)=>a+b,0)/apprTimes.length : 0;
+
+  const totalCap = ROOMS.reduce((s,r)=>s+r.beds+r.floor, 0);
+  const totalSpaces = approved.reduce((s,b)=>s+(b.partySize||1), 0);
+  const utilPct = totalCap ? totalSpaces/totalCap : 0;
+  const council = approved.filter(b=>roomById(b.roomId)&&roomById(b.roomId).council).length;
+
+  return {total, approved:approved.length, cancelled:cancelled.length, declined:declined.length,
+          female, male, byRoom, byNight, avgAppr, totalSpaces, totalCap, utilPct, council,
+          approvedList:approved, cancelledList:cancelled, declinedList:declined};
+}
+
+/* ── SVG mini-bar chart ── */
+function svgBar(data, colors, width, height){
+  if(!data.length) return '';
+  const max = Math.max(...data.map(d=>d.v), 1);
+  const barW = Math.floor((width - (data.length-1)*4) / data.length);
+  const bars = data.map((d,i)=>{
+    const bh = Math.max(4, Math.round(d.v/max*(height-22)));
+    const x = i*(barW+4), y = height-22-bh;
+    const col = colors[i%colors.length];
+    const lbl = String(d.v);
+    const lblX = x+barW/2;
+    return `<rect x="${x}" y="${y}" width="${barW}" height="${bh}" fill="#${col}" rx="2"/>
+<text x="${lblX}" y="${y-3}" text-anchor="middle" font-size="9" fill="#1E2761" font-weight="600">${lbl}</text>
+<text x="${lblX}" y="${height-6}" text-anchor="middle" font-size="8" fill="#6A6977">${d.l.length>10?d.l.slice(0,10)+'…':d.l}</text>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${width} ${height}" style="width:100%;height:${height}px;">${bars}</svg>`;
+}
+/* ── SVG donut chart ── */
+function svgDonut(slices, size){
+  if(!slices.length) return '';
+  const total = slices.reduce((s,x)=>s+x.v,0); if(!total) return '';
+  const cx=size/2, cy=size/2, r=size*0.38, ir=size*0.22;
+  let angle=-Math.PI/2, paths='';
+  slices.forEach(s=>{
+    const sweep = (s.v/total)*Math.PI*2;
+    const x1=cx+r*Math.cos(angle), y1=cy+r*Math.sin(angle);
+    const x2=cx+r*Math.cos(angle+sweep), y2=cy+r*Math.sin(angle+sweep);
+    const ix1=cx+ir*Math.cos(angle), iy1=cy+ir*Math.sin(angle);
+    const ix2=cx+ir*Math.cos(angle+sweep), iy2=cy+ir*Math.sin(angle+sweep);
+    const la=sweep>Math.PI?1:0;
+    paths+=`<path d="M${ix1},${iy1} L${x1},${y1} A${r},${r},0,${la},1,${x2},${y2} L${ix2},${iy2} A${ir},${ir},0,${la},0,${ix1},${iy1}Z" fill="#${s.c}"/>`;
+    angle+=sweep;
+  });
+  return `<svg viewBox="0 0 ${size} ${size}" style="width:${size}px;height:${size}px;">${paths}</svg>`;
+}
+
+function adminAnalyticsHTML(){
+  if(!CAMP) return '<div class="card"><p>No camp has been created yet.</p></div>';
+  const D = analyticsData();
+  const campName = esc(CAMP.name||'Camp');
+
+  // KPI tiles
+  const kpis = [
+    {icon:'🏕️', label:'Total Bookings', val:D.total,          col:'var(--navy)'},
+    {icon:'✅', label:'Approved',        val:D.approved,       col:'var(--ok)'},
+    {icon:'❌', label:'Cancelled/Declined', val:D.cancelled+D.declined, col:'var(--bad)'},
+    {icon:'🛏️', label:'Spaces Filled',  val:D.totalSpaces,    col:'var(--navy)'},
+    {icon:'👩', label:'Female',          val:D.female,         col:'#8B1A4A'},
+    {icon:'👨', label:'Male',            val:D.male,           col:'#1A3A8B'},
+    {icon:'⚓', label:'Council Bookings',val:D.council,        col:'#4A1A8B'},
+    {icon:'⚡', label:'Avg Approval',    val:D.avgAppr.toFixed(1)+' min', col:'var(--gold-d)'},
+  ];
+  const kpiHTML = '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:16px;">'
+    +kpis.map(k=>`<div style="background:var(--surface2);border-radius:10px;padding:12px;text-align:center;border-top:3px solid ${k.col};">
+      <div style="font-size:22px;">${k.icon}</div>
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:clamp(16px,3.5vw,22px);font-weight:800;color:${k.col};line-height:1.1;">${k.val}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:3px;">${k.label}</div>
+    </div>`).join('')+'</div>';
+
+  // Room bar chart
+  const roomBars = ROOMS.map(r=>({l:r.name.replace(' General Room','').replace(' Room','').replace('Entrance ',''), v:D.byRoom[r.id]?D.byRoom[r.id].count:0}));
+  const roomColors = ['8B1A4A','1A3A8B','4A1A8B','4A1A8B','1A6B3A','1A6B3A'];
+  const roomBarSVG = svgBar(roomBars, roomColors, 380, 120);
+
+  // Gender donut
+  const genderSlices = [{v:D.female, c:'8B1A4A', l:'Female'},{v:D.male, c:'1A3A8B', l:'Male'}];
+  const genderSVG = svgDonut(genderSlices, 90);
+
+  // Status donut
+  const statusSlices = [{v:D.approved,c:'1D7A52'},{v:D.cancelled,c:'A3281F'},{v:D.declined,c:'E57A00'}];
+  const statusSVG = svgDonut(statusSlices, 90);
+
+  // Night bar
+  const nightBars = allNights().map(n=>({l:dayLabel(n).split(' ').slice(0,2).join(' '), v:D.byNight[n]||0}));
+  const nightBarSVG = svgBar(nightBars, ['D4A017','D4A017','D4A017'], 300, 110);
+
+  // Room occupancy table
+  const roomOccRows = ROOMS.map(r=>{
+    const info = D.byRoom[r.id]||{count:0,spaces:0};
+    const cap = r.beds+r.floor;
+    const pct = cap ? Math.round(info.spaces/cap*100) : 0;
+    const bar = `<div style="background:rgba(255,255,255,.1);border-radius:3px;height:6px;width:100%;margin-top:3px;"><div style="background:var(--amber);border-radius:3px;height:6px;width:${pct}%;"></div></div>`;
+    return `<tr>
+      <td style="padding:7px 8px;">${roomIcon(r.id)} ${esc(r.name)}</td>
+      <td style="padding:7px 8px;text-align:center;font-weight:700;color:var(--amber);">${info.count}</td>
+      <td style="padding:7px 8px;text-align:center;">${info.spaces} / ${cap}</td>
+      <td style="padding:7px 8px;min-width:80px;">${pct}%${bar}</td>
+    </tr>`;
+  }).join('');
+
+  // Council notes — generated from live data
+  const util = Math.round(D.utilPct*100);
+  const notes = [
+    ['Attendance', `${D.total} bookings received — ${D.approved} approved (${D.total?Math.round(D.approved/D.total*100):0}%), ${D.cancelled} cancelled, ${D.declined} not approved. ${D.totalSpaces} of ${D.totalCap} spaces filled (${util}% utilisation).`],
+    ['Gender balance', `Female: ${D.female} (${D.approved?Math.round(D.female/D.approved*100):0}%) · Male: ${D.male} (${D.approved?Math.round(D.male/D.approved*100):0}%). ${Math.abs(D.female-D.male)<=2?'Well-balanced.':D.female>D.male?'More women than men attended.':'More men than women attended.'}`],
+    ['Approval speed', `Average approval time: ${D.avgAppr.toFixed(1)} minutes. ${D.avgAppr<10?'Excellent coordinator response.':'Review coordinator response time for next camp.'}`],
+    ['Council rooms', `${D.council} council bookings made. ${ROOMS.filter(r=>r.council).map(r=>`${r.name}: ${(D.byRoom[r.id]||{}).count||0} bookings`).join(' · ')}.`],
+    ['Night pattern', allNights().map(n=>`${dayLabel(n)}: ${D.byNight[n]||0}`).join(' · ')+(Object.values(D.byNight).every(v=>v===Object.values(D.byNight)[0])?' — consistent all nights.':' — some night variation.')],
+  ];
+  const notesHTML = notes.map(([t,b])=>`<div style="margin-bottom:10px;"><div style="font-size:11px;font-weight:700;color:var(--amber);letter-spacing:.06em;">${t.toUpperCase()}</div><div style="font-size:13px;color:var(--ink);margin-top:3px;">${b}</div></div>`).join('');
+
+  return `<div class="card" style="margin-bottom:12px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+    <h2 style="margin:0;">📊 ${campName} · Analytics</h2>
+    <button class="btn gold" type="button" id="xlsxAnalyticsBtn">⬇ Download Excel Report</button>
+  </div>
+  ${kpiHTML}
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+    <div style="background:var(--surface2);border-radius:10px;padding:14px;">
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:10px;">BOOKINGS BY ROOM</div>
+      ${roomBarSVG}
+    </div>
+    <div style="background:var(--surface2);border-radius:10px;padding:14px;">
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;">GENDER SPLIT</div>
+      <div style="display:flex;align-items:center;gap:14px;">
+        ${genderSVG}
+        <div>
+          <div style="font-size:12px;margin:3px 0;"><span style="display:inline-block;width:10px;height:10px;background:#8B1A4A;border-radius:2px;margin-right:6px;"></span>Female: <b>${D.female}</b></div>
+          <div style="font-size:12px;margin:3px 0;"><span style="display:inline-block;width:10px;height:10px;background:#1A3A8B;border-radius:2px;margin-right:6px;"></span>Male: <b>${D.male}</b></div>
+        </div>
+      </div>
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin:12px 0 8px;">BOOKING STATUS</div>
+      <div style="display:flex;align-items:center;gap:14px;">
+        ${statusSVG}
+        <div>
+          <div style="font-size:12px;margin:3px 0;"><span style="display:inline-block;width:10px;height:10px;background:#1D7A52;border-radius:2px;margin-right:6px;"></span>Approved: <b>${D.approved}</b></div>
+          <div style="font-size:12px;margin:3px 0;"><span style="display:inline-block;width:10px;height:10px;background:#A3281F;border-radius:2px;margin-right:6px;"></span>Cancelled: <b>${D.cancelled}</b></div>
+          <div style="font-size:12px;margin:3px 0;"><span style="display:inline-block;width:10px;height:10px;background:#E57A00;border-radius:2px;margin-right:6px;"></span>Not approved: <b>${D.declined}</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="background:var(--surface2);border-radius:10px;padding:14px;margin-bottom:16px;">
+    <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;">ATTENDANCE BY NIGHT</div>
+    ${nightBarSVG}
+  </div>
+  <div style="background:var(--surface2);border-radius:10px;padding:14px;margin-bottom:16px;">
+    <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;">ROOM OCCUPANCY</div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <thead><tr style="color:var(--muted);font-size:11px;font-weight:700;">
+        <th style="padding:6px 8px;text-align:left;">Room</th>
+        <th style="padding:6px 8px;text-align:center;">Bookings</th>
+        <th style="padding:6px 8px;text-align:center;">Spaces Used</th>
+        <th style="padding:6px 8px;">Utilisation</th>
+      </tr></thead>
+      <tbody>${roomOccRows}</tbody>
+    </table>
+  </div>
+  <div style="background:var(--surface2);border-radius:10px;padding:14px;">
+    <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:12px;">COUNCIL NOTES</div>
+    ${notesHTML}
+  </div>
+</div>`;
+}
+
+/* ============================================================
+   EXCEL REPORT GENERATOR  (SheetJS / xlsx.full.min.js)
+   Builds the full workbook in-browser, no server needed.
+   ============================================================ */
+function downloadExcelReport(){
+  if(typeof XLSX === 'undefined'){ alert('Excel library not loaded yet. Please wait a moment and try again.'); return; }
+  if(!ALLB.length){ alert('No bookings to export yet.'); return; }
+  const D = analyticsData();
+  const campName = CAMP ? CAMP.name : 'Camp';
+  const nights = allNights();
+  const wb = XLSX.utils.book_new();
+
+  /* ── helpers ── */
+  const N = s => ({v:s, t:'s'});
+  const Num = n => ({v:n, t:'n'});
+  const Pct = n => ({v:n, t:'n', z:'0.0%'});
+  const Bold = v => ({v, t:typeof v==='number'?'n':'s', s:{font:{bold:true}}});
+
+  /* ── Sheet 1: Dashboard summary ── */
+  const dash = [];
+  dash.push([campName+' · Camp House Booking Report']);
+  dash.push(['Salvation Chapel · Foursquare Gospel Church · Ifako-Gbagada']);
+  dash.push([]);
+  dash.push(['OVERVIEW','','','']);
+  dash.push(['Total Bookings', D.total, 'Spaces Filled', D.totalSpaces]);
+  dash.push(['Approved', D.approved, 'Total Capacity', D.totalCap]);
+  dash.push(['Cancelled', D.cancelled, 'Utilisation', D.utilPct]);
+  dash.push(['Not Approved', D.declined, 'Avg Approval (min)', +D.avgAppr.toFixed(1)]);
+  dash.push(['Female', D.female, 'Male', D.male]);
+  dash.push(['Council Bookings', D.council, '', '']);
+  dash.push([]);
+  dash.push(['BOOKINGS BY ROOM','','','']);
+  dash.push(['Room','Bookings','Spaces','% of Total']);
+  ROOMS.forEach(r=>{
+    const info=D.byRoom[r.id]||{count:0,spaces:0};
+    dash.push([r.name, info.count, info.spaces,
+               D.approved ? info.count/D.approved : 0]);
+  });
+  dash.push([]);
+  dash.push(['ATTENDANCE BY NIGHT','']);
+  dash.push(['Night','Bookings']);
+  nights.forEach(n=>dash.push([dayLabel(n), D.byNight[n]||0]));
+  dash.push([]);
+  dash.push(['GENDER BREAKDOWN','']);
+  dash.push(['Female', D.female, 'Male', D.male]);
+  dash.push(['Female %', D.approved?D.female/D.approved:0, 'Male %', D.approved?D.male/D.approved:0]);
+
+  const ws1 = XLSX.utils.aoa_to_sheet(dash);
+  ws1['!cols'] = [{wch:28},{wch:12},{wch:18},{wch:12}];
+  XLSX.utils.book_append_sheet(wb, ws1, 'Dashboard');
+
+  /* ── Sheet 2: All Bookings ── */
+  const bkHdrs = ['Ref','Status','Name','Phone','Gender','Room','Space','Nights','Spaces','Requested','Approved','Approved By'];
+  const bkRows = [bkHdrs];
+  ALLB.slice().sort((a,b)=>(a.roomId+a.name).localeCompare(b.roomId+b.name)).forEach(bk=>{
+    const gender = (bk.people&&bk.people[0]) ? (bk.people[0].gender==='F'?'Female':'Male') : (bk.gender==='F'?'Female':'Male');
+    bkRows.push([bk.ref||'', bk.status||'', bk.name||'', bk.phone||'',
+                 gender, (roomById(bk.roomId)||{name:bk.roomId}).name, slotText(bk),
+                 (bk.nights||[]).map(dayLabel).join(' / '), bk.partySize||1,
+                 tsText(bk.createdAt), tsText(bk.approvedAt), bk.approvedBy||'']);
+  });
+  const ws2 = XLSX.utils.aoa_to_sheet(bkRows);
+  ws2['!cols'] = [{wch:8},{wch:13},{wch:26},{wch:14},{wch:8},{wch:22},{wch:12},{wch:32},{wch:7},{wch:17},{wch:17},{wch:20}];
+  XLSX.utils.book_append_sheet(wb, ws2, 'All Bookings');
+
+  /* ── Sheet 3: Room Occupancy Grid ── */
+  const ROOM_SLOTS = {
+    'fwi':  ['Bed 1','Bed 2','Bed 3','Bed 4','Floor space 1','Floor space 2','Floor space 3','Floor space 4'],
+    'cfm':  ['Bed 1','Bed 2','Bed 3','Bed 4','Floor space 1','Floor space 2','Floor space 3','Floor space 4'],
+    'cf':   ['Bed 1','Bed 2','Floor space 1','Floor space 2','Floor space 3'],
+    'cm':   ['Floor space 1','Floor space 2','Floor space 3','Floor space 4','Floor space 5'],
+    'lobby':['Floor space 1','Floor space 2','Floor space 3','Floor space 4'],
+    'open': ['Floor space 1','Floor space 2','Floor space 3','Floor space 4','Floor space 5'],
+  };
+  const occMap = {};
+  D.approvedList.forEach(bk=>{
+    const key = bk.roomId;
+    if(!occMap[key]) occMap[key]={};
+    occMap[key][slotText(bk)] = bk.name;
+  });
+  const occ = [['Room','Space','Occupant','Status']];
+  ROOMS.forEach(r=>{
+    const slots = ROOM_SLOTS[r.id]||[];
+    slots.forEach(slot=>{
+      const occupant = (occMap[r.id]||{})[slot] || '';
+      occ.push([r.name, slot, occupant, occupant ? 'Occupied' : 'Free']);
+    });
+  });
+  const ws3 = XLSX.utils.aoa_to_sheet(occ);
+  ws3['!cols'] = [{wch:22},{wch:14},{wch:28},{wch:10}];
+  XLSX.utils.book_append_sheet(wb, ws3, 'Room Occupancy');
+
+  /* ── Sheet 4: Charts data (for Excel to chart itself) ── */
+  const chartsData = [];
+  chartsData.push(['Bookings by Room','','Attendance by Night','','Gender','','Status','']);
+  chartsData.push(['Room','Count','Night','Bookings','Gender','Count','Status','Count']);
+  const maxChartRows = Math.max(ROOMS.length, nights.length, 2, 3);
+  for(let i=0;i<maxChartRows;i++){
+    const r = ROOMS[i]; const n = nights[i];
+    chartsData.push([
+      r ? r.name : '', r ? (D.byRoom[r.id]||{count:0}).count : '',
+      n ? dayLabel(n) : '', n ? (D.byNight[n]||0) : '',
+      i===0?'Female':i===1?'Male':'', i===0?D.female:i===1?D.male:'',
+      i===0?'Approved':i===1?'Cancelled':i===2?'Not Approved':'',
+      i===0?D.approved:i===1?D.cancelled:i===2?D.declined:'',
+    ]);
+  }
+  const ws4 = XLSX.utils.aoa_to_sheet(chartsData);
+  ws4['!cols'] = [{wch:22},{wch:8},{wch:14},{wch:8},{wch:10},{wch:8},{wch:14},{wch:8}];
+  XLSX.utils.book_append_sheet(wb, ws4, 'Charts Data');
+
+  /* ── Sheet 5: Council Notes ── */
+  const util = Math.round(D.utilPct*100);
+  const council_notes = [];
+  council_notes.push([campName+' · Council Analysis Notes']);
+  council_notes.push(['Generated: '+new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})]);
+  council_notes.push([]);
+  const noteItems = [
+    ['ATTENDANCE SUMMARY',
+     `Total of ${D.total} bookings received. ${D.approved} approved (${D.total?Math.round(D.approved/D.total*100):0}%), `+
+     `${D.cancelled} cancelled, ${D.declined} not approved. `+
+     `Total spaces occupied: ${D.totalSpaces} of ${D.totalCap} available (${util}% utilisation).`],
+    ['GENDER BALANCE',
+     `Female attendees: ${D.female} (${D.approved?Math.round(D.female/D.approved*100):0}% of approved). `+
+     `Male attendees: ${D.male} (${D.approved?Math.round(D.male/D.approved*100):0}% of approved). `+
+     `${Math.abs(D.female-D.male)<=2?'Gender split is well balanced.':D.female>D.male?'More women than men attended.':'More men than women attended.'}`],
+    ['COUNCIL ROOM USAGE',
+     `${D.council} council bookings made. `+
+     ROOMS.filter(r=>r.council).map(r=>`${r.name}: ${(D.byRoom[r.id]||{count:0}).count} bookings`).join('. ')+
+     `. Any free council spaces can be opened to general members via the admin panel.`],
+    ['APPROVAL EFFICIENCY',
+     `Average approval time: ${D.avgAppr.toFixed(1)} minutes. `+
+     `${D.avgAppr<10?'Excellent coordinator response — well under 10 minutes.':'Review coordinator response time for future camps.'}`],
+    ['NIGHT DISTRIBUTION',
+     nights.map(n=>`${dayLabel(n)}: ${D.byNight[n]||0} bookings`).join(' · ')+'.' +
+     (Object.values(D.byNight).every(v=>v===Object.values(D.byNight)[0])?' Consistent across all nights — strong commitment to the full programme.':' Night variation noted — review if partial stays need separate coordination.')],
+    ['CAPACITY UTILISATION',
+     `${D.totalSpaces} of ${D.totalCap} spaces filled (${util}%). `+
+     `${util>70?'Strong turnout.':util>40?'Moderate occupancy.':'Lower than expected — consider promotion for next convention.'} `+
+     `Track vacancies per room for right-sizing in future years.`],
+    ['RECOMMENDATIONS FOR NEXT YEAR',
+     '1. Add a check-in confirmation step so the coordinator knows who actually arrived vs who booked.\n'+
+     '2. Send booking link 2 weeks before camp for more lead time.\n'+
+     '3. Consider assigning specific bed numbers in the WhatsApp confirmation message.\n'+
+     '4. Export the CSV after every camp for year-on-year attendance comparison.\n'+
+     '5. Review council room allocation — if spaces remain free at camp start, open them earlier.'],
+  ];
+  noteItems.forEach(([title, body])=>{
+    council_notes.push([title]);
+    council_notes.push([body]);
+    council_notes.push([]);
+  });
+  const ws5 = XLSX.utils.aoa_to_sheet(council_notes);
+  ws5['!cols'] = [{wch:90}];
+  XLSX.utils.book_append_sheet(wb, ws5, 'Council Notes');
+
+  /* ── Download ── */
+  const fname = (CAMP&&CAMP.name ? CAMP.name.replace(/\s+/g,'-') : 'Camp')+'-Booking-Report.xlsx';
+  XLSX.writeFile(wb, fname);
+}
 
 /* ============================================================
    LISTENERS + AUTH
